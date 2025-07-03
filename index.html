@@ -75,13 +75,14 @@
   </style>
 </head>
 <body>
-  <h1 style="background-color: #005E27; color: #B5FF20; padding: 10px; border-radius: 5px; text-align: center;">Projeto SmartSlip - Cronograma de Evolução</h1>
+  <h1 style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
 
   <div style="margin-bottom: 20px; padding: 15px; background-color: #005E27; border-left: 4px solid #B5FF20; border-radius: 5px;">
     <h3 style="color: #B5FF20; margin-top: 0;">Informações do Projeto:</h3>
     <p style="color: #B5FF20;"><strong>Data de Início:</strong> 18/06/2025</p>
     <p style="color: #B5FF20;"><strong>Data de Término:</strong> A Definir</p>
     <p style="color: #B5FF20;"><strong>Dias Úteis (Tempo do Projeto):</strong> 11 dias úteis (até 03/07/2025)</p>
+    <p style="color: #B5FF20; margin-top: 10px;"><strong>Observação Importante:</strong> Devido à natureza do envio dos comprovantes pelas lojas (não garantido como padrão), os processos futuros de integração com o SAP via BigQuery ou similar para conciliação devem ser tratados como alternativos, para auxiliar na validação, e não como o método de conciliação principal.</p>
   </div>
 
   <div style="margin-bottom: 40px; padding: 15px; background-color: #005E27; border-left: 4px solid #B5FF20; border-radius: 5px;">
@@ -150,7 +151,7 @@
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
       <tr><td>3.1</td><td>Estudar o escopo técnico para criação de um aplicativo mobile que permita a leitura dos comprovantes diretamente pelas lojas.</td><td>Semana 7</td></tr>
       <tr><td>3.2</td><td>Construir um MVP do app para Android/iOS com integração de OCR e API de envio para a base central.</td><td>Semana 9</td></tr>
-      <tr><td>3.3</td><td>Definir e implementar controles de acesso, autenticação de usuários e registro de auditoria no app.</td><td>Semana 9</td></tr>
+      <tr><td>3.3</td><td>Definir e implementar controles de acesso, autenticação de usuários e registro de auditoria no app.</td><td>Semana 9</td>
       <tr><td>3.4</td><td>Integrar a plataforma Zenvia para permitir envio de comprovantes via WhatsApp com retorno automatizado da leitura.</td><td>Semana 10</td></tr>
       <tr><td>3.5</td><td>Desenvolver o retorno via bot, com mensagens que mostram a leitura realizada e solicitam dados adicionais, se necessário.</td><td>Semana 11</td></tr>
       <tr><td>3.6</td><td>Implementar e testar interface de complementação via Slack (ex: canal dedicado, mensagens automatizadas ou app dentro do Slack).</td><td>Semana 11</td></tr>
@@ -264,10 +265,10 @@
     <table>
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
       <tr><td>4.1</td><td>Construir integração entre o BigQuery e a base do SAP, possibilitando comparação automatizada dos dados lidos com os registros financeiros.</td><td>Semana 12</td></tr>
-      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td></tr>
-      <tr><td>4.3</td><td>Desenvolver alertas automáticos para divergências ou falhas na conciliação dos dados extraídos com os dados do SAP.</td><td>Semana 13</td></tr>
-      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td></tr>
-      <tr><td>4.5</td><td>Documentar todo o fluxo de dados para uso em auditorias e controles internos.</td><td>Semana 14</td></tr>
+      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td>
+      <tr><td>4.3</td><td>Desenvolver alertas automáticos para divergências ou falhas na conciliação dos dados extraídos com os dados do SAP.</td><td>Semana 13</td>
+      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td>
+      <tr><td>4.5</td><td>Documentar todo o fluxo de dados para uso em auditorias e controles internos.</td><td>Semana 14</td>
     </table>
   </section>
 
@@ -275,7 +276,8 @@
     <h2>📊 Fase 5 - Escala e Evolução</h2>
     <table>
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>5.1</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td></tr>
+      <tr><td>5.1</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td>
+      </tr>
       <tr><td>5.2</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td>
       </tr>
       <tr><td>5.3</td><td>Escalar o projeto para novas lojas ou frentes de negócio (ex: marketplaces, franquias).</td><td>Semana 16+</td>
