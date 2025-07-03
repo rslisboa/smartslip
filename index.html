@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projeto SmartSlip - Cronograma</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f7f7f7;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    .fase {
+      background: #fff;
+      border-left: 6px solid #007BFF;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #007BFF;
+      color: white;
+    }
+    /* Estilos para a nova seção de detalhes do Slack */
+    .slack-detail-section {
+        background-color: #e0f7fa; /* Light blue background */
+        border-left: 6px solid #00BCD4; /* Cyan border */
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .slack-detail-section h3 {
+        font-size: 1.5rem; /* text-2xl */
+        font-weight: 700; /* font-bold */
+        color: #007BFF; /* Blue color for sub-titles */
+        margin-bottom: 15px;
+    }
+    .slack-detail-section h4 {
+        font-size: 1.25rem; /* text-xl */
+        font-weight: 600; /* font-semibold */
+        color: #0056b3; /* Darker blue for sub-sub-titles */
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    .slack-detail-section p, .slack-detail-section ul {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .slack-detail-section ul {
+        list-style: disc;
+        margin-left: 25px;
+    }
+    .slack-detail-section strong {
+        color: #000; /* Ensure bold text is black */
+    }
+  </style>
+</head>
+<body>
+  <h1>Projeto SmartSlip - Cronograma de Evolução</h1>
+
+  <section class="fase">
+    <h2>✨ Fase 1 - Consolidação da POC</h2>
+    <table>
+      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+      <tr><td>1.1</td><td>Revisar os comprovantes de cancelamento, venda, depósito e POS para garantir que os modelos de OCR capturam os campos corretamente.</td><td>Semana 1</td></tr>
+      <tr><td>1.2</td><td>Implementar validações estruturais nos campos extraídos, como formatos de datas, número de loja, e consistência nos valores.</td><td>Semana 2</td></tr>
+      <tr><td>1.3</td><td>Salvar os dados extraídos em uma base no BigQuery, organizando por tipo de comprovante e origem.</td><td>Semana 2</td></tr>
+      <tr><td>1.4</td><td>Gerar relatórios com métricas de acurácia do OCR por tipo de campo e tipo de comprovante.</td><td>Semana 3</td></tr>
+      <tr><td>1.5</td><td>Desenvolver dashboards para monitoramento contínuo da leitura de comprovantes e qualidade dos dados.</td><td>Semana 3</td></tr>
+    </table>
+  </section>
+
+  <section class="fase">
+    <h2>🔄 Fase 2 - Coleta Complementar de Informações</h2>
+    <table>
+      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+      <tr><td>2.1</td><td>Listar campos não contidos nos comprovantes como "Data do movimento" ou "Venda finalizada no mesmo dia?", que precisarão ser preenchidos manualmente.</td><td>Semana 4</td></tr>
+      <tr><td colspan="3">
+        <h3 style="font-weight: bold; margin-top: 15px; margin-bottom: 10px; color: #333;">Exemplos de Campos Complementares:</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Tipo de Comprovante</th>
+              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Campo a Ser Complementado</th>
+              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Canal Sugerido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ccc;">Depósito de numerário</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Data do movimento bancário</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Slack (bot interativo) ou WhatsApp (via Zenvia)</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ccc;">Comprovante de Venda (POS)</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Venda finalizada no mesmo dia? Data finalização? Duplicidade?</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Formulário rápido ou bot com perguntas condicionais</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ccc;">Boleta de POS</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Venda finalizada no mesmo dia? Data finalização? Duplicidade?</td>
+              <td style="padding: 8px; border: 1px solid #ccc;">Mesma lógica acima</td>
+            </tr>
+          </tbody>
+        </table>
+      </td></tr>
+      <tr><td>2.2</td><td>Escolher canais eficientes para que as lojas complementem esses dados: preferencialmente Slack, WhatsApp (Zenvia), ou web form integrado.</td><td>Semana 5</td></tr>
+      <tr><td>2.3</td><td>Desenvolver um bot com linguagem natural para interagir com os usuários e coletar os dados ausentes.</td><td>Semana 6</td></tr>
+      <tr><td>2.4</td><td>Fazer a integração das respostas capturadas via bot diretamente com o BigQuery ou via API de backend, garantindo que a complementação seja registrada.</td><td>Semana 7</td></tr>
+    </table>
+  </section>
+
+  <section class="fase">
+    <h2>📱 Fase 3 - Opções de Interfaces para Lojas</h2>
+    <table>
+      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+      <tr><td>3.1</td><td>Estudar o escopo técnico para criação de um aplicativo mobile que permita a leitura dos comprovantes diretamente pelas lojas.</td><td>Semana 7</td></tr>
+      <tr><td>3.2</td><td>Construir um MVP do app para Android/iOS com integração de OCR e API de envio para a base central.</td><td>Semana 9</td></tr>
+      <tr><td>3.3</td><td>Definir e implementar controles de acesso, autenticação de usuários e registro de auditoria no app.</td><td>Semana 9</td></tr>
+      <tr><td>3.4</td><td>Integrar a plataforma Zenvia para permitir envio de comprovantes via WhatsApp com retorno automatizado da leitura.</td><td>Semana 10</td></tr>
+      <tr><td>3.5</td><td>Desenvolver o retorno via bot, com mensagens que mostram a leitura realizada e solicitam dados adicionais, se necessário.</td><td>Semana 11</td></tr>
+      <tr><td>3.6</td><td>Implementar e testar interface de complementação via Slack (ex: canal dedicado, mensagens automatizadas ou app dentro do Slack).</td><td>Semana 11</td></tr>
+    </table>
+  </section>
+
+  <!-- Nova Seção: Detalhes da Integração Slack e IA -->
+  <section id="slack-ia-details" class="slack-detail-section">
+    <h2>Detalhes da Integração Slack e IA para SmartSlip</h2>
+    <p>Este documento aprofunda o processo de como o Slack seria utilizado como um canal para a coleta de comprovantes e informações complementares, integrando a inteligência artificial (IA) para a leitura e o bot para a interação conversacional, e como esses dados seriam enviados para o BigQuery para posterior confronto com o SAP.</p>
+
+    <h3>1. Envio de Comprovantes pelas Lojas via Slack</h3>
+    <p>As lojas teriam duas principais formas de enviar os comprovantes via Slack:</p>
+    <ul>
+      <li>
+        <h4>1.1. Canal Específico no Slack:</h4>
+        <ul>
+          <li><strong>Criação de Canais:</strong> Seria criado um canal dedicado por loja (ex: `#comprovantes-loja-centauro-001`) ou um canal centralizado com identificação da loja na mensagem. A primeira opção oferece maior organização e privacidade.</li>
+          <li><strong>Envio Direto:</strong> Os gerentes ou responsáveis pela prestação de contas na loja simplesmente arrastariam e soltariam (drag-and-drop) ou fariam upload dos arquivos de imagem (JPEG, PNG) ou PDF dos comprovantes diretamente no canal Slack.</li>
+          <li><strong>Contexto Inicial:</strong> O bot seria configurado para monitorar esses canais. Ao detectar um novo arquivo, ele automaticamente iniciaria o processo de leitura e conversação.</li>
+        </ul>
+      </li>
+      <li>
+        <h4>1.2. Aplicativo (App) do Bot no Slack:</h4>
+        <ul>
+          <li><strong>Interface Simplificada:</strong> Dentro do próprio Slack, o bot poderia ter um "App Home" ou uma interface de mensagem direta (DM) onde o usuário clicaria em um botão "Enviar Comprovante".</li>
+          <li><strong>Fluxo Guiado:</strong> Ao clicar, o bot poderia guiar o usuário com prompts mais específicos, como "Por favor, anexe a imagem do comprovante aqui" ou "Qual o tipo de comprovante (venda, cancelamento, depósito)?", antes mesmo do upload. Isso poderia otimizar a qualidade da entrada de dados.</li>
+          <li><strong>Comandos de Barra:</strong> Poderiam ser implementados comandos de barra (ex: `/smartslip-enviar`) para iniciar o fluxo de envio de comprovantes de forma mais estruturada.</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>2. Atuação do Bot para Conversação e Coleta de Informações Complementares</h3>
+    <p>A inteligência do bot reside em sua capacidade de interagir com o usuário para preencher lacunas na leitura da IA.</p>
+    <ul>
+      <li>
+        <h4>2.1. Detecção e Início da Conversa:</h4>
+        <ul>
+          <li><strong>Gatilho:</strong> Assim que um comprovante é enviado (seja no canal ou via app), o backend do bot (hospedado em uma Cloud Function, por exemplo) é acionado via webhook do Slack.</li>
+          <li><strong>Análise OCR (IA):</strong> O arquivo é imediatamente enviado para a API de OCR (ex: Google Vision AI, Azure Form Recognizer). A IA tenta extrair o máximo de campos possíveis (valor, data, CNPJ, tipo de documento).</li>
+          <li><strong>Identificação de Lacunas:</strong> O backend compara os campos extraídos pela IA com os campos obrigatórios esperados para aquele tipo de comprovante (conforme as regras de negócio definidas na Fase 2 do cronograma). Se houver campos ausentes, inconsistentes ou com baixa confiança na leitura, o bot inicia a conversação.</li>
+        </ul>
+      </li>
+      <li>
+        <h4>2.2. Interação Conversacional com o Usuário:</h4>
+        <ul>
+          <li><strong>Mensagem Inicial:</strong> O bot enviaria uma mensagem no Slack (no canal ou em DM com o usuário que enviou o comprovante) informando sobre a leitura e solicitando os dados faltantes.</li>
+          <li>Exemplo: "Olá! Recebi seu comprovante. Parece ser um 'Comprovante de Venda'. No entanto, não consegui identificar a 'Data de Finalização da Venda'. Você poderia me informar?"</li>
+          <li><strong>Perguntas Estruturadas:</strong> Para campos específicos, o bot pode usar recursos interativos do Slack, como:</li>
+          <li><strong>Botões:</strong> Para respostas Sim/Não ("Esta venda foi finalizada no mesmo dia? [Sim] [Não]").</li>
+          <li><strong>Menus Dropdown:</strong> Para seleção de opções pré-definidas (ex: "Qual a data da finalização? [Data Picker]").</li>
+          <li><strong>Entrada de Texto Livre:</strong> Para informações mais complexas (ex: "Por favor, descreva brevemente o item comprado").</li>
+          <li><strong>Validação em Tempo Real:</strong> O bot tentaria validar as respostas do usuário imediatamente. Se uma data for digitada incorretamente, ele pediria para corrigir.</li>
+          <li><strong>Tratamento de Exceções:</strong> Se o bot não conseguir entender a resposta após algumas tentativas, ele poderia escalar para um humano (ex: "Não entendi sua resposta. Por favor, entre em contato com o Financeiro para auxílio.").</li>
+        </ul>
+      </li>
+      <li>
+        <h4>2.3. Fluxo de Exemplo (Comprovante de Venda POS):</h4>
+        <ol>
+          <li><strong>Usuário:</strong> Envia imagem do comprovante de venda POS para o canal `#comprovantes-loja-xxx`.</li>
+          <li><strong>Bot (Backend):</strong> Recebe o arquivo, envia para OCR. OCR extrai `Valor: R$ 150,00`, `Data: 01/07/2025`.</li>
+          <li><strong>Bot (Backend):</strong> Identifica que "Venda finalizada no mesmo dia?" e "Duplicidade?" são campos complementares necessários.</li>
+          <li><strong>Bot (Slack):</strong> Envia mensagem para o usuário: "Comprovante de Venda lido: Valor R$ 150,00, Data 01/07/2025. Esta venda foi finalizada no mesmo dia? [Sim] [Não]"</li>
+          <li><strong>Usuário:</strong> Clica em "Sim".</li>
+          <li><strong>Bot (Slack):</strong> "Ótimo! Há alguma duplicidade conhecida para esta transação? [Sim] [Não]"</li>
+          <li><strong>Usuário:</strong> Clica em "Não".</li>
+          <li><strong>Bot (Slack):</strong> "Obrigado! Todas as informações foram coletadas e registradas. Você pode ver o status em [link para dashboard]."</li>
+        </ol>
+      </li>
+    </ul>
+
+    <h3>3. Captura e Integração de Informações para BigQuery e SAP</h3>
+    <p>A coleta de dados via Slack é apenas o primeiro passo; a integração robusta é fundamental.</p>
+    <ul>
+      <li>
+        <h4>3.1. Captura de Dados via API (Backend do Bot):</h4>
+        <ul>
+          <li><strong>Eventos do Slack:</strong> As interações do usuário (envio de arquivos, respostas a perguntas, cliques em botões) geram eventos no Slack que são enviados para o endpoint do backend do bot.</li>
+          <li><strong>Processamento no Backend:</strong> O backend do bot (Cloud Function/Lambda) é o ponto central de processamento. Ele recebe:</li>
+          <li>O arquivo do comprovante (via URL temporária do Slack).</li>
+          <li>Os resultados da leitura OCR.</li>
+          <li>As respostas conversacionais do usuário.</li>
+          <li><strong>Estruturação dos Dados:</strong> O backend é responsável por consolidar todas essas informações em um formato estruturado (JSON, por exemplo), que inclui os dados do comprovante, os campos complementares, e metadados como `user_id`, `timestamp_envio`, `canal_slack`, etc.</li>
+        </ul>
+      </li>
+      <li>
+        <h4>3.2. Armazenamento no BigQuery (Base de Dados para Leitura):</h4>
+        <ul>
+          <li><strong>Ingestão Direta:</strong> A forma mais eficiente seria o backend do bot fazer a ingestão direta dos dados estruturados para uma tabela específica no BigQuery. O BigQuery é ideal para grandes volumes de dados e análises posteriores.</li>
+          <li><strong>Esquema de Tabela:</strong> A tabela no BigQuery seria projetada para armazenar todos os campos extraídos pelo OCR, os campos complementares, e o link para o comprovante original (armazenado em um Cloud Storage, por exemplo).</li>
+          <li><strong>Finalidade:</strong> Esta base no BigQuery seria a "fonte da verdade" para os dados dos comprovantes, permitindo que o Financeiro e outras áreas pudessem consultá-los e gerar relatórios.</li>
+        </ul>
+      </li>
+      <li>
+        <h4>3.3. Confronto com SAP (Posterior à Coleta):</h4>
+        <ul>
+          <li><strong>Processo Batch ou Near Real-time:</strong> A integração com o SAP ocorreria em um momento posterior, não necessariamente em tempo real com cada envio de comprovante. Poderia ser um processo diário ou por batelada.</li>
+          <li><strong>BigQuery como Fonte:</strong> O BigQuery seria a fonte primária de dados para o confronto.</li>
+          <li><strong>Regras de Conciliação:</strong> As regras de negócio para conciliação (Fase 4 do cronograma) seriam aplicadas. Por exemplo:</li>
+          <li>Comparar o valor e a data do comprovante lido com as transações registradas no SAP.</li>
+          <li>Verificar se um comprovante de cancelamento no BigQuery corresponde a uma transação cancelada no SAP.</li>
+          <li><strong>Identificação de Divergências:</strong> O sistema identificaria automaticamente as divergências entre os dados do comprovante (BigQuery) e os registros do SAP.</li>
+          <li><strong>Geração de Alertas/Relatórios:</strong> Essas divergências gerariam alertas (enviados para o Financeiro via Slack, e-mail ou dashboard) e relatórios para investigação e ajuste manual no SAP, se necessário.</li>
+          <li><strong>API do SAP (Futuro):</strong> Conforme a Fase 4 do cronograma, a viabilidade de usar a API do SAP para atualizações de status ou busca de dados em tempo real seria analisada, o que poderia automatizar ainda mais o processo de conciliação.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+  <!-- Fim da Nova Seção: Detalhes da Integração Slack e IA -->
+
+  <section class="fase">
+    <h2>⚖️ Fase 4 - Integração com SAP e BigQuery</h2>
+    <table>
+      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+      <tr><td>4.1</td><td>Construir integração entre o BigQuery e a base do SAP, possibilitando comparação automatizada dos dados lidos com os registros financeiros.</td><td>Semana 12</td></tr>
+      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td></tr>
+      <tr><td>4.3</td><td>Desenvolver alertas automáticos para divergências ou falhas na conciliação dos dados extraídos com os dados do SAP.</td><td>Semana 13</td></tr>
+      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td></tr>
+      <tr><td>4.5</td><td>Documentar todo o fluxo de dados para uso em auditorias e controles internos.</td><td>Semana 14</td></tr>
+    </table>
+  </section>
+
+  <section class="fase">
+    <h2>📊 Fase 5 - Escala e Evolução</h2>
+    <table>
+      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
+      <tr><td>5.1</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td></tr>
+      <tr><td>5.2</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td></tr>
+      <tr><td>5.3</td><td>Escalar o projeto para novas lojas ou frentes de negócio (ex: marketplaces, franquias).</td><td>Semana 16+</td></tr>
+      <tr><td>5.4</td><td>Construir indicadores mensais de ROI: tempo economizado, assertividade da IA, redução de erros humanos.</td><td>Mensal</td></tr>
+    </table>
+  </section>
+
+</body>
+</html>
