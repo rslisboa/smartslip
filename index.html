@@ -204,7 +204,7 @@
         </ul>
       </li>
       <li>
-        <h4>2.3. Fluxo de Exemplo (Comprovante de Venda POS):</h4>
+        <h4>2.3.1. Fluxo de Exemplo (Comprovante de Venda POS):</h4>
         <ol>
           <li><strong>Usuário:</strong> Envia imagem do comprovante de venda POS para o canal `#comprovantes-loja-xxx`.</li>
           <li><strong>Bot (Backend):</strong> Recebe o arquivo, envia para OCR. OCR extrai `Valor: R$ 150,00`, `Data: 01/07/2025`.</li>
@@ -214,6 +214,17 @@
           <li><strong>Bot (Slack):</strong> "Ótimo! Há alguma duplicidade conhecida para esta transação? [Sim] [Não]"</li>
           <li><strong>Usuário:</strong> Clica em "Não".</li>
           <li><strong>Bot (Slack):</strong> "Obrigado! Todas as informações foram coletadas e registradas. Você pode ver o status em [link para dashboard]."</li>
+        </ol>
+      </li>
+      <li>
+        <h4>2.3.2. Fluxo de Exemplo (Comprovante de Depósito de Numerário):</h4>
+        <ol>
+          <li><strong>Usuário:</strong> Envia imagem do comprovante de depósito de numerário para o canal `#comprovantes-loja-xxx`.</li>
+          <li><strong>Bot (Backend):</strong> Recebe o arquivo, envia para OCR. OCR extrai `Valor: R$ 500,00`, `Agência: 1234`, `Conta: 56789-0`.</li>
+          <li><strong>Bot (Backend):</strong> Identifica que "Data do movimento bancário" é um campo complementar necessário.</li>
+          <li><strong>Bot (Slack):</strong> Envia mensagem para o usuário: "Comprovante de Depósito lido: Valor R$ 500,00. Por favor, informe a data do movimento bancário (DD/MM/AAAA)."</li>
+          <li><strong>Usuário:</strong> Digita "02/07/2025".</li>
+          <li><strong>Bot (Slack):</strong> "Data do movimento bancário confirmada como 02/07/2025. Obrigado! Todas as informações foram coletadas e registradas. Você pode ver o status em [link para dashboard]."</li>
         </ol>
       </li>
     </ul>
@@ -271,13 +282,12 @@
     <h2>📊 Fase 5 - Escala e Evolução</h2>
     <table>
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>5.1</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td>
+      <tr><td>5.1</td><td>Realizar pilotos com 1 ou 2 lojas para testes iniciais do projeto.</td><td>A definir</td></tr>
+      <tr><td>5.2</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td>
       </tr>
-      <tr><td>5.2</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td>
+      <tr><td>5.3</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td>
       </tr>
-      <tr><td>5.3</td><td>Escalar o projeto para novas lojas ou frentes de negócio (ex: marketplaces, franquias).</td><td>Semana 16+</td>
-      </tr>
-      <tr><td>5.4</td><td>Construir indicadores mensais de ROI: tempo economizado, assertividade da IA, redução de erros humanos.</td><td>Mensal</td>
+      <tr><td>5.4</td><td>Escalar o projeto para novas lojas, macro-implantação.</td><td>Semana 16+</td>
       </tr>
     </table>
   </section>
