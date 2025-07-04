@@ -97,7 +97,7 @@
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
       <tr><td>1.1</td><td>Revisar os comprovantes de cancelamento, venda, depósito e POS para garantir que os modelos de OCR capturam os campos corretamente.</td><td>Semana 1</td></tr>
       <tr><td>1.2</td><td>Implementar validações estruturais nos campos extraídos, como formatos de datas, número de loja, e consistência nos valores.</td><td>Semana 2</td></tr>
-      <tr><td>1.3</td><td>Salvar os dados extraídos em uma base no BigQuery, organizando por tipo de comprovante e origem.</td><td>Semana 2</td>
+      <tr><td>1.3</td><td>Salvar os dados extraídos em uma base no BigQuery, organizando por tipo de comprovante e origem.</td><td>Semana 2</td></tr>
       <tr><td>1.4</td><td>Gerar relatórios com métricas de acurácia do OCR por tipo de campo e tipo de comprovante.</td><td>Semana 3</td></tr>
       <tr><td>1.5</td><td>Desenvolver dashboards para monitoramento contínuo da leitura de comprovantes e qualidade dos dados.</td><td>Semana 3</td></tr>
     </table>
@@ -137,7 +137,7 @@
           </tbody>
         </table>
       </td></tr>
-      <tr><td>2.2</td><td>Escolher canais eficientes para que as lojas complementem esses dados: preferencialmente Slack, WhatsApp (Zenvia), ou web form integrado.</td><td>Semana 5</td></tr>
+      <tr><td>2.2</td><td>Escolher canais eficientes para que as lojas complementem esses dados: preferencialmente Slack ou web form integrado.</td><td>Semana 5</td></tr>
       <tr><td>2.3</td><td>Desenvolver um bot com linguagem natural para interagir com os usuários e coletar os dados ausentes.</td><td>Semana 6</td></tr>
       <tr><td>2.4</td><td>Fazer a integração das respostas capturadas via bot diretamente com o BigQuery ou via API de backend, garantindo que a complementação seja registrada.</td><td>Semana 7</td></tr>
     </table>
@@ -147,9 +147,9 @@
     <h2>📱 Fase 3 - Opções de Interfaces para Lojas</h2>
     <table>
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>3.1</td><td>Estudar o escopo técnico para criação de um aplicativo mobile que permita a leitura dos comprovantes diretamente pelas lojas.</td><td>Semana 7</td></tr>
-      <tr><td>3.5</td><td>Desenvolver o retorno via bot, com mensagens que mostram a leitura realizada e solicitam dados adicionais, se necessário.</td><td>Semana 11</td></tr>
-      <tr><td>3.6</td><td>Implementar e testar interface de complementação via Slack (ex: canal dedicado, mensagens automatizadas ou app dentro do Slack).</td><td>Semana 11</td></tr>
+      <tr><td>3.1</td><td>Estudar o escopo técnico para criação de um web form integrado que permita a leitura dos comprovantes diretamente pelas lojas.</td><td>Semana 7</td></tr>
+      <tr><td>3.2</td><td>Desenvolver o retorno via bot, com mensagens que mostram a leitura realizada e solicitam dados adicionais, se necessário.</td><td>Semana 11</td></tr>
+      <tr><td>3.3</td><td>Implementar e testar interface de complementação via Slack (ex: canal dedicado, mensagens automatizadas ou app dentro do Slack).</td><td>Semana 11</td></tr>
     </table>
   </section>
 
@@ -271,9 +271,9 @@
     <table>
       <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
       <tr><td>4.1</td><td>Construir integração entre o BigQuery e a base do SAP, possibilitando comparação automatizada dos dados lidos com os registros financeiros.</td><td>Semana 12</td></tr>
-      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td>
+      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td></tr>
       <tr><td>4.3</td><td>Desenvolver alertas automáticos para divergências ou falhas na conciliação dos dados extraídos com os dados do SAP.</td><td>Semana 13</td>
-      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td>
+      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td></tr>
       <tr><td>4.5</td><td>Documentar todo o fluxo de dados para uso em auditorias e controles internos.</td><td>Semana 14</td>
     </table>
   </section>
@@ -288,6 +288,8 @@
       <tr><td>5.3</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td>
       </tr>
       <tr><td>5.4</td><td>Escalar o projeto para novas lojas, macro-implantação.</td><td>Semana 16+</td>
+      </tr>
+      <tr><td>5.5</td><td>Construir indicadores mensais de ROI: tempo economizado, assertividade da IA, redução de erros humanos.</td><td>Mensal</td>
       </tr>
     </table>
   </section>
