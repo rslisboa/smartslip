@@ -185,10 +185,29 @@
             grid-column: auto; /* Reset grid-column for single column */
         }
     }
+
+    /* Style for the back to top button */
+    .back-to-top-button {
+        display: block;
+        width: fit-content;
+        margin: 40px auto 20px auto; /* Add margin top and bottom */
+        padding: 10px 20px;
+        background-color: #007BFF; /* Blue color for general buttons */
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        text-align: center;
+    }
+    .back-to-top-button:hover {
+        background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
-  <h1 style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
+  <h1 id="top" style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
 
   <!-- Botão para a seção de Módulos de IA -->
   <a href="#ai-modules-overview" class="robot-button">
@@ -493,12 +512,14 @@
                         <li><strong>Relatórios e Alertas:</strong> Dashboards e relatórios são gerados a partir do BigQuery, destacando transações conciliadas e, principalmente, as não conciliadas. Alertas são enviados para a equipe Financeira em caso de inconsistências que exijam intervenção humana.</li>
                         <li><strong>Atualização do SAP:</strong> Após a conciliação bem-sucedida ou a resolução manual de divergências, os dados podem ser utilizados para atualizar ou confirmar registros no SAP, garantindo a integridade dos sistemas contábeis e fechando o ciclo completo da despesa.</li>
                     </ul>
-                    <p><strong>Benefícios:</strong> Maior precisão na conciliação financeira, redução significativa de erros manuais, visibilidade em tempo real do status das despesas e otimização geral do processo contábil e de auditoria.</p>
+                    <p><strong>Melhorias:</strong> Maior precisão na conciliação financeira, redução significativa de erros manuais, visibilidade em tempo real do status das despesas e otimização geral do processo contábil e de auditoria.</p>
                 </div>
             </div>
         </div>
     </div>
   </section>
+
+  <a href="#top" class="back-to-top-button">Voltar ao Início</a>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
