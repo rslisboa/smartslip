@@ -130,14 +130,7 @@
         line-height: 1.6;
         color: #4a4a4a;
     }
-    .flow-arrow-vertical { /* For vertical flow between cards */
-        text-align: center;
-        margin: 1.5rem auto; /* Center and add vertical margin */
-        color: #005E27; /* Dark Green */
-        font-size: 2.5rem; /* text-4xl */
-        font-weight: 900;
-        display: block; /* Ensure it's a block element for centering */
-    }
+    /* Removed .flow-arrow-vertical as per user request */
     .robot-button {
         display: block;
         width: fit-content;
@@ -174,11 +167,13 @@
         width: 100%; /* Take full width of its grid cell */
         display: flex; /* Use flex to align the card inside */
         justify-content: center; /* Center card within its grid cell */
+        margin-bottom: 20px; /* Add margin between rows */
     }
 
     /* Specific style for the last module to span full width */
     .module-item.full-width {
         grid-column: 1 / -1; /* Span all columns */
+        margin-bottom: 0; /* Remove bottom margin for the last item */
     }
 
     /* Media query for smaller screens to ensure cards stack */
@@ -458,8 +453,6 @@
             </div>
         </div>
 
-        <div class="flow-arrow-vertical full-width">⬇️</div>
-
         <!-- Segunda linha de módulos -->
         <div class="module-item">
             <div class="agent-card">
@@ -484,8 +477,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="flow-arrow-vertical full-width">⬇️</div>
 
         <!-- Módulo de Integração Final (BigQuery & SAP) - Ocupando a linha toda com mais detalhes -->
         <div class="module-item full-width">
