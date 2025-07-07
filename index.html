@@ -104,9 +104,9 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease-in-out;
         border: 2px solid #005E27; /* Dark Green */
-        width: 100%; /* Take full width */
+        width: 100%; /* Take full width of its wrapper */
         max-width: 400px; /* Limit max width for readability */
-        margin: 0 auto 20px auto; /* Center and add bottom margin */
+        margin: 0; /* Remove auto margins from previous attempt */
     }
     .agent-card:hover {
         transform: translateY(-8px);
@@ -161,12 +161,33 @@
         font-size: 1.5em;
     }
 
-    /* Responsive adjustments for module cards - now always stacked */
-    .modules-container { /* Renamed from agents-container */
+    /* Styles for alternating module layout */
+    .modules-flow-container {
         display: flex;
-        flex-direction: column; /* Always stack vertically */
-        align-items: center; /* Center items horizontally */
-        justify-content: center;
+        flex-direction: column;
+        align-items: center; /* Centers the whole column of items */
+    }
+
+    .module-item {
+        width: 100%; /* Take full width to allow internal alignment */
+        display: flex; /* Use flex to align the card inside */
+        justify-content: center; /* Default to center */
+    }
+
+    .module-item.left {
+        justify-content: flex-start; /* Align card to the left */
+    }
+
+    .module-item.right {
+        justify-content: flex-end; /* Align card to the right */
+    }
+
+    /* Media query for smaller screens to ensure cards stack */
+    @media (max-width: 768px) {
+        .module-item.left,
+        .module-item.right {
+            justify-content: center; /* Center cards on small screens */
+        }
     }
   </style>
 </head>
@@ -174,7 +195,7 @@
   <h1 style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
 
   <!-- Botão para a seção de Módulos de IA -->
-  <a href="#ai-agents-overview" class="robot-button">
+  <a href="#ai-modules-overview" class="robot-button">
     <span class="robot-icon">🤖</span> Ver Módulos de IA
   </a>
 
@@ -404,60 +425,68 @@
     </table>
   </section>
 
-  <section id="ai-agents-overview" class="ai-agents-section">
+  <section id="ai-modules-overview" class="ai-agents-section">
     <header class="text-center mb-12">
         <h2 class="section-title-ai">Módulos de IA no Projeto SmartSlip</h2>
         <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "módulos" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
     </header>
 
-    <div class="max-w-6xl mx-auto modules-container">
+    <div class="max-w-6xl mx-auto modules-flow-container">
         <!-- Módulo de OCR -->
-        <div class="agent-card">
-            <div class="agent-icon">📸</div>
-            <h3 class="agent-title">Módulo de OCR (Visão Computacional)</h3>
-            <div class="agent-description">
-                <p><strong>Função:</strong> Responsável pela leitura e extração automática de dados de comprovantes físicos e digitais.</p>
-                <p><strong>Entrada:</strong> Imagens (JPEG, PNG) ou PDFs de notas fiscais, recibos, boletas de POS e comprovantes de depósito.</p>
-                <p><strong>Saída:</strong> Dados estruturados como valor da transação, data, CNPJ do estabelecimento, tipo de documento, etc.</p>
+        <div class="module-item left">
+            <div class="agent-card">
+                <div class="agent-icon">📸</div>
+                <h3 class="agent-title">Módulo de OCR (Visão Computacional)</h3>
+                <div class="agent-description">
+                    <p><strong>Função:</strong> Responsável pela leitura e extração automática de dados de comprovantes físicos e digitais.</p>
+                    <p><strong>Entrada:</strong> Imagens (JPEG, PNG) ou PDFs de notas fiscais, recibos, boletas de POS e comprovantes de depósito.</p>
+                    <p><strong>Saída:</strong> Dados estruturados como valor da transação, data, CNPJ do estabelecimento, tipo de documento, etc.</p>
+                </div>
             </div>
         </div>
 
         <div class="flow-arrow-vertical">⬇️</div>
 
         <!-- Módulo de Conversação (Bot Slack) -->
-        <div class="agent-card">
-            <div class="agent-icon">💬</div>
-            <h3 class="agent-title">Módulo de Conversação (Bot Slack)</h3>
-            <div class="agent-description">
-                <p><strong>Função:</strong> Interage com os gerentes das lojas via Slack para coletar informações complementares que não foram totalmente extraídas pelo OCR ou para esclarecer dúvidas.</p>
-                <p><strong>Entrada:</strong> Dados do OCR com lacunas ou inconsistências, perguntas dos usuários.</p>
-                <p><strong>Saída:</strong> Respostas estruturadas dos usuários, confirmações de dados, mensagens de orientação.</p>
+        <div class="module-item right">
+            <div class="agent-card">
+                <div class="agent-icon">💬</div>
+                <h3 class="agent-title">Módulo de Conversação (Bot Slack)</h3>
+                <div class="agent-description">
+                    <p><strong>Função:</strong> Interage com os gerentes das lojas via Slack para coletar informações complementares que não foram totalmente extraídas pelo OCR ou para esclarecer dúvidas.</p>
+                    <p><strong>Entrada:</strong> Dados do OCR com lacunas ou inconsistências, perguntas dos usuários.</p>
+                    <p><strong>Saída:</strong> Respostas estruturadas dos usuários, confirmações de dados, mensagens de orientação.</p>
+                </div>
             </div>
         </div>
 
         <div class="flow-arrow-vertical">⬇️</div>
 
         <!-- Módulo de Análise de Fraude -->
-        <div class="agent-card">
-            <div class="agent-icon">🕵️</div>
-            <h3 class="agent-title">Módulo de Análise de Fraude</h3>
-            <div class="agent-description">
-                <p><strong>Função:</strong> Analisa padrões de gastos, detecta anomalias e cruza informações de diversas fontes para identificar transações suspeitas ou possíveis fraudes.</p>
-                <p><strong>Entrada:</strong> Dados estruturados do OCR e do bot, dados históricos de transações, informações de políticas de uso.</p>
-                <p><strong>Saída:</strong> Alertas de fraude, pontuações de risco para transações, relatórios de inconsistências.</p>
+        <div class="module-item left">
+            <div class="agent-card">
+                <div class="agent-icon">🕵️</div>
+                <h3 class="agent-title">Módulo de Análise de Fraude</h3>
+                <div class="agent-description">
+                    <p><strong>Função:</strong> Analisa padrões de gastos, detecta anomalias e cruza informações de diversas fontes para identificar transações suspeitas ou possíveis fraudes.</p>
+                    <p><strong>Entrada:</strong> Dados estruturados do OCR e do bot, dados históricos de transações, informações de políticas de uso.</p>
+                    <p><strong>Saída:</strong> Alertas de fraude, pontuações de risco para transações, relatórios de inconsistências.</p>
+                </div>
             </div>
         </div>
 
         <div class="flow-arrow-vertical">⬇️</div>
 
         <!-- Módulo de Validação e Integração de Dados -->
-        <div class="agent-card">
-            <div class="agent-icon">✅</div>
-            <h3 class="agent-title">Módulo de Validação e Integração de Dados</h3>
-            <div class="agent-description">
-                <p><strong>Função:</strong> Garante a qualidade e consistência dos dados coletados, preparando-os para a integração com o BigQuery e o SAP.</p>
-                <p><strong>Entrada:</strong> Dados processados pelo OCR e pelo bot, regras de validação de negócio.</p>
-                <p><strong>Saída:</strong> Dados limpos, padronizados e prontos para conciliação e análise financeira.</p>
+        <div class="module-item right">
+            <div class="agent-card">
+                <div class="agent-icon">✅</div>
+                <h3 class="agent-title">Módulo de Validação e Integração de Dados</h3>
+                <div class="agent-description">
+                    <p><strong>Função:</strong> Garante a qualidade e consistência dos dados coletados, preparando-os para a integração com o BigQuery e o SAP.</p>
+                    <p><strong>Entrada:</strong> Dados processados pelo OCR e pelo bot, regras de validação de negócio.</p>
+                    <p><strong>Saída:</strong> Dados limpos, padronizados e prontos para conciliação e análise financeira.</p>
+                </div>
             </div>
         </div>
 
