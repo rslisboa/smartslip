@@ -73,7 +73,7 @@
         color: #000; /* Ensure bold text is black */
     }
 
-    /* Styles for AI Agents section */
+    /* Styles for AI Modules section */
     .ai-agents-section {
         background-color: #e8f5e9; /* Light green background */
         border-left: 6px solid #005E27; /* Dark Green border */
@@ -97,16 +97,16 @@
         font-size: 1.125rem; /* text-lg */
         line-height: 1.7;
     }
-    .agent-card {
+    .agent-card { /* Renamed to module-card for consistency */
         background-color: white;
         border-radius: 0.75rem; /* rounded-xl */
         padding: 1.5rem; /* p-6 */
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease-in-out;
         border: 2px solid #005E27; /* Dark Green */
-        flex-shrink: 0; /* Prevent shrinking */
-        width: 280px; /* Fixed width for better alignment in a row */
-        margin: 0 10px; /* Add some margin between cards */
+        width: 100%; /* Take full width */
+        max-width: 400px; /* Limit max width for readability */
+        margin: 0 auto 20px auto; /* Center and add bottom margin */
     }
     .agent-card:hover {
         transform: translateY(-8px);
@@ -130,19 +130,13 @@
         line-height: 1.6;
         color: #4a4a4a;
     }
-    .flow-arrow-vertical { /* For vertical flow (e.g., to final integration) */
+    .flow-arrow-vertical { /* For vertical flow between cards */
         text-align: center;
-        margin: 1.5rem 0;
+        margin: 1.5rem auto; /* Center and add vertical margin */
         color: #005E27; /* Dark Green */
         font-size: 2.5rem; /* text-4xl */
         font-weight: 900;
-    }
-    .flow-arrow-horizontal { /* For horizontal flow between cards */
-        font-size: 2.5rem; /* text-4xl */
-        font-weight: 900;
-        color: #005E27; /* Dark Green */
-        margin: 0 10px; /* Space around arrow */
-        align-self: center; /* Align arrow vertically in the middle */
+        display: block; /* Ensure it's a block element for centering */
     }
     .robot-button {
         display: block;
@@ -167,38 +161,21 @@
         font-size: 1.5em;
     }
 
-    /* Responsive adjustments for agent cards */
-    .agents-container {
+    /* Responsive adjustments for module cards - now always stacked */
+    .modules-container { /* Renamed from agents-container */
         display: flex;
-        flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        flex-direction: column; /* Always stack vertically */
+        align-items: center; /* Center items horizontally */
         justify-content: center;
-        align-items: flex-start; /* Align items to the start of the cross axis */
-    }
-    @media (min-width: 1024px) { /* On large screens, try to keep them in one row */
-        .agents-container {
-            flex-wrap: nowrap;
-        }
-    }
-    @media (max-width: 768px) { /* On medium screens, stack them or fewer columns */
-        .agent-card {
-            width: 90%; /* Take more width on smaller screens */
-            margin-bottom: 20px; /* Add space when stacked */
-        }
-        .flow-arrow-horizontal {
-            display: none; /* Hide horizontal arrows when stacked */
-        }
-        .agents-container {
-            flex-direction: column; /* Stack vertically */
-        }
     }
   </style>
 </head>
 <body>
   <h1 style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
 
-  <!-- Botão para a seção de Agentes de IA -->
+  <!-- Botão para a seção de Módulos de IA -->
   <a href="#ai-agents-overview" class="robot-button">
-    <span class="robot-icon">🤖</span> Ver Agentes de IA
+    <span class="robot-icon">🤖</span> Ver Módulos de IA
   </a>
 
   <div style="margin-bottom: 20px; padding: 15px; background-color: #e0f7fa; border-left: 4px solid #007BFF; border-radius: 5px;">
@@ -429,15 +406,15 @@
 
   <section id="ai-agents-overview" class="ai-agents-section">
     <header class="text-center mb-12">
-        <h2 class="section-title-ai">Agentes de IA no Projeto SmartSlip</h2>
-        <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "agentes" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
+        <h2 class="section-title-ai">Módulos de IA no Projeto SmartSlip</h2>
+        <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "módulos" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
     </header>
 
-    <div class="max-w-6xl mx-auto agents-container">
-        <!-- Agente de OCR -->
+    <div class="max-w-6xl mx-auto modules-container">
+        <!-- Módulo de OCR -->
         <div class="agent-card">
             <div class="agent-icon">📸</div>
-            <h3 class="agent-title">Agente de OCR (Visão Computacional)</h3>
+            <h3 class="agent-title">Módulo de OCR (Visão Computacional)</h3>
             <div class="agent-description">
                 <p><strong>Função:</strong> Responsável pela leitura e extração automática de dados de comprovantes físicos e digitais.</p>
                 <p><strong>Entrada:</strong> Imagens (JPEG, PNG) ou PDFs de notas fiscais, recibos, boletas de POS e comprovantes de depósito.</p>
@@ -445,12 +422,12 @@
             </div>
         </div>
 
-        <div class="flow-arrow-horizontal">→</div>
+        <div class="flow-arrow-vertical">⬇️</div>
 
-        <!-- Agente de Conversação (Bot Slack) -->
+        <!-- Módulo de Conversação (Bot Slack) -->
         <div class="agent-card">
             <div class="agent-icon">💬</div>
-            <h3 class="agent-title">Agente de Conversação (Bot Slack)</h3>
+            <h3 class="agent-title">Módulo de Conversação (Bot Slack)</h3>
             <div class="agent-description">
                 <p><strong>Função:</strong> Interage com os gerentes das lojas via Slack para coletar informações complementares que não foram totalmente extraídas pelo OCR ou para esclarecer dúvidas.</p>
                 <p><strong>Entrada:</strong> Dados do OCR com lacunas ou inconsistências, perguntas dos usuários.</p>
@@ -458,12 +435,12 @@
             </div>
         </div>
 
-        <div class="flow-arrow-horizontal">→</div>
+        <div class="flow-arrow-vertical">⬇️</div>
 
-        <!-- Agente de Análise de Fraude -->
+        <!-- Módulo de Análise de Fraude -->
         <div class="agent-card">
             <div class="agent-icon">🕵️</div>
-            <h3 class="agent-title">Agente de Análise de Fraude</h3>
+            <h3 class="agent-title">Módulo de Análise de Fraude</h3>
             <div class="agent-description">
                 <p><strong>Função:</strong> Analisa padrões de gastos, detecta anomalias e cruza informações de diversas fontes para identificar transações suspeitas ou possíveis fraudes.</p>
                 <p><strong>Entrada:</strong> Dados estruturados do OCR e do bot, dados históricos de transações, informações de políticas de uso.</p>
@@ -471,27 +448,27 @@
             </div>
         </div>
 
-        <div class="flow-arrow-horizontal">→</div>
+        <div class="flow-arrow-vertical">⬇️</div>
 
-        <!-- Agente de Validação e Integração de Dados -->
+        <!-- Módulo de Validação e Integração de Dados -->
         <div class="agent-card">
             <div class="agent-icon">✅</div>
-            <h3 class="agent-title">Agente de Validação e Integração de Dados</h3>
+            <h3 class="agent-title">Módulo de Validação e Integração de Dados</h3>
             <div class="agent-description">
                 <p><strong>Função:</strong> Garante a qualidade e consistência dos dados coletados, preparando-os para a integração com o BigQuery e o SAP.</p>
                 <p><strong>Entrada:</strong> Dados processados pelo OCR e pelo bot, regras de validação de negócio.</p>
                 <p><strong>Saída:</strong> Dados limpos, padronizados e prontos para conciliação e análise financeira.</p>
             </div>
         </div>
-    </div>
 
-    <div class="flow-arrow-vertical mt-12">⬇️</div>
+        <div class="flow-arrow-vertical mt-12">⬇️</div>
 
-    <div class="agent-card mx-auto max-w-2xl">
-        <div class="agent-icon">🔗</div>
-        <h3 class="agent-title">Integração Final (BigQuery & SAP)</h3>
-        <div class="agent-description">
-            <p>Após a atuação dos agentes de IA, os dados são consolidados no BigQuery e utilizados para o confronto automatizado com os registros do SAP, garantindo a conciliação financeira e a detecção de divergências.</p>
+        <div class="agent-card mx-auto max-w-2xl">
+            <div class="agent-icon">🔗</div>
+            <h3 class="agent-title">Integração Final (BigQuery & SAP)</h3>
+            <div class="agent-description">
+                <p>Após a atuação dos módulos de IA, os dados são consolidados no BigQuery e utilizados para o confronto automatizado com os registros do SAP, garantindo a conciliação financeira e a detecção de divergências.</p>
+            </div>
         </div>
     </div>
   </section>
