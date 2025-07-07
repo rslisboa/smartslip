@@ -163,30 +163,30 @@
 
     /* Styles for alternating module layout */
     .modules-flow-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* Centers the whole column of items */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two columns, responsive */
+        gap: 20px; /* Gap between grid items */
+        justify-items: center; /* Center items within their grid cells */
     }
 
     .module-item {
-        width: 100%; /* Take full width to allow internal alignment */
+        width: 100%; /* Take full width of its grid cell */
         display: flex; /* Use flex to align the card inside */
-        justify-content: center; /* Default to center */
+        justify-content: center; /* Center card within its grid cell */
     }
 
-    .module-item.left {
-        justify-content: flex-start; /* Align card to the left */
-    }
-
-    .module-item.right {
-        justify-content: flex-end; /* Align card to the right */
+    /* Specific style for the last module to span full width */
+    .module-item.full-width {
+        grid-column: 1 / -1; /* Span all columns */
     }
 
     /* Media query for smaller screens to ensure cards stack */
     @media (max-width: 768px) {
-        .module-item.left,
-        .module-item.right {
-            justify-content: center; /* Center cards on small screens */
+        .modules-flow-container {
+            grid-template-columns: 1fr; /* Single column on small screens */
+        }
+        .module-item.full-width {
+            grid-column: auto; /* Reset grid-column for single column */
         }
     }
   </style>
@@ -433,7 +433,7 @@
 
     <div class="max-w-6xl mx-auto modules-flow-container">
         <!-- Módulo de OCR -->
-        <div class="module-item left">
+        <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">📸</div>
                 <h3 class="agent-title">Módulo de OCR (Visão Computacional)</h3>
@@ -445,10 +445,8 @@
             </div>
         </div>
 
-        <div class="flow-arrow-vertical">⬇️</div>
-
         <!-- Módulo de Conversação (Bot Slack) -->
-        <div class="module-item right">
+        <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">💬</div>
                 <h3 class="agent-title">Módulo de Conversação (Bot Slack)</h3>
@@ -460,10 +458,8 @@
             </div>
         </div>
 
-        <div class="flow-arrow-vertical">⬇️</div>
-
         <!-- Módulo de Análise de Fraude -->
-        <div class="module-item left">
+        <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">🕵️</div>
                 <h3 class="agent-title">Módulo de Análise de Fraude</h3>
@@ -475,10 +471,8 @@
             </div>
         </div>
 
-        <div class="flow-arrow-vertical">⬇️</div>
-
         <!-- Módulo de Validação e Integração de Dados -->
-        <div class="module-item right">
+        <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">✅</div>
                 <h3 class="agent-title">Módulo de Validação e Integração de Dados</h3>
@@ -490,13 +484,25 @@
             </div>
         </div>
 
-        <div class="flow-arrow-vertical mt-12">⬇️</div>
+        <div class="flow-arrow-vertical full-width">⬇️</div>
 
-        <div class="agent-card mx-auto max-w-2xl">
-            <div class="agent-icon">🔗</div>
-            <h3 class="agent-title">Integração Final (BigQuery & SAP)</h3>
-            <div class="agent-description">
-                <p>Após a atuação dos módulos de IA, os dados são consolidados no BigQuery e utilizados para o confronto automatizado com os registros do SAP, garantindo a conciliação financeira e a detecção de divergências.</p>
+        <!-- Módulo de Integração Final (BigQuery & SAP) - Agora com mais detalhes e ocupando a linha toda -->
+        <div class="module-item full-width">
+            <div class="agent-card">
+                <div class="agent-icon">🔗</div>
+                <h3 class="agent-title">Módulo de Integração Final (BigQuery & SAP)</h3>
+                <div class="agent-description">
+                    <p><strong>Função:</strong> Consolidar e conciliar dados de despesas para garantir a precisão financeira e a conformidade contábil.</p>
+                    <p><strong>Processo Detalhado:</strong></p>
+                    <ul>
+                        <li><strong>Coleta de Dados:</strong> Os dados limpos e validados pelos módulos anteriores (OCR, Conversação, Análise de Fraude e Validação) são enviados de forma automatizada para o BigQuery.</li>
+                        <li><strong>Armazenamento Centralizado:</strong> O BigQuery atua como um data warehouse central, armazenando todas as informações de despesas de forma escalável e otimizada para consultas e análises complexas.</li>
+                        <li><strong>Conciliação Automatizada:</strong> Rotinas programadas (scripts ou ferramentas ETL) no BigQuery comparam as transações registradas com os dados do SAP (via integração direta, APIs ou carga de dados em lote), identificando automaticamente divergências e correspondências.</li>
+                        <li><strong>Relatórios e Alertas:</strong> Dashboards e relatórios são gerados a partir do BigQuery, destacando transações conciliadas e, principalmente, as não conciliadas. Alertas são enviados para a equipe Financeira em caso de inconsistências que exijam intervenção humana.</li>
+                        <li><strong>Atualização do SAP:</strong> Após a conciliação bem-sucedida ou a resolução manual de divergências, os dados podem ser utilizados para atualizar ou confirmar registros no SAP, garantindo a integridade dos sistemas contábeis e fechando o ciclo completo da despesa.</li>
+                    </ul>
+                    <p><strong>Benefícios:</strong> Maior precisão na conciliação financeira, redução significativa de erros manuais, visibilidade em tempo real do status das despesas e otimização geral do processo contábil e de auditoria.</p>
+                </div>
             </div>
         </div>
     </div>
