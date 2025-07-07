@@ -161,12 +161,13 @@
         font-size: 1.5em;
     }
 
-    /* Styles for alternating module layout */
+    /* Styles for module layout in a 2x2 grid */
     .modules-flow-container {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two columns, responsive */
+        grid-template-columns: repeat(2, 1fr); /* Exactly two columns */
         gap: 20px; /* Gap between grid items */
         justify-items: center; /* Center items within their grid cells */
+        align-items: start; /* Align items to the start of their grid cell */
     }
 
     .module-item {
@@ -309,7 +310,7 @@
         <ul>
           <li><strong>Gatilho:</strong> Assim que um comprovante é enviado (seja no canal ou via app), o backend do bot (hospedado em uma Cloud Function, por exemplo) é acionado via webhook do Slack.</li>
           <li><strong>Análise OCR (IA):</strong> O arquivo é imediatamente enviado para a API de OCR (ex: Google Vision AI, Azure Form Recognizer). A IA tenta extrair o máximo de campos possíveis (valor, data, CNPJ, tipo de documento).</li>
-          <li><strong>Identificação de Lacunas:</strong> O backend compara os campos extraídos pela IA com os campos obrigatórios esperados para aquele tipo de comprovante (conforme as regras de negócio definidas na Fase 2 do cronograma). Se houver campos ausentes, inconsistentes ou com baixa confiança na leitura, o bot inicia a conversação.</li>
+          <li><strong>Identificação de Lacunas:</strong> O backend compara os campos extraídos pela IA com os campos obrigatórios esperados para aquele tipo de comprovante (conforme as regras de negócio definidas na Fase 2 do cronograma). Se houver campos ausentes, inconsistências ou com baixa confiança na leitura, o bot inicia a conversação.</li>
         </ul>
       </li>
       <li>
@@ -432,7 +433,7 @@
     </header>
 
     <div class="max-w-6xl mx-auto modules-flow-container">
-        <!-- Módulo de OCR -->
+        <!-- Primeira linha de módulos -->
         <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">📸</div>
@@ -445,7 +446,6 @@
             </div>
         </div>
 
-        <!-- Módulo de Conversação (Bot Slack) -->
         <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">💬</div>
@@ -458,7 +458,9 @@
             </div>
         </div>
 
-        <!-- Módulo de Análise de Fraude -->
+        <div class="flow-arrow-vertical full-width">⬇️</div>
+
+        <!-- Segunda linha de módulos -->
         <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">🕵️</div>
@@ -471,7 +473,6 @@
             </div>
         </div>
 
-        <!-- Módulo de Validação e Integração de Dados -->
         <div class="module-item">
             <div class="agent-card">
                 <div class="agent-icon">✅</div>
@@ -486,7 +487,7 @@
 
         <div class="flow-arrow-vertical full-width">⬇️</div>
 
-        <!-- Módulo de Integração Final (BigQuery & SAP) - Agora com mais detalhes e ocupando a linha toda -->
+        <!-- Módulo de Integração Final (BigQuery & SAP) - Ocupando a linha toda com mais detalhes -->
         <div class="module-item full-width">
             <div class="agent-card">
                 <div class="agent-icon">🔗</div>
