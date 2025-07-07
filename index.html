@@ -74,6 +74,29 @@
     }
 
     /* Styles from smartslip_ai_agents for the new section */
+    .ai-agents-section {
+        background-color: #e8f5e9; /* Light green background */
+        border-left: 6px solid #005E27; /* Dark Green border */
+        padding: 20px;
+        margin-bottom: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .ai-agents-section .section-title-ai {
+        font-size: 2.25rem; /* text-4xl */
+        font-weight: 900; /* font-extrabold */
+        color: #005E27; /* Dark Green */
+        text-align: center; /* Centralize o título */
+        margin-bottom: 1.5rem; /* Ajuste o espaçamento */
+    }
+    .ai-agents-section .intro-text-ai {
+        text-align: center;
+        color: #555;
+        max-width: 800px;
+        margin: 0 auto 3rem auto;
+        font-size: 1.125rem; /* text-lg */
+        line-height: 1.7;
+    }
     .agent-card {
         background-color: white;
         border-radius: 0.75rem; /* rounded-xl */
@@ -126,10 +149,37 @@
         font-size: 1.125rem; /* text-lg */
         line-height: 1.7;
     }
+    .robot-button {
+        display: block;
+        width: fit-content;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #005E27;
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .robot-button:hover {
+        background-color: #003C1A;
+    }
+    .robot-icon {
+        font-size: 1.5em;
+    }
   </style>
 </head>
 <body>
   <h1 style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
+
+  <!-- Botão para a seção de Agentes de IA -->
+  <a href="#ai-agents-overview" class="robot-button">
+    <span class="robot-icon">🤖</span> Ver Agentes de IA
+  </a>
 
   <div style="margin-bottom: 20px; padding: 15px; background-color: #e0f7fa; border-left: 4px solid #007BFF; border-radius: 5px;">
     <h3 style="color: #007BFF; margin-top: 0;">Informações do Projeto:</h3>
@@ -333,7 +383,7 @@
         <strong>Identificar e prevenir fraudes nos comprovantes enviados.</strong>
         <ul>
             <li><strong>Análise de Padrões:</strong> Utilizar algoritmos para identificar comportamentos ou características atípicas nas despesas, como valores incomuns, horários de compra fora do padrão, ou recorrência de transações suspeitas.</li>
-            <li><strong>Detecção de Anomalias:</strong> Sinalizar transações que fogem significativamente do padrão de gastos habituais de uma loja, de um tipo de despesa ou de um gerente específico, indicando possíveis irregularidades.</li>
+            <li><strong>Detecção de Anomalias:</strong> Sinalizar transações que fogem significativamente do padrão de gastos habitual de uma loja, de um tipo de despesa ou de um gerente específico, indicando possíveis irregularidades.</li>
             <li><strong>Cruzamento de Informações:</strong> Comparar dados extraídos por OCR dos comprovantes com informações fornecidas manualmente e com dados históricos de transações para encontrar inconsistências (ex: datas de compra divergentes, valores que não batem, CNPJs inexistentes ou inválidos).</li>
             <li><strong>Geração de Alertas de Fraude:</strong> Acionar alertas automáticos para o time financeiro ou de auditoria quando uma transação for classificada como de alto risco de fraude, permitindo investigação manual.</li>
         </ul>
@@ -357,16 +407,13 @@
     </table>
   </section>
 
-  <section id="ai-agents-overview" class="p-8">
+  <section id="ai-agents-overview" class="ai-agents-section">
     <header class="text-center mb-12">
-        <h2 class="text-4xl font-extrabold text-[#000000] mb-4">Agentes de IA no Projeto SmartSlip</h2>
-        <p class="text-lg text-gray-600">Entenda como a Inteligência Artificial impulsiona a eficiência na gestão de despesas.</p>
+        <h2 class="section-title-ai">Agentes de IA no Projeto SmartSlip</h2>
+        <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "agentes" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
     </header>
 
-    <main class="max-w-6xl mx-auto">
-
-        <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "agentes" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
-
+    <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <!-- Agente de OCR -->
             <div class="agent-card">
@@ -422,12 +469,7 @@
                 <p>Após a atuação dos agentes de IA, os dados são consolidados no BigQuery e utilizados para o confronto automatizado com os registros do SAP, garantindo a conciliação financeira e a detecção de divergências.</p>
             </div>
         </div>
-
-    </main>
-
-    <footer class="text-center mt-12 text-gray-500 text-sm">
-        <p>&copy; 2025 Grupo SBF. Todos os direitos reservados.</p>
-    </footer>
+    </div>
   </section>
 
   <script>
