@@ -29,16 +29,21 @@ function smartSlipGetUsuarioAtual() {
 
   const primeiroNome = smartSlipExtrairPrimeiroNome(email);
 
-  let isAdmin = false;
-  let lojaPadrao = "";
-  let empresaPadrao = "";
+    let lojaPadrao = "";
+    let empresaPadrao = "";
 
-  try {
-    isAdmin = smartSlipUsuarioEhAdmin(email);
-  } catch (errAdmin) {
-    Logger.log("Erro ao verificar admin: " + String(errAdmin && errAdmin.message ? errAdmin.message : errAdmin));
-    isAdmin = false;
-  }
+    let acessoUsuario = {
+      role: "Usuário",
+      is_admin: false,
+      is_analista_pro: false,
+      can_comp_hub: false
+    };
+
+    try {
+      acessoUsuario = smartSlipGetAcessoUsuario(email);
+    } catch (errAcesso) {
+      Logger.log("Erro ao verificar acesso do usuário: " + String(errAcesso && errAcesso.message ? errAcesso.message : errAcesso));
+    }
 
   try {
     const prefs = smartSlipObterPreferenciasUsuario(email);
@@ -64,10 +69,13 @@ function smartSlipGetUsuarioAtual() {
     empresaPadrao = "";
   }
 
-  return {
+    return {
     email: email,
     primeiro_nome: primeiroNome,
-    is_admin: isAdmin,
+    perfil: acessoUsuario.role || "Usuário",
+    is_admin: acessoUsuario.is_admin === true,
+    is_analista_pro: acessoUsuario.is_analista_pro === true,
+    can_comp_hub: acessoUsuario.can_comp_hub === true,
     loja_padrao: lojaPadrao,
     empresa_padrao: empresaPadrao
   };
@@ -82,26 +90,42 @@ function smartSlipExtrairPrimeiroNome(email) {
   return primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
 }
 
-function smartSlipUsuarioEhAdmin(email) {
+function smartSlipNormalizarPerfilSmartSlip(valor) {
+  return String(valor || "")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function smartSlipGetAcessoUsuario(email) {
   try {
     email = String(email || "").trim().toLowerCase();
 
+    const acessoPadrao = {
+      role: "Usuário",
+      role_norm: "USUARIO",
+      is_admin: false,
+      is_analista_pro: false,
+      can_comp_hub: false
+    };
+
     if (!email) {
-      return false;
+      return acessoPadrao;
     }
 
     const ss = SpreadsheetApp.openById(SMARTSLIP_VEKTOR_EMAILS_SPREADSHEET_ID);
     const sh = ss.getSheetByName(SMARTSLIP_ABA_VEKTOR_EMAILS);
 
     if (!sh) {
-      Logger.log("SmartSlip Admin: aba VEKTOR_EMAILS não encontrada.");
-      return false;
+      Logger.log("SmartSlip Acesso: aba VEKTOR_EMAILS não encontrada.");
+      return acessoPadrao;
     }
 
     const values = sh.getDataRange().getValues();
 
     if (values.length < 2) {
-      return false;
+      return acessoPadrao;
     }
 
     const headers = values[0].map(function(h) {
@@ -130,23 +154,23 @@ function smartSlipUsuarioEhAdmin(email) {
     ]);
 
     if (idxEmail < 0 || idxRole < 0) {
-      Logger.log("SmartSlip Admin: colunas Email/ROLE não encontradas na VEKTOR_EMAILS.");
+      Logger.log("SmartSlip Acesso: colunas Email/ROLE não encontradas na VEKTOR_EMAILS.");
       Logger.log(JSON.stringify(headers));
-      return false;
+      return acessoPadrao;
     }
 
     for (let i = 1; i < values.length; i++) {
       const row = values[i];
 
       const emailRow = String(row[idxEmail] || "").trim().toLowerCase();
-      const role = String(row[idxRole] || "").trim().toUpperCase();
+      const roleRaw = String(row[idxRole] || "").trim();
+      const roleNorm = smartSlipNormalizarPerfilSmartSlip(roleRaw);
 
       const ativoRaw = idxAtivo >= 0
-        ? String(row[idxAtivo] || "").trim().toUpperCase()
+        ? smartSlipNormalizarPerfilSmartSlip(row[idxAtivo])
         : "SIM";
 
       const estaAtivo = ![
-        "NÃO",
         "NAO",
         "FALSE",
         "0",
@@ -154,21 +178,46 @@ function smartSlipUsuarioEhAdmin(email) {
         "N"
       ].includes(ativoRaw);
 
-      const ehAdmin =
-        role.includes("Administrador") ||
-        role.includes("ADMIN");
-
-      if (emailRow === email && estaAtivo && ehAdmin) {
-        return true;
+      if (emailRow !== email || !estaAtivo) {
+        continue;
       }
+
+      const isAdmin =
+        roleNorm.includes("ADMINISTRADOR") ||
+        roleNorm.includes("ADMIN");
+
+      const isAnalistaPro =
+        roleNorm.includes("ANALISTA PRO") ||
+        roleNorm.includes("ANALISTA_PRO") ||
+        roleNorm.includes("ANALISTA-PRO") ||
+        (roleNorm.includes("ANALISTA") && roleNorm.includes("PRO"));
+
+      return {
+        role: roleRaw || "Usuário",
+        role_norm: roleNorm || "USUARIO",
+        is_admin: isAdmin,
+        is_analista_pro: isAnalistaPro,
+        can_comp_hub: isAdmin || isAnalistaPro
+      };
     }
 
-    return false;
+    return acessoPadrao;
 
   } catch (err) {
-    Logger.log("Erro smartSlipUsuarioEhAdmin: " + String(err && err.message ? err.message : err));
-    return false;
+    Logger.log("Erro smartSlipGetAcessoUsuario: " + String(err && err.message ? err.message : err));
+
+    return {
+      role: "Usuário",
+      role_norm: "USUARIO",
+      is_admin: false,
+      is_analista_pro: false,
+      can_comp_hub: false
+    };
   }
+}
+
+function smartSlipUsuarioEhAdmin(email) {
+  return smartSlipGetAcessoUsuario(email).is_admin === true;
 }
 
 
@@ -1732,6 +1781,7 @@ function doGet(e) {
   return HtmlService
     .createHtmlOutputFromFile("SmartSlipApp")
     .setTitle("SmartSlip - Envio de Comprovantes")
+    .setFaviconUrl("https://raw.githubusercontent.com/rslisboa/smartslip/051387a22e6d310c60e8855e95f9cf3ed8ded2e6/alfabeto.png")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -1754,6 +1804,28 @@ function smartSlipEnviarComprovanteApp(form) {
 
     if (!form.data_movimento_inicio) {
       throw new Error("Data de movimento inicial não informada.");
+    }
+
+    const dataMovimentoFimValidacao = form.data_movimento_fim || form.data_movimento_inicio;
+    const dataFimObj = smartSlipParseDateBR(dataMovimentoFimValidacao);
+
+    if (!dataFimObj) {
+      throw new Error("Data de movimento final inválida.");
+    }
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    dataFimObj.setHours(0, 0, 0, 0);
+
+    if (dataFimObj > hoje) {
+      throw new Error("A data movimento final não pode ser maior que a data atual.");
+    }
+
+    const valorRetiradaValidacao = Number(form.valor_retirada || 0);
+    const motivoRetiradaValidacao = String(form.motivo_retirada || "").trim();
+
+    if (valorRetiradaValidacao > 0 && !motivoRetiradaValidacao) {
+      throw new Error("Informe o motivo da retirada quando o valor da retirada for maior que zero.");
     }
 
     const usuarioAtual = smartSlipGetUsuarioAtual();
@@ -2320,6 +2392,194 @@ function smartSlipGetBootstrapAppJson() {
       erro: String(err && err.message ? err.message : err)
     });
   }
+}
+
+function smartSlipGetCompHubJson(optionsJson) {
+  try {
+    const usuario = smartSlipGetUsuarioAtual();
+
+    if (!usuario.can_comp_hub) {
+      return JSON.stringify({
+        ok: false,
+        erro: "Acesso restrito. O Comp Hub está disponível apenas para Administrador ou Analista Pro."
+      });
+    }
+
+    let options = {};
+
+    try {
+      options = optionsJson ? JSON.parse(optionsJson) : {};
+    } catch (e) {
+      options = {};
+    }
+
+    const dias = Number(options.dias || 60);
+
+    const payload = smartSlipGetCompHub(usuario, {
+      dias: dias
+    });
+
+    return JSON.stringify({
+      ok: true,
+      payload: payload
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
+function smartSlipGetCompHub(usuario, options) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+  options = options || {};
+  const dias = Number(options.dias || 60);
+  const limiteData = new Date();
+  limiteData.setDate(limiteData.getDate() - dias);
+  limiteData.setHours(0, 0, 0, 0);
+
+  if (!usuario.can_comp_hub) {
+    throw new Error("Acesso restrito ao Comp Hub.");
+  }
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return {
+      rows: [],
+      atualizado_em: smartSlipFormatarDataHora(new Date()),
+      range_dias: dias
+    };
+  }
+
+  const values = sh.getDataRange().getValues();
+  const headers = values[0].map(function(h) {
+    return String(h || "").trim();
+  });
+
+  const linhas = [];
+
+  for (let i = values.length - 1; i >= 1; i--) {
+    const row = values[i];
+    const dataRegistroRaw = smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"]);
+    const dataRegistroObj = smartSlipConverterDataCompHub_(dataRegistroRaw);
+
+    if (dataRegistroObj && dataRegistroObj < limiteData) {
+      continue;
+    }
+
+    const item = {
+      dataRegistro: smartSlipFormatarDataHora(smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])),
+      dataRegistroInput: smartSlipFormatarDataInputCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])),
+      idComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["ID Comprovante"]) || ""),
+      hashComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Hash Comprovante"]) || ""),
+      protocolo: String(smartSlipGetValorHeaderCompHub(row, headers, ["Protocolo"]) || ""),
+      indiceComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Índice Comprovante", "Indice Comprovante"]) || ""),
+      loja: String(smartSlipGetValorHeaderCompHub(row, headers, ["Loja"]) || ""),
+      empresa: String(smartSlipGetValorHeaderCompHub(row, headers, ["Empresa"]) || ""),
+      tipoDocumento: String(smartSlipGetValorHeaderCompHub(row, headers, ["Tipo Documento"]) || ""),
+      dataDeposito: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Depósito", "Data Deposito"])),
+      valorDeposito: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Valor Depósito", "Valor Deposito"])),
+      banco: String(smartSlipGetValorHeaderCompHub(row, headers, ["Banco"]) || ""),
+      dataMovimento: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Movimento"])),
+      houveRetirada: String(smartSlipGetValorHeaderCompHub(row, headers, ["Houve Retirada"]) || ""),
+      valorRetirada: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Valor Retirada"])),
+      motivoRetirada: String(smartSlipGetValorHeaderCompHub(row, headers, ["Motivo Retirada"]) || ""),
+      dataGeracaoDocumento: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Geração Documento", "Data Geracao Documento"])),
+      codigoAutenticacao: String(smartSlipGetValorHeaderCompHub(row, headers, ["Código Autenticação", "Codigo Autenticacao"]) || ""),
+      linkComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Link Comprovante"]) || ""),
+      statusProcessamento: String(smartSlipGetValorHeaderCompHub(row, headers, ["Status Processamento"]) || ""),
+      pendencias: String(smartSlipGetValorHeaderCompHub(row, headers, ["Pendências", "Pendencias"]) || ""),
+      divergencias: String(smartSlipGetValorHeaderCompHub(row, headers, ["Divergências", "Divergencias"]) || ""),
+      confiancaGeral: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Confiança Geral", "Confianca Geral"])),
+      jsonOriginal: String(smartSlipGetValorHeaderCompHub(row, headers, ["JSON Original"]) || "")
+    };
+
+    linhas.push(item);
+  }
+
+  return {
+    rows: linhas,
+    atualizado_em: smartSlipFormatarDataHora(new Date()),
+    range_dias: dias
+  };
+}
+
+function smartSlipGetValorHeaderCompHub(row, headers, nomes) {
+  const idx = smartSlipEncontrarIndiceHeader_(headers, nomes);
+
+  if (idx < 0) {
+    return "";
+  }
+
+  return row[idx];
+}
+
+function smartSlipNumeroCompHub(valor) {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  if (typeof valor === "number") {
+    return valor;
+  }
+
+  const txt = String(valor)
+    .trim()
+    .replace(/\./g, "")
+    .replace(",", ".");
+
+  const n = Number(txt);
+
+  return isNaN(n) ? 0 : n;
+}
+
+function smartSlipFormatarDataInputCompHub(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    return Utilities.formatDate(valor, tz, "yyyy-MM-dd");
+  }
+
+  const txt = String(valor).trim();
+
+  let m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) {
+    return m[3] + "-" + m[2] + "-" + m[1];
+  }
+
+  m = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+
+  return "";
+}
+
+function smartSlipConverterDataCompHub_(valor) {
+  if (!valor) return null;
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    return valor;
+  }
+
+  const txt = String(valor).trim();
+
+  let m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) {
+    return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  }
+
+  m = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  return null;
 }
 
 function smartSlipGetHistorico(usuario) {
