@@ -1,564 +1,3056 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projeto SmartSlip - Cronograma</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --green-dark: #005E27;
+      --green-dark-2: #003b19;
+      --green-light: #B5FF20;
+      --black: #050807;
+      --bg: #f4f8f1;
+      --card: #ffffff;
+      --muted: #667085;
+      --line: #d7e2d2;
+      --danger: #b42318;
+      --success: #027a48;
+      --warning: #b54708;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: #f7f7f7;
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(181,255,32,.18), transparent 28%),
+        linear-gradient(135deg, #f7fbf4, #eef5ea);
+      color: var(--black);
     }
-    h1, h2 {
-      color: #333;
+
+    input[readonly] {
+      background: #f3f8f1;
+      color: #475467;
+      cursor: not-allowed;
     }
-    section {
-      margin-bottom: 40px;
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
     }
-    .fase {
-      background: #fff;
-      border-left: 6px solid #007BFF;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+
+    .sidebar {
+      background:
+        linear-gradient(180deg, rgba(181,255,32,.12), transparent 22%),
+        linear-gradient(180deg, var(--green-dark), var(--green-dark-2));
+      color: #fff;
+      padding: 28px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 12px 0 32px rgba(0, 94, 39, .18);
     }
-    table {
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: var(--green-light);
+      color: var(--black);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      box-shadow: 0 12px 26px rgba(181,255,32,.22);
+    }
+
+    .brand-title {
+      font-weight: 900;
+      font-size: 21px;
+      letter-spacing: -.4px;
+    }
+
+    .brand-sub {
+      color: rgba(255,255,255,.72);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .status-pizza-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.status-pizza-stage {
+  position: relative;
+  width: 320px;
+  height: 250px;
+  margin: 0 auto;
+}
+
+.status-pizza-shadow {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 12px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, .18);
+  filter: blur(12px);
+}
+
+.status-pizza-3d {
+  position: absolute;
+  inset: 0;
+  width: 280px;
+  height: 280px;
+  margin: auto;
+  border-radius: 50%;
+  transform: perspective(900px) rotateX(58deg);
+  box-shadow:
+    inset 0 12px 18px rgba(255,255,255,.28),
+    inset 0 -12px 14px rgba(0,0,0,.12),
+    0 12px 0 rgba(0,0,0,.08);
+  background: #e5e7eb;
+}
+
+.status-pizza-legend {
+  display: grid;
+  gap: 12px;
+}
+
+.status-pizza-item {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #e5eee0;
+  border-radius: 14px;
+  background: rgba(255,255,255,.82);
+}
+
+.status-pizza-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.status-pizza-name {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.status-pizza-meta {
+  text-align: right;
+  font-size: 12px;
+  color: #667085;
+  line-height: 1.35;
+}
+
+.form-card {
+  position: relative;
+}
+
+.envio-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(2px);
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+}
+
+.envio-overlay.show {
+  display: flex;
+}
+
+.envio-overlay-box {
+  text-align: center;
+  padding: 20px 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #dbe7d5;
+  box-shadow: 0 12px 34px rgba(0,0,0,.12);
+  min-width: 220px;
+}
+
+.spinner {
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 12px;
+  border: 4px solid #d7e8cf;
+  border-top-color: #005E27;
+  border-radius: 50%;
+  animation: girarSpinner .8s linear infinite;
+}
+
+@keyframes girarSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 980px) {
+  .status-pizza-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-pizza-stage {
+    width: 100%;
+  }
+}
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-item {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
       text-align: left;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: transparent;
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all .18s ease;
     }
-    th {
-      background-color: #007BFF;
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: rgba(181,255,32,.18);
+      color: var(--green-light);
+      transform: translateX(2px);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.20);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .sidebar-footer strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .sidebar-footer small {
+      color: rgba(255,255,255,.70);
+    }
+
+    .main {
+      padding: 34px;
+      overflow: auto;
+    }
+
+    .session-blocker {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(5, 8, 7, .72);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.session-blocker.show {
+  display: flex;
+}
+
+.session-blocker-card {
+  width: min(460px, 100%);
+  background: #ffffff;
+  border: 1px solid #d7e2d2;
+  border-radius: 24px;
+  padding: 28px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+}
+
+.session-blocker-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: rgba(181,255,32,.45);
+  color: var(--green-dark);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 24px;
+  margin: 0 auto 12px;
+}
+
+.session-blocker-card h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.session-blocker-card p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.session-blocker-small {
+  font-size: 12px;
+}
+
+.intro-smartslip {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 90000;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background:
+    radial-gradient(circle at top left, rgba(181,255,32,.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(0,94,39,.30), transparent 34%),
+    #000000;
+  padding: 14px 28px 56px;
+  overflow-y: auto;
+}
+
+.intro-smartslip.show {
+  display: block;
+}
+
+body.intro-lock {
+  overflow: hidden;
+}
+
+.intro-hero-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: #ffffff;
+  text-align: left;
+  margin: 0 auto 18px;
+  width: min(980px, 100%);
+}
+
+.intro-hero-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  background: var(--green-light);
+  color: var(--black);
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 900;
+  box-shadow:
+    0 0 0 8px rgba(181,255,32,.10),
+    0 18px 42px rgba(181,255,32,.30);
+}
+
+.intro-hero-brand strong {
+  display: block;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-weight: 900;
+}
+
+.intro-hero-brand span {
+  display: block;
+  margin-top: 8px;
+  color: rgba(255,255,255,.82);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.intro-card {
+  width: min(980px, 100%);
+  margin: 0 auto 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,251,244,.98));
+  border: 1px solid rgba(181,255,32,.35);
+  border-radius: 32px;
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.48),
+    0 0 0 1px rgba(255,255,255,.04);
+  overflow: visible;
+}
+
+.intro-content {
+  padding: 32px;
+}
+
+.intro-pill {
+  display: inline-flex;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(181,255,32,.24);
+  color: var(--green-dark);
+  border: 1px solid rgba(0,94,39,.16);
+  font-size: 12px;
+  font-weight: 900;
+  margin-bottom: 14px;
+}
+
+.intro-content h1 {
+  max-width: 780px;
+  margin: 0 0 12px;
+  font-size: 34px;
+  line-height: 1.08;
+  letter-spacing: -.9px;
+  color: var(--black);
+}
+
+.intro-text {
+  max-width: 760px;
+  margin: 0 0 24px;
+  color: #475467;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.intro-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.intro-item {
+  border: 1px solid rgba(0,94,39,.18);
+  background: var(--green-light);
+  border-radius: 22px;
+  padding: 18px;
+  min-height: 145px;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .06);
+}
+
+.intro-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: #006b2d;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.intro-item h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: #0b1b10;
+  font-weight: 800;
+}
+
+.intro-item p {
+  margin: 0;
+  color: #274132;
+  line-height: 1.45;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.intro-note {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(181,255,32,.14);
+  border: 1px solid rgba(0,94,39,.12);
+  color: #314238;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 22px;
+}
+
+.intro-button {
+  width: 100%;
+  border: 0;
+  border-radius: 17px;
+  padding: 16px 20px;
+  background: var(--black);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.intro-button:hover {
+  background: var(--green-dark);
+  transform: translateY(-1px);
+}
+
+.intro-small {
+  margin: 12px 0 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .intro-smartslip {
+    padding: 16px;
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .intro-hero-brand {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 2px;
+  }
+
+  .intro-hero-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    font-size: 22px;
+  }
+
+  .intro-hero-brand strong {
+    font-size: 26px;
+  }
+
+  .intro-hero-brand span {
+    font-size: 14px;
+  }
+
+  .intro-card {
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    border-radius: 24px;
+  }
+
+  .intro-content {
+    padding: 22px;
+  }
+
+  .intro-content h1 {
+    font-size: 24px;
+    line-height: 1.12;
+  }
+
+  .intro-text {
+    font-size: 15px;
+  }
+
+  .intro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-button {
+    padding: 15px 18px;
+  }
+}
+
+.intro-smartslip.show .intro-item {
+  opacity: 0;
+  animation-duration: 1.25s;
+  animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+/* Card 1: entra da esquerda para a direita */
+.intro-smartslip.show .intro-item:nth-child(1) {
+  transform: translateX(-90px);
+  animation-name: introCardFromLeft;
+  animation-delay: .25s;
+}
+
+/* Card 2: entra de baixo para cima */
+.intro-smartslip.show .intro-item:nth-child(2) {
+  transform: translateY(70px);
+  animation-name: introCardFromBottom;
+  animation-delay: .65s;
+}
+
+/* Card 3: entra da direita para a esquerda */
+.intro-smartslip.show .intro-item:nth-child(3) {
+  transform: translateX(90px);
+  animation-name: introCardFromRight;
+  animation-delay: 1.05s;
+}
+
+@keyframes introCardFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-90px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes introCardFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(70px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes introCardFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(90px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Acessibilidade: reduz animações para usuários com preferência de movimento reduzido */
+@media (prefers-reduced-motion: reduce) {
+  .intro-smartslip.show .intro-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+    .view {
+      display: none;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .top-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,94,39,.18);
+      background: rgba(181,255,32,.18);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .1px;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 29px;
+      letter-spacing: -.5px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .page-sub {
+      margin: 0 0 22px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .form-card,
+    .panel,
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 18px 38px rgba(16, 24, 40, .08);
+    }
+
+    .form-card,
+    .panel {
+      padding: 24px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .kpi-card {
+      padding: 20px;
+      min-height: 118px;
+    }
+
+    .kpi-card span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .kpi-card strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 27px;
+      letter-spacing: -.5px;
+    }
+
+    label {
+      display: block;
+      font-weight: 900;
+      color: #314238;
+      margin-top: 16px;
+      margin-bottom: 7px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .35px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #cbd8c8;
+      border-radius: 13px;
+      padding: 13px;
+      font-size: 15px;
+      background: white;
+      color: var(--black);
+    }
+
+    input:focus,
+    select:focus {
+      outline: 3px solid rgba(181,255,32,.45);
+      border-color: var(--green-dark);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+      line-height: 1.35;
+    }
+
+        .upload-box {
+      min-height: 128px;
+      border: 1.5px dashed rgba(0, 94, 39, .38);
+      border-radius: 20px;
+      background:
+        linear-gradient(180deg, rgba(181,255,32,.08), rgba(255,255,255,.92));
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+      cursor: pointer;
+      transition: all .18s ease;
+    }
+
+    .upload-box:hover,
+    .upload-box.dragging {
+      border-color: var(--green-dark);
+      background: rgba(181,255,32,.14);
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(0, 94, 39, .10);
+    }
+
+    .upload-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: rgba(181,255,32,.42);
+      color: var(--green-dark);
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .upload-title {
+      font-weight: 900;
+      color: #314238;
+      font-size: 14px;
+    }
+
+    .upload-sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 15px;
+      padding: 14px 16px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 15px;
+      transition: all .18s ease;
+    }
+
+    .btn-primary {
+      background: var(--black);
       color: white;
     }
-    /* Estilos para a nova seção de detalhes do Slack */
-    .slack-detail-section {
-        background-color: #e0f7fa; /* Light blue background */
-        border-left: 6px solid #00BCD4; /* Cyan border */
-        padding: 20px;
-        margin-bottom: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .slack-detail-section h3 {
-        font-size: 1.5rem; /* text-2xl */
-        font-weight: 700; /* font-bold */
-        color: #007BFF; /* Blue color for sub-titles */
-        margin-bottom: 15px;
-    }
-    .slack-detail-section h4 {
-        font-size: 1.25rem; /* text-xl */
-        font-weight: 600; /* font-semibold */
-        color: #0056b3; /* Darker blue for sub-sub-titles */
-        margin-top: 20px;
-        margin-bottom: 10px;
-    }
-    .slack-detail-section p, .slack-detail-section ul {
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: #333;
-        margin-bottom: 10px;
-    }
-    .slack-detail-section ul {
-        list-style: disc;
-        margin-left: 25px;
-    }
-    .slack-detail-section strong {
-        color: #000; /* Ensure bold text is black */
+
+    .btn-primary:hover {
+      background: var(--green-dark);
+      transform: translateY(-1px);
     }
 
-    /* Styles for AI Modules section */
-    .ai-agents-section {
-        background-color: #e8f5e9; /* Light green background */
-        border-left: 6px solid #005E27; /* Dark Green border */
-        padding: 20px;
-        margin-bottom: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    .ai-agents-section .section-title-ai {
-        font-size: 2.25rem; /* text-4xl */
-        font-weight: 900; /* font-extrabold */
-        color: #005E27; /* Dark Green */
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
-    .ai-agents-section .intro-text-ai {
-        text-align: center;
-        color: #555;
-        max-width: 800px;
-        margin: 0 auto 3rem auto;
-        font-size: 1.125rem; /* text-lg */
-        line-height: 1.7;
-    }
-    .agent-card { /* Renamed to module-card for consistency */
-        background-color: white;
-        border-radius: 0.75rem; /* rounded-xl */
-        padding: 1.5rem; /* p-6 */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease-in-out;
-        border: 2px solid #005E27; /* Dark Green */
-        width: 100%; /* Take full width of its wrapper */
-        max-width: 400px; /* Limit max width for readability */
-        margin: 0; /* Remove auto margins from previous attempt */
-    }
-    .agent-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-    .agent-icon {
-        font-size: 3rem; /* text-5xl */
-        margin-bottom: 1rem; /* mb-4 */
-        text-align: center;
-        color: #B5FF20; /* Light Green */
-    }
-    .agent-title {
-        font-size: 1.5rem; /* text-2xl */
-        font-weight: 700; /* font-bold */
-        color: #005E27; /* Dark Green */
-        text-align: center;
-        margin-bottom: 0.75rem; /* mb-3 */
-    }
-    .agent-description {
-        font-size: 0.95rem; /* text-lg */
-        line-height: 1.6;
-        color: #4a4a4a;
-    }
-    /* Removed .flow-arrow-vertical as per user request */
-    .robot-button {
-        display: block;
-        width: fit-content;
-        margin: 20px auto;
-        padding: 10px 20px;
-        background-color: #005E27;
-        color: white;
-        text-decoration: none;
-        border-radius: 25px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .robot-button:hover {
-        background-color: #003C1A;
-    }
-    .robot-icon {
-        font-size: 1.5em;
+    .btn-secondary {
+      background: #eef4eb;
+      color: var(--green-dark);
+      border: 1px solid #d5e3ce;
     }
 
-    /* Styles for module layout in a 2x2 grid */
-    .modules-flow-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Exactly two columns */
-        gap: 20px; /* Gap between grid items */
-        justify-items: center; /* Center items within their grid cells */
-        align-items: start; /* Align items to the start of their grid cell */
+    .btn-secondary:hover {
+      background: rgba(181,255,32,.22);
     }
 
-    .module-item {
-        width: 100%; /* Take full width of its grid cell */
-        display: flex; /* Use flex to align the card inside */
-        justify-content: center; /* Center card within its grid cell */
-        margin-bottom: 20px; /* Add margin between rows */
+    button:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+      transform: none;
     }
 
-    /* Specific style for the last module to span full width */
-    .module-item.full-width {
-        grid-column: 1 / -1; /* Span all columns */
-        margin-bottom: 0; /* Remove bottom margin for the last item */
+    .msg {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 13px;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 14px;
     }
 
-    /* Media query for smaller screens to ensure cards stack */
-    @media (max-width: 768px) {
-        .modules-flow-container {
-            grid-template-columns: 1fr; /* Single column on small screens */
-        }
-        .module-item.full-width {
-            grid-column: auto; /* Reset grid-column for single column */
-        }
+    .ok {
+      display: block;
+      background: #ecfdf3;
+      color: #00682d;
+      border: 1px solid #a7f3c4;
     }
 
-    /* Style for the back to top button */
-    .back-to-top-button {
-        display: block;
-        width: fit-content;
-        margin: 40px auto 20px auto; /* Add margin top and bottom */
-        padding: 10px 20px;
-        background-color: #007BFF; /* Blue color for general buttons */
-        color: white;
-        text-decoration: none;
-        border-radius: 25px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        text-align: center;
+    .erro {
+      display: block;
+      background: #fff1f0;
+      color: var(--danger);
+      border: 1px solid #fecdca;
     }
-    .back-to-top-button:hover {
-        background-color: #0056b3;
+
+    .bar-chart {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 180px;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .bar-track {
+      height: 13px;
+      border-radius: 999px;
+      background: #e5eadf;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--green-dark), var(--green-light));
+    }
+
+    .chart-panel {
+  min-height: 360px;
+}
+
+.chart-panel-secondary {
+  margin-top: 18px;
+}
+
+.chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 14px;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.chart-controls .year-control {
+  min-width: 120px;
+}
+
+#boxMesResumo {
+  min-width: 150px;
+}
+
+.chart-sub {
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.year-control {
+  min-width: 140px;
+}
+
+.year-control label {
+  margin-top: 0;
+}
+
+.line-chart {
+  width: 100%;
+  min-height: 260px;
+}
+
+.line-chart svg {
+  width: 100%;
+  height: 260px;
+  display: block;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  margin-right: 6px;
+}
+
+.legend-dot.valor {
+  background: var(--green-light);
+  border: 1px solid rgba(0,0,0,.18);
+}
+
+.legend-dot.qtd {
+  background: var(--green-dark);
+}
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history-table th,
+    .history-table td {
+      padding: 11px 10px;
+      border-bottom: 1px solid #e6eee1;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .history-table th {
+      color: var(--green-dark);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .25px;
+    }
+
+    .history-table a {
+      color: var(--green-dark);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,94,39,.08);
+      color: var(--green-dark);
+      border: 1px solid rgba(0,94,39,.14);
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: .15px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .status-pill.status-ok {
+      background: #ecfdf3;
+      color: #027a48;
+      border-color: #abefc6;
+    }
+
+    .status-pill.status-warning {
+      background: #fffaeb;
+      color: #b54708;
+      border-color: #fedf89;
+    }
+
+    .status-pill.status-error {
+      background: #fff1f0;
+      color: #b42318;
+      border-color: #fecdca;
+    }
+
+    .status-pill.status-processing {
+      background: #eff8ff;
+      color: #175cd3;
+      border-color: #b2ddff;
+    }
+
+    .status-pill.status-received {
+      background: rgba(181,255,32,.18);
+      color: var(--green-dark);
+      border-color: rgba(0,94,39,.18);
+    }
+
+    .config-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #edf2e8;
+    }
+
+    .config-row b {
+      color: var(--green-dark);
+    }
+
+    .config-row-edit {
+  align-items: start;
+}
+
+.config-loja-control {
+  max-width: 360px;
+}
+
+.config-loja-control select {
+  width: 100%;
+}
+
+.config-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.config-actions .btn-primary {
+  min-width: 220px;
+}
+
+.filter-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 150px;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 18px;
+  padding: 16px;
+  border: 1px solid #e1ecdc;
+  border-radius: 18px;
+  background: rgba(255,255,255,.72);
+}
+
+.filter-panel label {
+  margin-top: 0;
+}
+
+@media (max-width: 900px) {
+  .filter-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .config-actions {
+    justify-content: stretch;
+  }
+
+  .config-actions .btn-primary {
+    width: 100%;
+  }
+}
+
+    @media (max-width: 900px) {
+      .app-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-radius: 0 0 26px 26px;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main {
+        padding: 18px;
+      }
+
+      .kpi-grid,
+      .row,
+      .actions,
+      .bar-row,
+      .config-row {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
-  <h1 id="top" style="background: linear-gradient(to bottom, #B5FF20, #005E27); color: #000000; padding: 20px; border-radius: 10px; text-align: center; font-size: 2.5em; margin-bottom: 30px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">Projeto SmartSlip - Cronograma de Evolução</h1>
-
-  <!-- Botão para a seção de Módulos de IA -->
-  <a href="#ai-modules-overview" class="robot-button">
-    <span class="robot-icon">🤖</span> Ver Módulos de IA
-  </a>
-
-  <div style="margin-bottom: 20px; padding: 15px; background-color: #e0f7fa; border-left: 4px solid #007BFF; border-radius: 5px;">
-    <h3 style="color: #007BFF; margin-top: 0;">Informações do Projeto:</h3>
-    <p style="color: #333;"><strong>Data de Início:</strong> 18/06/2025</p>
-    <p style="color: #333; margin-top: 10px;"><strong>Observação Importante:</strong> Devido à natureza do envio dos comprovantes pelas lojas (não garantido como padrão), os processos futuros de integração com o SAP via BigQuery ou similar para conciliação devem ser tratados como alternativos, para auxiliar na validação, e não como o método de conciliação principal.</p>
-  </div>
-
-  <div style="margin-bottom: 40px; padding: 15px; background-color: #e0f7fa; border-left: 4px solid #007BFF; border-radius: 5px;">
-    <h3 style="color: #007BFF; margin-top: 0;">Áreas e Responsáveis Envolvidos:</h3>
-    <ul>
-      <li style="color: #333;"><strong>Contas a Receber:</strong> Rodrigo Lisboa</li>
-      <li style="color: #333;"><strong>Área de Dados:</strong> Linneu Holanda</li>
-    </ul>
-  </div>
-
-  <section class="fase">
-    <h2>✨ Fase 1 - Consolidação da POC</h2>
-    <table>
-      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>1.1</td><td>Revisar os comprovantes de cancelamento, venda, depósito e POS para garantir que os modelos de OCR capturam os campos corretamente.</td><td>Semana 1</td></tr>
-      <tr><td>1.2</td><td>Implementar validações estruturais nos campos extraídos, como formatos de datas, número de loja, e consistência nos valores.</td><td>Semana 2</td></tr>
-      <tr><td>1.3</td><td>Salvar os dados extraídos em uma base no BigQuery, organizando por tipo de comprovante e origem.</td><td>Semana 2</td>
-      <tr><td>1.4</td><td>Gerar relatórios com métricas de acurácia do OCR por tipo de campo e tipo de comprovante.</td><td>Semana 3</td></tr>
-      <tr><td>1.5</td><td>Desenvolver dashboards para monitoramento contínuo da leitura de comprovantes e qualidade dos dados.</td><td>Semana 3</td></tr>
-    </table>
-  </section>
-
-  <section class="fase">
-    <h2>🔄 Fase 2 - Coleta Complementar de Informações</h2>
-    <table>
-      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>2.1</td><td>Listar campos não contidos nos comprovantes como "Data do movimento" ou "Venda finalizada no mesmo dia?", que precisarão ser preenchidos manualmente.</td><td>Semana 4</td></tr>
-      <tr><td colspan="3">
-        <h3 style="font-weight: bold; margin-top: 15px; margin-bottom: 10px; color: #333;">Exemplos de Campos Complementares:</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr>
-              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Tipo de Comprovante</th>
-              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Campo a Ser Complementado</th>
-              <th style="background-color: #007BFF; color: white; padding: 8px; border: 1px solid #ccc;">Canal Sugerido</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ccc;">Depósito de numerário</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Data do movimento bancário</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Slack (bot interativo) ou WhatsApp (via Zenvia)</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ccc;">Comprovante de Venda (POS)</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Venda finalizada no mesmo dia? Data finalização? Duplicidade?</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Formulário rápido ou bot com perguntas condicionais</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ccc;">Boleta de POS</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Venda finalizada no mesmo dia? Data finalização? Duplicidade?</td>
-              <td style="padding: 8px; border: 1px solid #ccc;">Mesma lógica acima</td>
-            </tr>
-          </tbody>
-        </table>
-      </td></tr>
-      <tr><td>2.2</td><td>Escolher canais eficientes para que as lojas complementem esses dados: preferencialmente Slack ou web form integrado.</td><td>Semana 5</td></tr>
-      <tr><td>2.3</td><td>Desenvolver um bot com linguagem natural para interagir com os usuários e coletar os dados ausentes.</td><td>Semana 6</td></tr>
-      <tr><td>2.4</td><td>Fazer a integração das respostas capturadas via bot diretamente com o BigQuery ou via API de backend, garantindo que a complementação seja registrada.</td><td>Semana 7</td></tr>
-    </table>
-  </section>
-
-  <section class="fase">
-    <h2>📱 Fase 3 - Opções de Interfaces para Lojas</h2>
-    <table>
-      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>3.1</td><td>Estudar o escopo técnico para criação de um web form integrado que permita a leitura dos comprovantes diretamente pelas lojas.</td><td>Semana 7</td></tr>
-      <tr><td>3.2</td><td>Desenvolver o retorno via bot, com mensagens que mostram a leitura realizada e solicitam dados adicionais, se necessário.</td><td>Semana 11</td></tr>
-      <tr><td>3.3</td><td>Implementar e testar interface de complementação via Slack (ex: canal dedicado, mensagens automatizadas ou app dentro do Slack).</td><td>Semana 11</td></tr>
-    </table>
-  </section>
-
-  <!-- Nova Seção: Detalhes da Integração Slack e IA -->
-  <section id="slack-ia-details" class="slack-detail-section">
-    <h2>Detalhes da Integração Slack e IA para o projeto SmartSlip</h2>
-    <p>Este documento aprofunda o processo de como o Slack seria utilizado como um canal para a coleta de comprovantes e informações complementares, integrando a inteligência artificial (IA) para a leitura e o bot para a interação conversacional, e como esses dados seriam enviados para o BigQuery para posterior confronto com o SAP.</p>
-
-    <h3>1. Envio de Comprovantes pelas Lojas via Slack</h3>
-    <p>As lojas teriam duas principais formas de enviar os comprovantes via Slack:</p>
-    <ul>
-      <li>
-        <h4>1.1. Canal Específico no Slack:</h4>
-        <ul>
-          <li><strong>Criação de Canais:</strong> Seria criado um canal dedicado por loja (ex: `#comprovantes-loja-centauro-001`) ou um canal centralizado com identificação da loja na mensagem. A primeira opção oferece maior organização e privacidade.</li>
-          <li><strong>Envio Direto:</strong> Os gerentes ou responsáveis pela prestação de contas na loja simplesmente arrastariam e soltariam (drag-and-drop) ou fariam upload dos arquivos de imagem (JPEG, PNG) ou PDF dos comprovantes diretamente no canal Slack.</li>
-          <li><strong>Contexto Inicial:</strong> O bot seria configurado para monitorar esses canais. Ao detectar um novo arquivo, ele automaticamente iniciaria o processo de leitura e conversação.</li>
-        </ul>
-      </li>
-      <li>
-        <h4>1.2. Aplicativo (App) do Bot no Slack:</h4>
-        <ul>
-          <li><strong>Interface Simplificada:</strong> Dentro do próprio Slack, o bot poderia ter um "App Home" ou uma interface de mensagem direta (DM) onde o usuário clicaria em um botão "Enviar Comprovante".</li>
-          <li><strong>Fluxo Guiado:</strong> Ao clicar, o bot poderia guiar o usuário com prompts mais específicos, como "Por favor, anexe a imagem do comprovante aqui" ou "Qual o tipo de comprovante (venda, cancelamento, depósito)?", antes mesmo do upload. Isso poderia otimizar a qualidade da entrada de dados.</li>
-          <li><strong>Comandos de Barra:</strong> Poderiam ser implementados comandos de barra (ex: `/smartslip-enviar`) para iniciar o fluxo de envio de comprovantes de forma mais estruturada.</li>
-        </ul>
-      </li>
-    </ul>
-
-    <h3>2. Atuação do Bot para Conversação e Coleta de Informações Complementares</h3>
-    <p>A inteligência do bot reside em sua capacidade de interagir com o usuário para preencher lacunas na leitura da IA.</p>
-    <ul>
-      <li>
-        <h4>2.1. Detecção e Início da Conversa:</h4>
-        <ul>
-          <li><strong>Gatilho:</strong> Assim que um comprovante é enviado (seja no canal ou via app), o backend do bot (hospedado em uma Cloud Function, por exemplo) é acionado via webhook do Slack.</li>
-          <li><strong>Análise OCR (IA):</strong> O arquivo é imediatamente enviado para a API de OCR (ex: Google Vision AI, Azure Form Recognizer). A IA tenta extrair o máximo de campos possíveis (valor, data, CNPJ, tipo de documento).</li>
-          <li><strong>Identificação de Lacunas:</strong> O backend compara os campos extraídos pela IA com os campos obrigatórios esperados para aquele tipo de comprovante (conforme as regras de negócio definidas na Fase 2 do cronograma). Se houver campos ausentes, inconsistências ou com baixa confiança na leitura, o bot inicia a conversação.</li>
-        </ul>
-      </li>
-      <li>
-        <h4>2.2. Interação Conversacional com o Usuário:</h4>
-        <ul>
-          <li><strong>Mensagem Inicial:</strong> O bot enviaria uma mensagem no Slack (no canal ou em DM com o usuário que enviou o comprovante) informando sobre a leitura e solicitando os dados faltantes.</li>
-          <li>Exemplo: "Olá! Recebi seu comprovante. Parece ser um 'Comprovante de Venda'. No entanto, não consegui identificar a 'Data de Finalização da Venda'. Você poderia me informar?"</li>
-          <li><strong>Perguntas Estruturadas:</strong> Para campos específicos, o bot pode usar recursos interativos do Slack, como:</li>
-          <li><strong>Botões:</strong> Para respostas Sim/Não ("Esta venda foi finalizada no mesmo dia? [Sim] [Não]").</li>
-          <li><strong>Menus Dropdown:</strong> Para seleção de opções pré-definidas (ex: "Qual a data da finalização? [Data Picker]").</li>
-          <li><strong>Entrada de Texto Livre:</strong> Para informações mais complexas (ex: "Por favor, descreva brevemente o item comprado").</li>
-          <li><strong>Validação em Tempo Real:</strong> O bot tentaria validar as respostas do usuário imediatamente. Se uma data for digitada incorretamente, ele pediria para corrigir.</li>
-          <li><strong>Tratamento de Exceções:</strong> Se o bot não conseguir entender a resposta após algumas tentativas, ele poderia escalar para um humano (ex: "Não entendi sua resposta. Por favor, entre em contato com o Financeiro para auxílio.").</li>
-        </ul>
-      </li>
-      <li>
-        <h4>2.3.1. Fluxo de Exemplo (Comprovante de Venda POS):</h4>
-        <ol>
-          <li><strong>Usuário:</strong> Envia imagem do comprovante de venda POS para o canal `#comprovantes-loja-xxx`.</li>
-          <li><strong>Bot (Backend):</strong> Recebe o arquivo, envia para OCR. OCR extrai `Valor: R$ 150,00`, `Data: 01/07/2025`.</li>
-          <li><strong>Bot (Backend):</strong> Identifica que "Venda finalizada no mesmo dia?" e "Duplicidade?" são campos complementares necessários.</li>
-          <li><strong>Bot (Slack):</strong> Envia mensagem para o usuário: "Comprovante de Venda lido: Valor R$ 150,00, Data 01/07/2025. Esta venda foi finalizada no mesmo dia? [Sim] [Não]"</li>
-          <li><strong>Usuário:</strong> Clica em "Sim".</li>
-          <li><strong>Bot (Slack):</strong> "Ótimo! Há alguma duplicidade conhecida para esta transação? [Sim] [Não]"</li>
-          <li><strong>Usuário:</strong> Clica em "Não".</li>
-          <li><strong>Bot (Slack):</strong> "Obrigado! Todas as informações foram coletadas e registradas. Você pode ver o status em [link para dashboard]."</li>
-        </ol>
-      </li>
-      <li>
-        <h4>2.3.2. Fluxo de Exemplo (Comprovante de Depósito de Numerário):</h4>
-        <ol>
-          <li><strong>Usuário:</strong> Envia imagem do comprovante de depósito de numerário para o canal `#comprovantes-loja-xxx`.</li>
-          <li><strong>Bot (Backend):</strong> Recebe o arquivo, envia para OCR. OCR extrai `Valor: R$ 500,00`, `Agência: 1234`, `Conta: 56789-0`.</li>
-          <li><strong>Bot (Backend):</strong> Identifica que "Data do movimento bancário" é um campo complementar necessário.</li>
-          <li><strong>Bot (Slack):</strong> Envia mensagem para o usuário: "Comprovante de Depósito lido: Valor R$ 500,00. Por favor, informe a data do movimento bancário (DD/MM/AAAA)."</li>
-          <li><strong>Usuário:</strong> Digita "02/07/2025".</li>
-          <li><strong>Bot (Slack):</strong> "Data do movimento bancário confirmada como 02/07/2025. Obrigado! Todas as informações foram coletadas e registradas. Você pode ver o status em [link para dashboard]."</li>
-        </ol>
-      </li>
-    </ul>
-
-    <h3>3. Captura e Integração de Informações para BigQuery e SAP</h3>
-    <p>A coleta de dados via Slack é apenas o primeiro passo; a integração robusta é fundamental.</p>
-    <ul>
-      <li>
-        <h4>3.1. Captura de Dados via API (Backend do Bot):</h4>
-        <ul>
-          <li><strong>Eventos do Slack:</strong> As interações do usuário (envio de arquivos, respostas a perguntas, cliques em botões) geram eventos no Slack que são enviados para o endpoint do backend do bot.</li>
-          <li><strong>Processamento no Backend:</strong> O backend do bot (Cloud Function/Lambda) é o ponto central de processamento. Ele recebe:</li>
-          <li>O arquivo do comprovante (via URL temporária do Slack).</li>
-          <li>Os resultados da leitura OCR.</li>
-          <li>As respostas conversacionais do usuário.</li>
-          <li><strong>Estruturação dos Dados:</strong> O backend é responsável por consolidar todas essas informações em um formato estruturado (JSON, por exemplo), que inclui os dados do comprovante, os campos complementares, e metadados como `user_id`, `timestamp_envio`, `canal_slack`, etc.</li>
-        </ul>
-      </li>
-      <li>
-        <h4>3.2. Armazenamento no BigQuery (Base de Dados para Leitura):</h4>
-        <ul>
-          <li><strong>Ingestão Direta:</strong> A forma mais eficiente seria o backend do bot fazer a ingestão direta dos dados estruturados para uma tabela específica no BigQuery. O BigQuery é ideal para grandes volumes de dados e análises posteriores.</li>
-          <li><strong>Esquema de Tabela:</strong> A tabela no BigQuery seria projetada para armazenar todos os campos extraídos pelo OCR, os campos complementares, e o link para o comprovante original (armazenado em um Cloud Storage, por exemplo).</li>
-          <li><strong>Finalidade:</strong> Esta base no BigQuery seria a "fonte da verdade" para os dados dos comprovantes, permitindo que o Financeiro e outras áreas pudessem consultá-los e gerar relatórios.</li>
-        </ul>
-      </li>
-      <li>
-        <h4>3.3. Confronto com SAP (Posterior à Coleta):</h4>
-        <ul>
-          <li><strong>Processo Batch ou Near Real-time:</strong> A integração com o SAP ocorreria em um momento posterior, não necessariamente em tempo real com cada envio de comprovante. Poderia ser um processo diário ou por batelada.</li>
-          <li><strong>BigQuery como Fonte:</strong> O BigQuery seria a fonte primária de dados para o confronto.</li>
-          <li><strong>Regras de Conciliação:</strong> As regras de negócio para conciliação (Fase 4 do cronograma) seriam aplicadas. Por exemplo:</li>
-          <li>Comparar o valor e a data do comprovante lido com as transações registradas no SAP.</li>
-          <li>Verificar se um comprovante de cancelamento no BigQuery corresponde a uma transação cancelada no SAP.</li>
-          <li><strong>Identificação de Divergências:</strong> O sistema identificaria automaticamente as divergências entre os dados do comprovante (BigQuery) e os registros do SAP.</li>
-          <li><strong>Geração de Alertas/Relatórios:</strong> Essas divergências gerariam alertas (enviados para o Financeiro via Slack, e-mail ou dashboard) e relatórios para investigação e ajuste manual no SAP, se necessário.</li>
-          <li><strong>API do SAP (Futuro):</strong> Conforme a Fase 4 do cronograma, a viabilidade de usar a API do SAP para atualizações de status ou busca de dados em tempo real seria analisada, o que poderia automatizar ainda mais o processo de conciliação.</li>
-        </ul>
-      </li>
-    </ul>
-  </section>
-  <section class="fase">
-    <h2>⚖️ Fase 4 - Integração com SAP e BigQuery</h2>
-    <table>
-      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>4.1</td><td>Construir integração entre o BigQuery e a base do SAP, possibilitando comparação automatizada dos dados lidos com os registros financeiros.</td><td>Semana 12</td></tr>
-      <tr><td>4.2</td><td>Definir regras de negócio para conciliação: por exemplo, validar se o valor do comprovante de cancelamento bate com a transação cancelada.</td><td>Semana 13</td></tr>
-      <tr><td>4.3</td><td>Desenvolver alertas automáticos para divergências ou falhas na conciliação dos dados extraídos com os dados do SAP.</td><td>Semana 13</td>
-      <tr><td>4.4</td><td>Analisar e testar a viabilidade de uso da API do SAP para atualizar status de conciliação ou buscar dados em tempo real.</td><td>Semana 14</td></tr>
-      <tr><td>4.5</td><td>Documentar todo o fluxo de dados para uso em auditorias e controles internos.</td><td>Semana 14</td>
-      <tr><td>4.6</td><td>
-        <strong>Identificar e prevenir fraudes nos comprovantes enviados.</strong>
-        <ul>
-            <li><strong>Análise de Padrões:</strong> Utilizar algoritmos para identificar comportamentos ou características atípicas nas despesas, como valores incomuns, horários de compra fora do padrão, ou recorrência de transações suspeitas.</li>
-            <li><strong>Detecção de Anomalias:</strong> Sinalizar transações que fogem significativamente do padrão de gastos habitual de uma loja, de um tipo de despesa ou de um gerente específico, indicando possíveis irregularidades.</li>
-            <li><strong>Cruzamento de Informações:</strong> Comparar dados extraídos por OCR dos comprovantes com informações fornecidas manualmente e com dados históricos de transações para encontrar inconsistências (ex: datas de compra divergentes, valores que não batem, CNPJs inexistentes ou inválidos).</li>
-            <li><strong>Geração de Alertas de Fraude:</strong> Acionar alertas automáticos para o time financeiro ou de auditoria quando uma transação for classificada como de alto risco de fraude, permitindo investigação manual.</li>
-        </ul>
-      </td><td>Contínuo</td></tr>
-    </table>
-  </section>
-
-  <section class="fase">
-    <h2>📊 Fase 5 - Escala e Evolução</h2>
-    <table>
-      <tr><th>Etapa</th><th>Descrição</th><th>Prazo</th></tr>
-      <tr><td>5.1</td><td>Realizar pilotos com 1 ou 2 lojas para testes iniciais do projeto.</td><td>A definir</td></tr>
-      <tr><td>5.2</td><td>Implantar pesquisas rápidas e entrevistas com lojas para entender dores e melhorias no uso da ferramenta.</td><td>Semana 15</td>
-      </tr>
-      <tr><td>5.3</td><td>Realizar ajustes contínuos no OCR com base em erros recorrentes e novos layouts de comprovantes.</td><td>Contínuo</td>
-      </tr>
-      <tr><td>5.4</td><td>Escalar o projeto para novas lojas, macro-implantação.</td><td>Semana 16+</td>
-      </tr>
-      <tr><td>5.5</td><td>Construir indicadores mensais de ROI: tempo economizado, assertividade da IA, redução de erros humanos.</td><td>Mensal</td>
-      </tr>
-    </table>
-  </section>
-
-  <section id="ai-modules-overview" class="ai-agents-section">
-    <header class="text-center mb-12">
-        <h2 class="section-title-ai">Módulos de IA no Projeto SmartSlip</h2>
-        <p class="intro-text-ai">O projeto SmartSlip utiliza diferentes "módulos" de Inteligência Artificial para automatizar e otimizar o fluxo de processamento de comprovantes, desde a leitura inicial até a detecção de possíveis fraudes e a interação com os usuários das lojas. Veja como eles atuam em conjunto:</p>
-    </header>
-
-    <div class="max-w-6xl mx-auto modules-flow-container">
-        <!-- Primeira linha de módulos -->
-        <div class="module-item">
-            <div class="agent-card">
-                <div class="agent-icon">📸</div>
-                <h3 class="agent-title">Módulo de OCR (Visão Computacional)</h3>
-                <div class="agent-description">
-                    <p><strong>Função:</strong> Responsável pela leitura e extração automática de dados de comprovantes físicos e digitais.</p>
-                    <p><strong>Entrada:</strong> Imagens (JPEG, PNG) ou PDFs de notas fiscais, recibos, boletas de POS e comprovantes de depósito.</p>
-                    <p><strong>Saída:</strong> Dados estruturados como valor da transação, data, CNPJ do estabelecimento, tipo de documento, etc.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="module-item">
-            <div class="agent-card">
-                <div class="agent-icon">💬</div>
-                <h3 class="agent-title">Módulo de Conversação (Bot Slack)</h3>
-                <div class="agent-description">
-                    <p><strong>Função:</strong> Interage com os gerentes das lojas via Slack para coletar informações complementares que não foram totalmente extraídas pelo OCR ou para esclarecer dúvidas.</p>
-                    <p><strong>Entrada:</strong> Dados do OCR com lacunas ou inconsistências, perguntas dos usuários.</p>
-                    <p><strong>Saída:</strong> Respostas estruturadas dos usuários, confirmações de dados, mensagens de orientação.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Segunda linha de módulos -->
-        <div class="module-item">
-            <div class="agent-card">
-                <div class="agent-icon">🕵️</div>
-                <h3 class="agent-title">Módulo de Análise de Fraude</h3>
-                <div class="agent-description">
-                    <p><strong>Função:</strong> Analisa padrões de gastos, detecta anomalias e cruza informações de diversas fontes para identificar transações suspeitas ou possíveis fraudes.</p>
-                    <p><strong>Entrada:</strong> Dados estruturados do OCR e do bot, dados históricos de transações, informações de políticas de uso.</p>
-                    <p><strong>Saída:</strong> Alertas de fraude, pontuações de risco para transações, relatórios de inconsistências.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="module-item">
-            <div class="agent-card">
-                <div class="agent-icon">✅</div>
-                <h3 class="agent-title">Módulo de Validação e Integração de Dados</h3>
-                <div class="agent-description">
-                    <p><strong>Função:</strong> Garante a qualidade e consistência dos dados coletados, preparando-os para a integração com o BigQuery e o SAP.</p>
-                    <p><strong>Entrada:</strong> Dados processados pelo OCR e pelo bot, regras de validação de negócio.</p>
-                    <p><strong>Saída:</strong> Dados limpos, padronizados e prontos para conciliação e análise financeira.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Módulo de Integração Final (BigQuery & SAP) - Ocupando a linha toda com mais detalhes -->
-        <div class="module-item full-width">
-            <div class="agent-card">
-                <div class="agent-icon">🔗</div>
-                <h3 class="agent-title">Módulo de Integração Final (BigQuery & SAP)</h3>
-                <div class="agent-description">
-                    <p><strong>Função:</strong> Consolidar e conciliar dados de despesas para garantir a precisão financeira e a conformidade contábil.</p>
-                    <p><strong>Processo Detalhado:</strong></p>
-                    <ul>
-                        <li><strong>Coleta de Dados:</strong> Os dados limpos e validados pelos módulos anteriores (OCR, Conversação, Análise de Fraude e Validação) são enviados de forma automatizada para o BigQuery.</li>
-                        <li><strong>Armazenamento Centralizado:</strong> O BigQuery atua como um data warehouse central, armazenando todas as informações de despesas de forma escalável e otimizada para consultas e análises complexas.</li>
-                        <li><strong>Conciliação Automatizada:</strong> Rotinas programadas (scripts ou ferramentas ETL) no BigQuery comparam as transações registradas com os dados do SAP (via integração direta, APIs ou carga de dados em lote), identificando automaticamente divergências e correspondências.</li>
-                        <li><strong>Relatórios e Alertas:</strong> Dashboards e relatórios são gerados a partir do BigQuery, destacando transações conciliadas e, principalmente, as não conciliadas. Alertas são enviados para a equipe Financeira em caso de inconsistências que exijam intervenção humana.</li>
-                        <li><strong>Atualização do SAP:</strong> Após a conciliação bem-sucedida ou a resolução manual de divergências, os dados podem ser utilizados para atualizar ou confirmar registros no SAP, garantindo a integridade dos sistemas contábeis e fechando o ciclo completo da despesa.</li>
-                    </ul>
-                    <p><strong>Melhorias:</strong> Maior precisão na conciliação financeira, redução significativa de erros manuais, visibilidade em tempo real do status das despesas e otimização geral do processo contábil e de auditoria.</p>
-                </div>
-            </div>
-        </div>
+  <div id="sessionBlocker" class="session-blocker">
+      <div class="session-blocker-card">
+        <div class="session-blocker-icon">!</div>
+        <h2>Sessão encerrada</h2>
+        <p>Esta tela foi cancelada porque o SmartSlip foi aberto em outra aba ou janela.</p>
+        <p class="session-blocker-small">Use apenas a aba mais recente.</p>
+      </div>
     </div>
-  </section>
+      <div id="introSmartSlip" class="intro-smartslip show">
+        <div class="intro-hero-brand">
+          <div class="intro-hero-logo">S</div>
+          <div>
+            <strong>SmartSlip</strong>
+            <span>Envio inteligente de comprovantes</span>
+          </div>
+        </div>
 
-  <a href="#top" class="back-to-top-button">Voltar ao Início</a>
+        <div class="intro-card">
+          <div class="intro-content">
+            <div class="intro-pill">Novo fluxo operacional</div>
+
+            <h1>Envie, valide e acompanhe comprovantes com mais controle.</h1>
+
+            <p class="intro-text">
+              O SmartSlip centraliza o envio dos comprovantes de depósito das lojas,
+              usa Inteligência Artificial para apoiar a leitura dos documentos e permite
+              acompanhar os envios por status, quantidade e valores.
+            </p>
+
+            <div class="intro-grid">
+              <div class="intro-item">
+                <div class="intro-icon">1</div>
+                <h3>Envio facilitado</h3>
+                <p>A loja anexa o comprovante, informa o movimento e envia direto pela plataforma.</p>
+              </div>
+
+              <div class="intro-item">
+                <div class="intro-icon">2</div>
+                <h3>Leitura com IA</h3>
+                <p>O sistema interpreta os dados do comprovante e sinaliza pendências ou divergências.</p>
+              </div>
+
+              <div class="intro-item">
+                <div class="intro-icon">3</div>
+                <h3>Visões de acompanhamento</h3>
+                <p>Regionais e administradores acompanham valores, quantidades e status dos envios.</p>
+              </div>
+            </div>
+
+            <div class="intro-note">
+              <b>Importante:</b> envie imagens legíveis e confira se a loja padrão está correta em Configurações.
+            </div>
+
+            <button type="button" class="intro-button" onclick="fecharIntroSmartSlip()">
+              Entendi, acessar SmartSlip
+            </button>
+          </div>
+        </div>
+      </div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div>
+          <div class="brand-title">SmartSlip</div>
+          <div class="brand-sub">Área financeira</div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="nav-item active" type="button" onclick="abrirView('inicio', this)">⌂ Início</button>
+        <button class="nav-item" type="button" onclick="abrirView('comprovantes', this)">▣ Comprovantes</button>
+        <button class="nav-item" type="button" onclick="abrirView('historico', this)">↺ Histórico</button>
+        <button class="nav-item" type="button" onclick="abrirView('configuracoes', this)">⚙ Configurações</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <strong id="userNameSide">Usuário</strong>
+        <small id="userRoleSide">Carregando...</small>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="view-inicio" class="view active">
+        <div class="top-pill">Visão geral</div>
+        <h1>Olá, <span id="primeiroNome">usuário</span></h1>
+        <p class="page-sub">Resumo mensal dos comprovantes enviados.</p>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span>Comprovantes</span>
+            <strong id="kpiQtd">0</strong>
+          </div>
+
+          <div class="kpi-card">
+            <span>Valor total</span>
+            <strong id="kpiValor">R$ 0,00</strong>
+          </div>
+
+          <div class="kpi-card">
+            <span>Loja padrão</span>
+            <strong id="kpiLoja">-</strong>
+          </div>
+        </div>
+
+          <div class="panel chart-panel">
+            <div class="chart-head">
+              <div>
+                <h2>Valor dos comprovantes</h2>
+                <p class="chart-sub">Valor total conforme a visão selecionada.</p>
+              </div>
+
+              <div class="chart-controls">
+                <div class="year-control">
+                  <label for="modoResumo">Visão</label>
+                  <select id="modoResumo" onchange="onModoResumoChange()">
+                    <option value="mensal">Mensal</option>
+                    <option value="diario">Diário</option>
+                  </select>
+                </div>
+
+                <div class="year-control">
+                  <label for="anoResumo">Ano</label>
+                  <select id="anoResumo" onchange="onAnoResumoChange()"></select>
+                </div>
+
+                <div class="year-control" id="boxMesResumo" style="display:none;">
+                  <label for="mesResumo">Mês</label>
+                  <select id="mesResumo" onchange="onMesResumoChange()"></select>
+                </div>
+              </div>
+            </div>
+
+            <div id="chartMensal" class="line-chart">
+              <p class="page-sub">Carregando resumo...</p>
+            </div>
+
+            <div class="chart-legend">
+              <span><i class="legend-dot valor"></i> Valor</span>
+            </div>
+          </div>
+
+          <div class="panel chart-panel chart-panel-secondary">
+            <div class="chart-head">
+              <div>
+                <h2>Quantidade de envios</h2>
+                <p class="chart-sub">Total de comprovantes conforme a visão selecionada.</p>
+              </div>
+            </div>
+
+            <div id="chartQtdMensal" class="line-chart">
+              <p class="page-sub">Carregando quantidade...</p>
+            </div>
+
+            <div class="chart-legend">
+              <span><i class="legend-dot qtd"></i> Quantidade</span>
+            </div>
+          </div>
+
+          <div class="panel chart-panel chart-panel-secondary">
+          <div class="chart-head">
+            <div>
+              <h2>Status dos comprovantes</h2>
+              <p class="chart-sub">Distribuição percentual dos status dos comprovantes enviados.</p>
+            </div>
+          </div>
+
+          <div class="status-pizza-grid">
+            <div class="status-pizza-stage">
+              <div class="status-pizza-shadow"></div>
+              <div id="chartStatusPizza" class="status-pizza-3d"></div>
+            </div>
+
+            <div id="chartStatusLegenda" class="status-pizza-legend">
+              <p class="page-sub">Carregando status...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-comprovantes" class="view">
+        <div class="top-pill">Novo envio</div>
+        <h1>Enviar comprovante</h1>
+        <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
+
+          <div class="form-card">
+            <label>Comprovante</label>
+
+            <div class="upload-box"
+                onclick="abrirSeletorArquivo()"
+                ondragover="onDragOverArquivo(event)"
+                ondragleave="onDragLeaveArquivo(event)"
+                ondrop="onDropArquivo(event)">
+              <input id="arquivo"
+                    type="file"
+                    accept="application/pdf,image/*"
+                    onchange="onArquivoSelecionado()"
+                    hidden>
+
+              <div class="upload-icon">▧</div>
+              <div class="upload-title" id="uploadTitle">Foto ou PDF do comprovante</div>
+              <div class="upload-sub" id="uploadSub">Clique para selecionar ou arraste o arquivo aqui</div>
+            </div>
+
+            <div class="hint">
+              Envie uma foto/PDF legível. O sistema tentará identificar todos os comprovantes presentes no arquivo.
+            </div>
+
+            <div class="row">
+              <div>
+                <label>Número da loja</label>
+                <input id="loja" type="text" inputmode="numeric" placeholder="Configure sua loja padrão" readonly>
+                <div class="hint">A loja é definida na página Configurações.</div>
+              </div>
+
+            <div>
+              <label>Houve retirada?</label>
+              <select id="houve_retirada" onchange="toggleRetirada()">
+                <option value="false">Não</option>
+                <option value="true">Sim</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>Data movimento inicial</label>
+              <input id="data_movimento_inicio" type="date" onchange="onDataMovimentoInicioChange()">
+            </div>
+
+            <div>
+              <label>Data movimento final</label>
+              <input id="data_movimento_fim" type="date" onchange="validarPeriodoMovimentoTela()">
+              <div class="hint">Se for uma única data, pode repetir ou deixar em branco.</div>
+            </div>
+          </div>
+
+          <div id="boxRetirada" style="display:none;">
+            <div class="row">
+              <div>
+                <label>Valor da retirada</label>
+                <input id="valor_retirada" type="number" step="0.01" min="0" value="0" oninput="normalizarValorRetirada()">
+              </div>
+
+              <div>
+                <label>Motivo da retirada</label>
+                <input id="motivo_retirada" type="text" placeholder="Ex: Reembolso no ato">
+              </div>
+            </div>
+          </div>
+
+          <label>Há mais algum comprovante para envio?</label>
+          <select id="mais_comprovantes">
+            <option value="false">Não</option>
+            <option value="true">Sim</option>
+          </select>
+
+          <div class="actions">
+            <button id="btnLimpar" class="btn-secondary" type="button" onclick="limparFormulario(false)">Limpar</button>
+            <button id="btn" class="btn-primary" type="button" onclick="enviar()">Enviar comprovante</button>
+          </div>
+
+          <div id="msg" class="msg"></div>
+          <div id="envioOverlay" class="envio-overlay"> <div class="envio-overlay-box"> <div class="spinner"></div> <div id="envioOverlayText">Processando envio...</div> </div> </div>
+        </div>
+      </section>
+
+      <section id="view-historico" class="view">
+        <div class="top-pill">Histórico</div>
+        <h1>Histórico de envios</h1>
+        <p class="page-sub" id="histSub">Mostrando seus envios.</p>
+
+        <div class="panel">
+          <div class="filter-panel">
+            <div>
+              <label>Data de envio</label>
+              <input id="filtroHistData" type="date" onchange="aplicarFiltrosHistorico()">
+            </div>
+
+            <div>
+              <label>Status</label>
+              <select id="filtroHistStatus" onchange="aplicarFiltrosHistorico()">
+                <option value="">Todos</option>
+              </select>
+            </div>
+
+            <div id="boxFiltroHistLoja">
+              <label>Loja</label>
+              <select id="filtroHistLoja" onchange="aplicarFiltrosHistorico()">
+                <option value="">Todas</option>
+              </select>
+            </div>
+
+            <div>
+              <button type="button" class="btn-secondary" onclick="limparFiltrosHistorico()">Limpar</button>
+            </div>
+          </div>
+
+          <div id="historicoTabela">
+            <p class="page-sub">Carregando histórico...</p>
+          </div>
+        </div>
+
+      </section>
+
+      <section id="view-configuracoes" class="view">
+        <div class="top-pill">Configurações</div>
+        <h1>Preferências</h1>
+        <p class="page-sub">Dados detectados automaticamente pelo sistema.</p>
+
+        <div class="panel">
+          <div class="config-grid">
+            <div class="config-row">
+              <b>E-mail</b>
+              <span id="cfgEmail">-</span>
+            </div>
+
+            <div class="config-row">
+              <b>Perfil</b>
+              <span id="cfgPerfil">-</span>
+            </div>
+
+            <div class="config-row config-row-edit">
+              <b>Loja padrão</b>
+              <div class="config-loja-control">
+                <select id="cfgLojaSelect" onchange="onConfigLojaChange()">
+                  <option value="">Carregando lojas...</option>
+                </select>
+                <div class="hint">Essa loja será carregada automaticamente na tela de envio.</div>
+              </div>
+            </div>
+
+            <div class="config-row">
+              <b>Empresa</b>
+              <span id="cfgEmpresa">-</span>
+            </div>
+
+            <div class="config-actions">
+              <button type="button" class="btn-primary" onclick="salvarConfiguracoesUsuario()">Salvar configurações</button>
+            </div>
+
+            <div id="cfgMsg" class="msg"></div>
+                      </div>
+                    </div>
+                  </section>
+                </main>
+              </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      function getBusinessDays(startDate, endDate) {
-        let count = 0;
-        let currentDate = new Date(startDate.getTime()); // Clone the start date
+    let SMARTSLIP_STATE = {
+      usuario: null,
+      lojas: [],
+      resumo_mensal: [],
+      resumo_diario: [],
+      resumo_status: [],
+      historico: []
+    };
 
-        while (currentDate <= endDate) {
-          const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) { // If not Sunday or Saturday
-            count++;
-          }
-          currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
-        }
-        return count;
-      }
+    let SMARTSLIP_AUTO_REFRESH_ID = null;
+    const SMARTSLIP_AUTO_REFRESH_MS = 60000;
+    const SMARTSLIP_INSTANCE_ID = String(Date.now()) + "-" + Math.random().toString(36).slice(2);
+    const SMARTSLIP_ACTIVE_TAB_KEY = "SMARTSLIP_ACTIVE_TAB_ID";
+    let SMARTSLIP_TELA_CANCELADA = false;
+    const SMARTSLIP_INTRO_KEY = "SMARTSLIP_INTRO_VISTA_EM";
 
-      const startDate = new Date('2025-06-18T00:00:00'); // Define a data de início do projeto
-      const today = new Date(); // Obtém a data atual
+    window.onload = function() {
+      controlarIntroSmartSlip();
+      registrarAbaAtivaSmartSlip();
+      carregarBootstrap({ silencioso: false });
+      iniciarAutoRefreshSmartSlip();
+    };
 
-      // Calcula os dias úteis
-      const businessDays = getBusinessDays(startDate, today);
+    function smartSlipHojeISO() {
+  const agora = new Date();
+  const ano = agora.getFullYear();
+  const mes = String(agora.getMonth() + 1).padStart(2, "0");
+  const dia = String(agora.getDate()).padStart(2, "0");
 
-      // Atualiza o elemento no HTML com o texto correto
-      const infoProjetoDiv = document.querySelector('div[style*="margin-bottom: 20px; padding: 15px; background-color: #e0f7fa;"]');
-      if (infoProjetoDiv) {
-        const pElement = document.createElement('p');
-        pElement.style.color = '#333';
-        pElement.innerHTML = `<strong>Dias Úteis (Tempo do Projeto):</strong> ${businessDays} dias úteis (até ${today.toLocaleDateString('pt-BR')})`;
-        
-        // Encontra a Observação Importante para inserir antes dela
-        const obsImportante = infoProjetoDiv.querySelector('p[style*="margin-top: 10px;"]');
-        if (obsImportante) {
-          infoProjetoDiv.insertBefore(pElement, obsImportante);
-        } else {
-          infoProjetoDiv.appendChild(pElement);
-        }
+  return ano + "-" + mes + "-" + dia;
+}
+
+function controlarIntroSmartSlip() {
+  const intro = document.getElementById("introSmartSlip");
+
+  if (!intro) return;
+
+  let dataVista = "";
+
+  try {
+    dataVista = localStorage.getItem(SMARTSLIP_INTRO_KEY) || "";
+  } catch (err) {
+    dataVista = "";
+  }
+
+//  if (dataVista === smartSlipHojeISO()) {
+//    intro.classList.remove("show");
+//    document.body.classList.remove("intro-lock");
+//    return;
+//  }
+
+  intro.classList.add("show");
+  document.body.classList.add("intro-lock");
+}
+
+function fecharIntroSmartSlip() {
+  const intro = document.getElementById("introSmartSlip");
+
+  try {
+    localStorage.setItem(SMARTSLIP_INTRO_KEY, smartSlipHojeISO());
+  } catch (err) {
+    console.warn("Não foi possível salvar visualização da introdução.", err);
+  }
+
+  if (intro) {
+    intro.classList.remove("show");
+  }
+
+  document.body.classList.remove("intro-lock");
+}
+
+    function registrarAbaAtivaSmartSlip() {
+  try {
+    localStorage.setItem(SMARTSLIP_ACTIVE_TAB_KEY, SMARTSLIP_INSTANCE_ID);
+
+    window.addEventListener("storage", function(event) {
+      if (
+        event.key === SMARTSLIP_ACTIVE_TAB_KEY &&
+        event.newValue &&
+        event.newValue !== SMARTSLIP_INSTANCE_ID
+      ) {
+        cancelarTelaSmartSlip();
       }
     });
+
+    setInterval(function() {
+      if (SMARTSLIP_TELA_CANCELADA) return;
+
+      const abaAtiva = localStorage.getItem(SMARTSLIP_ACTIVE_TAB_KEY);
+
+      if (abaAtiva && abaAtiva !== SMARTSLIP_INSTANCE_ID) {
+        cancelarTelaSmartSlip();
+      }
+    }, 2000);
+
+    window.addEventListener("beforeunload", function() {
+      const abaAtiva = localStorage.getItem(SMARTSLIP_ACTIVE_TAB_KEY);
+
+      if (abaAtiva === SMARTSLIP_INSTANCE_ID) {
+        localStorage.removeItem(SMARTSLIP_ACTIVE_TAB_KEY);
+      }
+    });
+
+  } catch (err) {
+    console.warn("Não foi possível controlar abas ativas do SmartSlip.", err);
+  }
+}
+
+function cancelarTelaSmartSlip() {
+  if (SMARTSLIP_TELA_CANCELADA) return;
+
+  SMARTSLIP_TELA_CANCELADA = true;
+
+  if (SMARTSLIP_AUTO_REFRESH_ID) {
+    clearInterval(SMARTSLIP_AUTO_REFRESH_ID);
+  }
+
+  document.querySelectorAll("button, input, select, textarea").forEach(function(el) {
+    el.disabled = true;
+  });
+
+  const blocker = document.getElementById("sessionBlocker");
+
+  if (blocker) {
+    blocker.classList.add("show");
+  }
+}
+
+    function carregarBootstrap(options) {
+  options = options || {};
+  const silencioso = options.silencioso === true;
+
+  const chart = document.getElementById("chartMensal");
+  const hist = document.getElementById("historicoTabela");
+
+  if (!silencioso) {
+  if (chart) {
+    chart.innerHTML = "<p class='page-sub'>Carregando resumo...</p>";
+  }
+
+  if (hist) {
+    hist.innerHTML = "<p class='page-sub'>Carregando histórico...</p>";
+  }
+}
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      console.log("BOOTSTRAP RAW:", txt);
+
+      if (!txt) {
+        document.getElementById("userNameSide").textContent = "Erro";
+        document.getElementById("userRoleSide").textContent = "Resposta vazia do backend";
+
+        if (chart) {
+          chart.innerHTML = "<p class='page-sub'>Resposta vazia do backend. A função foi chamada, mas retornou null/vazio.</p>";
+        }
+
+        if (hist) {
+          hist.innerHTML = "<p class='page-sub'>Resposta vazia do backend. Verifique a função smartSlipGetBootstrapAppJson.</p>";
+        }
+
+        return;
+      }
+
+      let envelope;
+
+      try {
+        envelope = JSON.parse(txt);
+      } catch (e) {
+        document.getElementById("userNameSide").textContent = "Erro";
+        document.getElementById("userRoleSide").textContent = "JSON inválido";
+
+        if (chart) {
+          chart.innerHTML =
+            "<p class='page-sub'>Backend retornou texto, mas não era JSON válido.</p>";
+        }
+
+        if (hist) {
+          hist.innerHTML =
+            "<p class='page-sub'>JSON inválido retornado pelo backend.</p>";
+        }
+
+        console.error("Texto recebido:", txt);
+        return;
+      }
+
+      if (!envelope.ok) {
+        document.getElementById("userNameSide").textContent = "Erro";
+        document.getElementById("userRoleSide").textContent = envelope.erro || "Falha no backend";
+
+        if (chart) {
+          chart.innerHTML =
+            "<p class='page-sub'>Erro ao carregar resumo: " +
+            escapeHtml(envelope.erro || "erro não informado") +
+            "</p>";
+        }
+
+        if (hist) {
+          hist.innerHTML =
+            "<p class='page-sub'>Erro ao carregar histórico: " +
+            escapeHtml(envelope.erro || "erro não informado") +
+            "</p>";
+        }
+
+        return;
+      }
+
+      const resp = envelope.payload || {};
+
+      console.log("BOOTSTRAP PARSED:", resp);
+
+      SMARTSLIP_STATE = resp;
+      SMARTSLIP_STATE.lojas = resp.lojas || [];
+
+      aplicarUsuario(resp.usuario || {});
+      renderResumo(resp.resumo_mensal || [], resp.resumo_diario || []);
+      renderHistorico(resp.historico || []);
+      renderResumoStatus(resp.resumo_status || []);
+    })
+    .withFailureHandler(function(err) {
+      const msg = err && err.message ? err.message : String(err);
+
+      console.error("ERRO BOOTSTRAP SMARTSLIP:", err);
+
+      document.getElementById("userNameSide").textContent = "Erro";
+      document.getElementById("userRoleSide").textContent = "Falha no backend";
+      document.getElementById("primeiroNome").textContent = "usuário";
+
+      if (chart) {
+        chart.innerHTML =
+          "<p class='page-sub'>Erro ao carregar resumo. Detalhe: " +
+          escapeHtml(msg) +
+          "</p>";
+      }
+
+      if (hist) {
+        hist.innerHTML =
+          "<p class='page-sub'>Erro ao carregar histórico. Detalhe: " +
+          escapeHtml(msg) +
+          "</p>";
+      }
+    })
+    .smartSlipGetBootstrapAppJson();
+}
+
+    function iniciarAutoRefreshSmartSlip() {
+  if (SMARTSLIP_AUTO_REFRESH_ID) {
+    clearInterval(SMARTSLIP_AUTO_REFRESH_ID);
+  }
+
+  SMARTSLIP_AUTO_REFRESH_ID = setInterval(function() {
+    if (!deveAtualizarSmartSlipAgora()) {
+      return;
+    }
+
+    carregarBootstrap({ silencioso: true });
+  }, SMARTSLIP_AUTO_REFRESH_MS);
+}
+
+function deveAtualizarSmartSlipAgora() {
+  if (SMARTSLIP_TELA_CANCELADA) {
+  return false;
+}
+  // Não atualiza se a aba do navegador estiver em segundo plano.
+  if (document.hidden) {
+    return false;
+  }
+
+  // Não atualiza enquanto o usuário estiver enviando arquivo.
+  const btn = document.getElementById("btn");
+
+  if (btn && btn.disabled) {
+    return false;
+  }
+
+  const viewAtiva = document.querySelector(".view.active");
+
+  if (!viewAtiva) {
+    return false;
+  }
+
+  // Atualiza automaticamente só Início e Histórico.
+  return (
+    viewAtiva.id === "view-inicio" ||
+    viewAtiva.id === "view-historico"
+  );
+}
+
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden && deveAtualizarSmartSlipAgora()) {
+    carregarBootstrap({ silencioso: true });
+  }
+});
+
+    function aplicarUsuario(usuario) {
+      usuario = usuario || {};
+
+      const primeiroNome = usuario.primeiro_nome || "usuário";
+      const perfil = usuario.is_admin ? "Administrador" : "Usuário";
+      const lojaPadrao = usuario.loja_padrao || "";
+
+      document.getElementById("primeiroNome").textContent = primeiroNome;
+      document.getElementById("userNameSide").textContent = primeiroNome;
+      document.getElementById("userRoleSide").textContent = perfil;
+
+      document.getElementById("cfgEmail").textContent = usuario.email || "-";
+      document.getElementById("cfgPerfil").textContent = perfil;
+      document.getElementById("kpiLoja").textContent = lojaPadrao || "-";
+
+      popularSelectLojasConfiguracao(SMARTSLIP_STATE.lojas || [], lojaPadrao);
+      document.getElementById("cfgEmpresa").textContent = usuario.empresa_padrao || obterEmpresaPorLoja(lojaPadrao) || "-";
+
+      const inputLoja = document.getElementById("loja");
+
+      if (inputLoja) {
+        inputLoja.value = lojaPadrao || "";
+        inputLoja.readOnly = true;
+        inputLoja.placeholder = lojaPadrao ? "" : "Configure sua loja padrão";
+      }
+
+      document.getElementById("histSub").textContent = usuario.is_admin
+        ? "Mostrando todos os envios."
+        : "Mostrando apenas seus envios.";
+
+        const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
+
+          if (boxFiltroHistLoja) {
+            boxFiltroHistLoja.style.display = usuario.is_admin ? "block" : "none";
+          }
+    }
+
+    function popularSelectLojasConfiguracao(lojas, lojaSelecionada) {
+  const select = document.getElementById("cfgLojaSelect");
+
+  if (!select) return;
+
+  lojas = lojas || [];
+  lojaSelecionada = String(lojaSelecionada || "").padStart(4, "0").slice(-4);
+
+  select.innerHTML = "";
+
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "Selecione uma loja";
+  select.appendChild(opt0);
+
+  lojas.forEach(function(item) {
+    const loja = String(item.loja || "").padStart(4, "0").slice(-4);
+    const empresa = item.empresa || "";
+
+    const opt = document.createElement("option");
+    opt.value = loja;
+    opt.textContent = loja + (empresa ? " - " + empresa : "");
+    opt.setAttribute("data-empresa", empresa);
+
+    select.appendChild(opt);
+  });
+
+  if (lojaSelecionada) {
+    select.value = lojaSelecionada;
+  }
+}
+
+function obterEmpresaPorLoja(loja) {
+  loja = String(loja || "").replace(/\D/g, "").padStart(4, "0").slice(-4);
+
+  const lojas = SMARTSLIP_STATE.lojas || [];
+
+  for (let i = 0; i < lojas.length; i++) {
+    const item = lojas[i];
+    const itemLoja = String(item.loja || "").replace(/\D/g, "").padStart(4, "0").slice(-4);
+
+    if (itemLoja === loja) {
+      return item.empresa || "";
+    }
+  }
+
+  return "";
+}
+
+function onConfigLojaChange() {
+  const select = document.getElementById("cfgLojaSelect");
+  const empresa = obterEmpresaPorLoja(select.value);
+
+  document.getElementById("cfgEmpresa").textContent = empresa || "-";
+}
+
+function mostrarCfgMensagem(tipo, texto) {
+  const msg = document.getElementById("cfgMsg");
+
+  if (!msg) return;
+
+  msg.className = "msg " + tipo;
+  msg.textContent = texto || "";
+}
+
+function limparCfgMensagem() {
+  const msg = document.getElementById("cfgMsg");
+
+  if (!msg) return;
+
+  msg.className = "msg";
+  msg.textContent = "";
+}
+
+function salvarConfiguracoesUsuario() {
+  limparCfgMensagem();
+
+  const select = document.getElementById("cfgLojaSelect");
+  const loja = select ? select.value : "";
+
+  if (!loja) {
+    mostrarCfgMensagem("erro", "Selecione uma loja padrão.");
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope;
+
+      try {
+        envelope = JSON.parse(txt);
+      } catch (e) {
+        mostrarCfgMensagem("erro", "Retorno inválido do backend ao salvar configuração.");
+        return;
+      }
+
+      if (!envelope.ok) {
+        mostrarCfgMensagem("erro", envelope.erro || "Erro ao salvar configuração.");
+        return;
+      }
+
+      const payload = envelope.payload || {};
+      const empresa = payload.empresa_padrao || obterEmpresaPorLoja(loja);
+
+      mostrarCfgMensagem("ok", "Configuração salva com sucesso.");
+
+      if (!SMARTSLIP_STATE.usuario) {
+        SMARTSLIP_STATE.usuario = {};
+      }
+
+      SMARTSLIP_STATE.usuario.loja_padrao = payload.loja_padrao || loja;
+      SMARTSLIP_STATE.usuario.empresa_padrao = empresa || "";
+
+      document.getElementById("kpiLoja").textContent = SMARTSLIP_STATE.usuario.loja_padrao || "-";
+      document.getElementById("cfgEmpresa").textContent = empresa || "-";
+      const inputLoja = document.getElementById("loja");
+
+      if (inputLoja) {
+        inputLoja.value = SMARTSLIP_STATE.usuario.loja_padrao || "";
+        inputLoja.readOnly = true;
+        inputLoja.placeholder = "";
+      }
+
+      carregarBootstrap({ silencioso: true });
+    })
+    .withFailureHandler(function(err) {
+      mostrarCfgMensagem("erro", err && err.message ? err.message : String(err));
+    })
+    .smartSlipSalvarPreferenciasUsuarioJson(loja);
+}
+
+    function abrirView(nome, btn) {
+      document.querySelectorAll(".view").forEach(function(v) {
+        v.classList.remove("active");
+      });
+
+      document.querySelectorAll(".nav-item").forEach(function(b) {
+        b.classList.remove("active");
+      });
+
+      const view = document.getElementById("view-" + nome);
+
+      if (view) {
+        view.classList.add("active");
+      }
+
+      if (btn) {
+        btn.classList.add("active");
+      }
+      if (nome === "inicio" || nome === "historico") {
+        carregarBootstrap({ silencioso: true });
+      }
+    }
+
+    function toggleRetirada() {
+      const houve = document.getElementById("houve_retirada").value === "true";
+      document.getElementById("boxRetirada").style.display = houve ? "block" : "none";
+    }
+
+    function mostrarMensagem(tipo, texto) {
+      const msg = document.getElementById("msg");
+      msg.className = "msg " + tipo;
+      msg.textContent = texto || "";
+    }
+
+    function limparMensagem() {
+      const msg = document.getElementById("msg");
+      msg.className = "msg";
+      msg.textContent = "";
+    }
+
+    function limparFormulario(limparLoja) {
+      document.getElementById("arquivo").value = "";
+      atualizarUploadInfo(null);
+      document.getElementById("data_movimento_inicio").value = "";
+      document.getElementById("data_movimento_fim").value = "";
+      document.getElementById("houve_retirada").value = "false";
+      document.getElementById("valor_retirada").value = 0;
+      document.getElementById("motivo_retirada").value = "";
+      document.getElementById("mais_comprovantes").value = "false";
+      document.getElementById("boxRetirada").style.display = "none";
+
+      if (limparLoja) {
+        document.getElementById("loja").value = "";
+      }
+
+      limparMensagem();
+    }
+
+    function validarDataInput(valor) {
+      return /^\d{4}-\d{2}-\d{2}$/.test(valor);
+    }
+
+    function converterDataInputParaBR(valor) {
+      if (!valor) return "";
+
+      const partes = valor.split("-");
+
+      if (partes.length !== 3) return valor;
+
+      const ano = partes[0];
+      const mes = partes[1];
+      const dia = partes[2];
+
+      return dia + "/" + mes + "/" + ano;
+    }
+
+    function formatBRL(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function renderResumo(resumoMensal, resumoDiario) {
+      SMARTSLIP_STATE.resumo_mensal = resumoMensal || [];
+      SMARTSLIP_STATE.resumo_diario = resumoDiario || [];
+
+      popularAnosResumo(SMARTSLIP_STATE.resumo_mensal, SMARTSLIP_STATE.resumo_diario);
+      popularMesesResumo();
+
+      renderResumoAtual();
+    }
+
+    function getAnoAtual() {
+  return new Date().getFullYear().toString();
+}
+
+function getMesAtual() {
+  return String(new Date().getMonth() + 1).padStart(2, "0");
+}
+
+function getModoResumo() {
+  const select = document.getElementById("modoResumo");
+  return select && select.value ? select.value : "mensal";
+}
+
+function getAnoResumoSelecionado() {
+  const select = document.getElementById("anoResumo");
+
+  if (select && select.value) {
+    return select.value;
+  }
+
+  return getAnoAtual();
+}
+
+function getMesResumoSelecionado() {
+  const select = document.getElementById("mesResumo");
+
+  if (select && select.value) {
+    return select.value;
+  }
+
+  return getMesAtual();
+}
+
+function extrairAnosResumo(resumoMensal, resumoDiario) {
+  const set = {};
+
+  (resumoMensal || []).forEach(function(item) {
+    const mes = String(item.mes || "");
+    const ano = mes.substring(0, 4);
+
+    if (/^\d{4}$/.test(ano)) {
+      set[ano] = true;
+    }
+  });
+
+  (resumoDiario || []).forEach(function(item) {
+    const dia = String(item.dia || "");
+    const ano = dia.substring(0, 4);
+
+    if (/^\d{4}$/.test(ano)) {
+      set[ano] = true;
+    }
+  });
+
+  const anos = Object.keys(set).sort();
+
+  if (!anos.length) {
+    anos.push(getAnoAtual());
+  }
+
+  return anos;
+}
+
+function popularAnosResumo(resumoMensal, resumoDiario) {
+  const select = document.getElementById("anoResumo");
+
+  if (!select) return;
+
+  const valorAtual = select.value;
+  const anos = extrairAnosResumo(resumoMensal, resumoDiario);
+
+  select.innerHTML = "";
+
+  anos.forEach(function(ano) {
+    const opt = document.createElement("option");
+    opt.value = ano;
+    opt.textContent = ano;
+    select.appendChild(opt);
+  });
+
+  if (valorAtual && anos.indexOf(valorAtual) >= 0) {
+    select.value = valorAtual;
+  } else if (anos.indexOf(getAnoAtual()) >= 0) {
+    select.value = getAnoAtual();
+  } else {
+    select.value = anos[anos.length - 1];
+  }
+}
+
+function popularMesesResumo() {
+  const select = document.getElementById("mesResumo");
+
+  if (!select) return;
+
+  const valorAtual = select.value;
+
+  const meses = [
+    { value: "01", label: "Janeiro" },
+    { value: "02", label: "Fevereiro" },
+    { value: "03", label: "Março" },
+    { value: "04", label: "Abril" },
+    { value: "05", label: "Maio" },
+    { value: "06", label: "Junho" },
+    { value: "07", label: "Julho" },
+    { value: "08", label: "Agosto" },
+    { value: "09", label: "Setembro" },
+    { value: "10", label: "Outubro" },
+    { value: "11", label: "Novembro" },
+    { value: "12", label: "Dezembro" }
+  ];
+
+  select.innerHTML = "";
+
+  meses.forEach(function(mes) {
+    const opt = document.createElement("option");
+    opt.value = mes.value;
+    opt.textContent = mes.label;
+    select.appendChild(opt);
+  });
+
+  if (valorAtual) {
+    select.value = valorAtual;
+  } else {
+    select.value = getMesAtual();
+  }
+}
+
+function onModoResumoChange() {
+  const modo = getModoResumo();
+  const boxMes = document.getElementById("boxMesResumo");
+
+  if (boxMes) {
+    boxMes.style.display = modo === "diario" ? "block" : "none";
+  }
+
+  renderResumoAtual();
+}
+
+function onAnoResumoChange() {
+  popularMesesResumo();
+  renderResumoAtual();
+}
+
+function onMesResumoChange() {
+  renderResumoAtual();
+}
+
+function renderResumoAtual() {
+  const modo = getModoResumo();
+
+  const boxMes = document.getElementById("boxMesResumo");
+
+  if (boxMes) {
+    boxMes.style.display = modo === "diario" ? "block" : "none";
+  }
+
+  if (modo === "diario") {
+    renderResumoPorDia(
+      SMARTSLIP_STATE.resumo_diario || [],
+      getAnoResumoSelecionado(),
+      getMesResumoSelecionado()
+    );
+    return;
+  }
+
+  renderResumoPorMes(
+    SMARTSLIP_STATE.resumo_mensal || [],
+    getAnoResumoSelecionado()
+  );
+}
+
+function renderResumoPorMes(dados, ano) {
+  dados = dados || [];
+  ano = String(ano || getAnoAtual());
+
+  const mesesBase = [
+    "01", "02", "03", "04", "05", "06",
+    "07", "08", "09", "10", "11", "12"
+  ];
+
+  const mapa = {};
+
+  dados.forEach(function(item) {
+    mapa[String(item.mes || "")] = {
+      quantidade: Number(item.quantidade || 0),
+      valor_total: Number(item.valor_total || 0)
+    };
+  });
+
+  const serie = mesesBase.map(function(mes) {
+    const chave = ano + "-" + mes;
+    const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
+
+    return {
+      chave: chave,
+      label: mes + "/" + ano.substring(2),
+      quantidade: Number(item.quantidade || 0),
+      valor_total: Number(item.valor_total || 0),
+      mostrarLabel: true
+    };
+  });
+
+  atualizarKpisResumo(serie);
+  desenharGraficoLinhas(serie);
+  desenharGraficoQuantidade(serie);
+}
+
+function renderResumoPorDia(dados, ano, mes) {
+  dados = dados || [];
+  ano = String(ano || getAnoAtual());
+  mes = String(mes || getMesAtual()).padStart(2, "0");
+
+  const ultimoDia = new Date(Number(ano), Number(mes), 0).getDate();
+
+  const mapa = {};
+
+  dados.forEach(function(item) {
+    mapa[String(item.dia || "")] = {
+      quantidade: Number(item.quantidade || 0),
+      valor_total: Number(item.valor_total || 0)
+    };
+  });
+
+  const serie = [];
+
+  for (let d = 1; d <= ultimoDia; d++) {
+    const dia = String(d).padStart(2, "0");
+    const chave = ano + "-" + mes + "-" + dia;
+    const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
+
+    serie.push({
+      chave: chave,
+      label: dia + "/" + mes,
+      quantidade: Number(item.quantidade || 0),
+      valor_total: Number(item.valor_total || 0),
+
+      // Evita poluir o eixo X com 30/31 rótulos.
+      mostrarLabel: d === 1 || d === ultimoDia || d % 2 === 1
+    });
+  }
+
+  atualizarKpisResumo(serie);
+  desenharGraficoLinhas(serie);
+  desenharGraficoQuantidade(serie);
+}
+
+function atualizarKpisResumo(serie) {
+  const totalQtd = serie.reduce(function(acc, item) {
+    return acc + Number(item.quantidade || 0);
+  }, 0);
+
+  const totalValor = serie.reduce(function(acc, item) {
+    return acc + Number(item.valor_total || 0);
+  }, 0);
+
+  document.getElementById("kpiQtd").textContent = totalQtd;
+  document.getElementById("kpiValor").textContent = formatBRL(totalValor);
+}
+
+function desenharGraficoLinhas(serie) {
+  const box = document.getElementById("chartMensal");
+
+  if (!box) return;
+
+  const width = 960;
+  const height = 260;
+  const padLeft = 48;
+  const padRight = 28;
+  const padTop = 32;
+  const padBottom = 42;
+
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const maxValor = Math.max.apply(null, serie.map(function(x) {
+    return x.valor_total;
+  })) || 1;
+
+  function x(i) {
+    if (serie.length <= 1) return padLeft;
+    return padLeft + (plotW * i / (serie.length - 1));
+  }
+
+  function yValor(v) {
+    return padTop + plotH - ((v / maxValor) * plotH);
+  }
+
+  const pontosValor = serie.map(function(item, i) {
+    return x(i) + "," + yValor(item.valor_total);
+  }).join(" ");
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='Gráfico mensal de valor dos comprovantes'>";
+
+  for (let i = 0; i <= 4; i++) {
+    const yy = padTop + (plotH * i / 4);
+    svg += "<line x1='" + padLeft + "' y1='" + yy + "' x2='" + (width - padRight) + "' y2='" + yy + "' stroke='#e6eee1' stroke-width='1'/>";
+  }
+
+  svg += "<polyline points='" + pontosValor + "' fill='none' stroke='#B5FF20' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/>";
+
+  serie.forEach(function(item, i) {
+    const xx = x(i);
+    const yv = yValor(item.valor_total);
+
+    svg += "<circle cx='" + xx + "' cy='" + yv + "' r='5' fill='#B5FF20' stroke='#050807' stroke-width='1'>";
+    svg += "<title>" + item.label + " | Valor: " + formatBRL(item.valor_total) + "</title>";
+    svg += "</circle>";
+
+    if (item.mostrarLabel !== false) {
+      svg += "<text x='" + xx + "' y='" + (height - 16) + "' text-anchor='middle' font-size='12' fill='#667085' font-weight='700'>" + item.label + "</text>";
+    }
+
+    if (item.valor_total > 0) {
+      svg += "<text x='" + xx + "' y='" + (yv - 12) + "' text-anchor='middle' font-size='11' fill='#314238' font-weight='900'>" + compactarValor(item.valor_total) + "</text>";
+    }
+  });
+
+  svg += "</svg>";
+
+  const temDados = serie.some(function(item) {
+    return item.valor_total > 0;
+  });
+
+  if (!temDados) {
+    box.innerHTML =
+      "<p class='page-sub'>Não há valor processado para o ano selecionado.</p>" +
+      svg;
+    return;
+  }
+
+  box.innerHTML = svg;
+}
+
+function desenharGraficoQuantidade(serie) {
+  const box = document.getElementById("chartQtdMensal");
+
+  if (!box) return;
+
+  const width = 960;
+  const height = 240;
+  const padLeft = 48;
+  const padRight = 28;
+  const padTop = 28;
+  const padBottom = 42;
+
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const maxQtd = Math.max.apply(null, serie.map(function(x) {
+    return x.quantidade;
+  })) || 1;
+
+  function x(i) {
+    if (serie.length <= 1) return padLeft;
+    return padLeft + (plotW * i / (serie.length - 1));
+  }
+
+  function yQtd(v) {
+    return padTop + plotH - ((v / maxQtd) * plotH);
+  }
+
+  const pontosQtd = serie.map(function(item, i) {
+    return x(i) + "," + yQtd(item.quantidade);
+  }).join(" ");
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='Gráfico mensal de quantidade de envios'>";
+
+  for (let i = 0; i <= 4; i++) {
+    const yy = padTop + (plotH * i / 4);
+    svg += "<line x1='" + padLeft + "' y1='" + yy + "' x2='" + (width - padRight) + "' y2='" + yy + "' stroke='#e6eee1' stroke-width='1'/>";
+  }
+
+  svg += "<polyline points='" + pontosQtd + "' fill='none' stroke='#005E27' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/>";
+
+  serie.forEach(function(item, i) {
+    const xx = x(i);
+    const yq = yQtd(item.quantidade);
+
+    svg += "<circle cx='" + xx + "' cy='" + yq + "' r='5' fill='#005E27' stroke='#ffffff' stroke-width='1'>";
+    svg += "<title>" + item.label + " | Quantidade: " + item.quantidade + "</title>";
+    svg += "</circle>";
+
+    if (item.mostrarLabel !== false) {
+      svg += "<text x='" + xx + "' y='" + (height - 16) + "' text-anchor='middle' font-size='12' fill='#667085' font-weight='700'>" + item.label + "</text>";
+    }
+
+    if (item.quantidade > 0) {
+      svg += "<text x='" + xx + "' y='" + (yq - 12) + "' text-anchor='middle' font-size='11' fill='#005E27' font-weight='900'>" + item.quantidade + "</text>";
+    }
+  });
+
+  svg += "</svg>";
+
+  const temDados = serie.some(function(item) {
+    return item.quantidade > 0;
+  });
+
+  if (!temDados) {
+    box.innerHTML =
+      "<p class='page-sub'>Não há envios no ano selecionado.</p>" +
+      svg;
+    return;
+  }
+
+  box.innerHTML = svg;
+}
+
+function renderResumoStatus(dados) {
+  SMARTSLIP_STATE.resumo_status = dados || [];
+  desenharGraficoStatusPizza3D(SMARTSLIP_STATE.resumo_status);
+}
+
+function obterCorStatusPizza(status) {
+  const s = String(status || "").trim().toUpperCase();
+
+  if (s === "SALVO") return "#16A34A";              // verde
+  if (s === "DIVERGENCIA") return "#EF4444";        // vermelho
+  if (s === "ERRO_PROCESSAMENTO") return "#991B1B"; // vermelho escuro
+  if (s === "PENDENTE_INTERNO") return "#F59E0B";   // laranja
+  if (s === "RECEBIDO") return "#FFFF00";           // amarelo
+  if (s === "SALVO_PARCIAL") return "#06B6D4";      // azul ciano
+
+  return "#8B5CF6"; // fallback
+}
+
+function desenharGraficoStatusPizza3D(dados) {
+  const pie = document.getElementById("chartStatusPizza");
+  const legenda = document.getElementById("chartStatusLegenda");
+
+  if (!pie || !legenda) return;
+
+  if (!dados || !dados.length) {
+    pie.style.background = "#e5e7eb";
+    legenda.innerHTML = "<p class='page-sub'>Não há dados de status para exibir.</p>";
+    return;
+  }
+
+  let acumulado = 0;
+  const fatias = [];
+  let legendaHtml = "";
+
+  dados.forEach(function(item) {
+    const cor = obterCorStatusPizza(item.status);
+
+    let percentual = Number(String(item.percentual || 0).replace(",", "."));
+    const quantidade = Number(item.quantidade || 0);
+
+    if (!isFinite(percentual) || percentual <= 0) {
+      return;
+    }
+
+    const inicio = acumulado;
+    const fim = Math.min(100, acumulado + percentual);
+
+    acumulado = fim;
+
+    fatias.push(cor + " " + inicio + "% " + fim + "%");
+
+    legendaHtml +=
+      "<div class='status-pizza-item'>" +
+        "<span class='status-pizza-dot' style='background:" + cor + "'></span>" +
+        "<div class='status-pizza-name'>" + escapeHtml(item.status || "") + "</div>" +
+        "<div class='status-pizza-meta'>" +
+          "<div><b>" + percentual.toFixed(2).replace(".", ",") + "%</b></div>" +
+          "<div>" + quantidade + " comprovante(s)</div>" +
+        "</div>" +
+      "</div>";
+  });
+
+  if (!fatias.length) {
+    pie.style.background = "#e5e7eb";
+    legenda.innerHTML = "<p class='page-sub'>Não há dados válidos de status para exibir.</p>";
+    return;
+  }
+
+  pie.style.background = "conic-gradient(" + fatias.join(", ") + ")";
+  legenda.innerHTML = legendaHtml;
+}
+
+function compactarValor(valor) {
+  valor = Number(valor || 0);
+
+  if (valor >= 1000000) {
+    return "R$ " + (valor / 1000000).toFixed(1).replace(".", ",") + "M";
+  }
+
+  if (valor >= 1000) {
+    return "R$ " + (valor / 1000).toFixed(0).replace(".", ",") + "k";
+  }
+
+  return formatBRL(valor);
+}
+
+    function renderHistorico(dados) {
+      SMARTSLIP_STATE.historico = dados || [];
+
+      popularFiltrosHistorico(SMARTSLIP_STATE.historico);
+      aplicarFiltrosHistorico();
+    }
+
+    function popularFiltrosHistorico(dados) {
+  dados = dados || [];
+
+  const statusAtual = document.getElementById("filtroHistStatus")
+    ? document.getElementById("filtroHistStatus").value
+    : "";
+
+  const lojaAtual = document.getElementById("filtroHistLoja")
+    ? document.getElementById("filtroHistLoja").value
+    : "";
+
+  const statusSet = {};
+  const lojaSet = {};
+
+  dados.forEach(function(r) {
+    const status = String(r.status_fila || "").trim();
+    const loja = String(r.loja || "").trim();
+
+    if (status) statusSet[status] = true;
+    if (loja) lojaSet[loja] = true;
+  });
+
+  const statusSelect = document.getElementById("filtroHistStatus");
+  const lojaSelect = document.getElementById("filtroHistLoja");
+
+  if (statusSelect) {
+    statusSelect.innerHTML = "<option value=''>Todos</option>";
+
+    Object.keys(statusSet).sort().forEach(function(status) {
+      const opt = document.createElement("option");
+      opt.value = status;
+      opt.textContent = status;
+      statusSelect.appendChild(opt);
+    });
+
+    if (statusAtual) {
+      statusSelect.value = statusAtual;
+    }
+  }
+
+  if (lojaSelect) {
+    lojaSelect.innerHTML = "<option value=''>Todas</option>";
+
+    Object.keys(lojaSet).sort().forEach(function(loja) {
+      const opt = document.createElement("option");
+      opt.value = loja;
+      opt.textContent = loja;
+      lojaSelect.appendChild(opt);
+    });
+
+    if (lojaAtual) {
+      lojaSelect.value = lojaAtual;
+    }
+  }
+}
+
+function aplicarFiltrosHistorico() {
+  const dados = SMARTSLIP_STATE.historico || [];
+
+  const filtroData = document.getElementById("filtroHistData")
+    ? document.getElementById("filtroHistData").value
+    : "";
+
+  const filtroStatus = document.getElementById("filtroHistStatus")
+    ? document.getElementById("filtroHistStatus").value
+    : "";
+
+  const usuarioAtual = SMARTSLIP_STATE.usuario || {};
+
+  const filtroLoja = usuarioAtual.is_admin && document.getElementById("filtroHistLoja")
+    ? document.getElementById("filtroHistLoja").value
+    : "";
+
+  const filtrados = dados.filter(function(r) {
+    if (filtroData) {
+      const dataRegistroInput = converterDataHoraBRParaInput(r.data_registro);
+
+      if (dataRegistroInput !== filtroData) {
+        return false;
+      }
+    }
+
+    if (filtroStatus && String(r.status_fila || "") !== filtroStatus) {
+      return false;
+    }
+
+    if (filtroLoja && String(r.loja || "") !== filtroLoja) {
+      return false;
+    }
+
+    return true;
+  });
+
+  desenharTabelaHistorico(filtrados);
+}
+
+function limparFiltrosHistorico() {
+  if (document.getElementById("filtroHistData")) {
+    document.getElementById("filtroHistData").value = "";
+  }
+
+  if (document.getElementById("filtroHistStatus")) {
+    document.getElementById("filtroHistStatus").value = "";
+  }
+
+  if (document.getElementById("filtroHistLoja")) {
+    document.getElementById("filtroHistLoja").value = "";
+  }
+
+  aplicarFiltrosHistorico();
+}
+
+function desenharTabelaHistorico(dados) {
+  const box = document.getElementById("historicoTabela");
+
+  if (!box) return;
+
+  if (!dados || !dados.length) {
+    box.innerHTML = "<p class='page-sub'>Nenhum envio encontrado para os filtros selecionados.</p>";
+    return;
+  }
+
+  let html = "";
+  html += "<table class='history-table'>";
+  html += "<thead>";
+  html += "<tr>";
+  html += "<th>Data</th>";
+  html += "<th>Protocolo</th>";
+  html += "<th>Loja</th>";
+  html += "<th>Movimento</th>";
+  html += "<th>Status</th>";
+  html += "<th>Arquivo</th>";
+  html += "</tr>";
+  html += "</thead>";
+  html += "<tbody>";
+
+  dados.forEach(function(r) {
+    const link = r.link_comprovante || "#";
+
+    html += "<tr>";
+    html += "<td>" + escapeHtml(r.data_registro || "") + "</td>";
+    html += "<td>" + escapeHtml(r.protocolo || "") + "</td>";
+    html += "<td>" + escapeHtml(r.loja || "") + "</td>";
+    html += "<td>" + escapeHtml(r.data_movimento || "") + "</td>";
+    html += "<td><span class='status-pill " + getStatusClass(r.status_fila) + "'>" + escapeHtml(r.status_fila || "") + "</span></td>";
+    html += "<td><a target='_blank' href='" + escapeAttr(link) + "'>Abrir</a></td>";
+    html += "</tr>";
+  });
+
+  html += "</tbody></table>";
+
+  box.innerHTML = html;
+}
+
+function converterDataHoraBRParaInput(valor) {
+  const txt = String(valor || "").trim();
+
+  const match = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+
+  if (!match) {
+    return "";
+  }
+
+  const dia = match[1];
+  const mes = match[2];
+  const ano = match[3];
+
+  return ano + "-" + mes + "-" + dia;
+}
+
+    function getStatusClass(status) {
+      const s = String(status || "").toUpperCase();
+
+      if (s === "SALVO") return "status-ok";
+      if (s === "SALVO_PARCIAL") return "status-warning";
+      if (s === "ERRO_PROCESSAMENTO") return "status-error";
+      if (s === "PENDENTE_INTERNO") return "status-warning";
+      if (s === "PROCESSANDO") return "status-processing";
+      if (s === "RECEBIDO") return "status-received";
+
+      return "";
+    }
+
+    function escapeHtml(valor) {
+      return String(valor || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function escapeAttr(valor) {
+      return String(valor || "")
+        .replace(/"/g, "%22")
+        .replace(/'/g, "%27");
+    }
+
+    function abrirSeletorArquivo() {
+  document.getElementById("arquivo").click();
+}
+
+function onArquivoSelecionado() {
+  const file = document.getElementById("arquivo").files[0];
+  atualizarUploadInfo(file);
+}
+
+function atualizarUploadInfo(file) {
+  const title = document.getElementById("uploadTitle");
+  const sub = document.getElementById("uploadSub");
+
+  if (!title || !sub) return;
+
+  if (!file) {
+    title.textContent = "Foto ou PDF do comprovante";
+    sub.textContent = "Clique para selecionar ou arraste o arquivo aqui";
+    return;
+  }
+
+  const mb = file.size / 1024 / 1024;
+
+  title.textContent = file.name;
+  sub.textContent = "Arquivo selecionado • " + mb.toFixed(2) + " MB";
+}
+
+function onDragOverArquivo(event) {
+  event.preventDefault();
+  event.currentTarget.classList.add("dragging");
+}
+
+function onDragLeaveArquivo(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove("dragging");
+}
+
+function onDropArquivo(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove("dragging");
+
+  const files = event.dataTransfer.files;
+
+  if (!files || !files.length) return;
+
+  const input = document.getElementById("arquivo");
+
+  try {
+    input.files = files;
+    atualizarUploadInfo(files[0]);
+  } catch (e) {
+    mostrarMensagem("erro", "Não foi possível carregar o arquivo arrastado. Clique no campo para selecionar.");
+  }
+}
+
+function onDataMovimentoInicioChange() {
+  const inicio = document.getElementById("data_movimento_inicio").value;
+  const fim = document.getElementById("data_movimento_fim");
+
+  if (fim) {
+    fim.min = inicio || "";
+
+    if (inicio && fim.value && fim.value < inicio) {
+      fim.value = inicio;
+    }
+  }
+
+  validarPeriodoMovimentoTela();
+}
+
+function validarPeriodoMovimentoTela() {
+  const inicio = document.getElementById("data_movimento_inicio").value;
+  const fim = document.getElementById("data_movimento_fim").value;
+
+  if (inicio && fim && fim < inicio) {
+    mostrarMensagem("erro", "A data final do movimento não pode ser menor que a data inicial.");
+    return false;
+  }
+
+  return true;
+}
+
+function normalizarValorRetirada() {
+  const input = document.getElementById("valor_retirada");
+
+  if (!input) return;
+
+  const valor = Number(input.value || 0);
+
+  if (valor < 0) {
+    input.value = 0;
+    mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
+  }
+}
+
+function travarTelaEnvio(texto) {
+  const overlay = document.getElementById("envioOverlay");
+  const textoEl = document.getElementById("envioOverlayText");
+  const container = document.getElementById("view-comprovantes") || document;
+
+  if (textoEl) {
+    textoEl.textContent = texto || "Processando envio...";
+  }
+
+  container.querySelectorAll("input, select, button, textarea").forEach(function(el) {
+    el.disabled = true;
+  });
+
+  const campoLoja = document.getElementById("loja");
+  if (campoLoja) {
+    campoLoja.readOnly = true;
+  }
+
+  if (overlay) {
+    overlay.classList.add("show");
+  }
+}
+
+function destravarTelaEnvio() {
+  const overlay = document.getElementById("envioOverlay");
+  const container = document.getElementById("view-comprovantes") || document;
+
+  container.querySelectorAll("input, select, button, textarea").forEach(function(el) {
+    el.disabled = false;
+  });
+
+  const campoLoja = document.getElementById("loja");
+  if (campoLoja) {
+    campoLoja.readOnly = true;
+  }
+
+  if (overlay) {
+    overlay.classList.remove("show");
+  }
+}
+
+    function enviar() {
+      const inputArquivo = document.getElementById("arquivo");
+      const file = inputArquivo.files[0];
+
+      const loja = document.getElementById("loja").value.trim();
+      const dataInicio = document.getElementById("data_movimento_inicio").value.trim();
+      const dataFim = document.getElementById("data_movimento_fim").value.trim();
+
+      const btn = document.getElementById("btn");
+
+      limparMensagem();
+
+      if (!validarPeriodoMovimentoTela()) {
+        return;
+      }
+
+      if (!file) {
+        mostrarMensagem("erro", "Selecione um comprovante.");
+        return;
+      }
+
+      const limiteMb = 10;
+      const limiteBytes = limiteMb * 1024 * 1024;
+
+      if (file.size > limiteBytes) {
+        mostrarMensagem("erro", "Arquivo muito grande. Envie uma imagem/PDF de até " + limiteMb + " MB.");
+        return;
+      }
+
+     if (!loja) {
+        mostrarMensagem("erro", "Configure sua loja padrão na página Configurações antes de enviar comprovantes.");
+        return;
+      }
+
+      if (!dataInicio) {
+        mostrarMensagem("erro", "Informe a data de movimento inicial.");
+        return;
+      }
+
+      if (!validarDataInput(dataInicio)) {
+        mostrarMensagem("erro", "Data de movimento inicial inválida.");
+        return;
+      }
+
+      if (dataFim && !validarDataInput(dataFim)) {
+        mostrarMensagem("erro", "Data de movimento final inválida.");
+        return;
+      }
+
+      if (dataFim && dataFim < dataInicio) {
+        mostrarMensagem("erro", "A data final do movimento não pode ser menor que a data inicial.");
+        return;
+      }
+
+      travarTelaEnvio("Lendo arquivo...");
+      btn.textContent = "Lendo arquivo...";
+
+      const houveRetiradaAntesEnvio = document.getElementById("houve_retirada").value === "true";
+      const valorRetiradaAntesEnvio = Number(document.getElementById("valor_retirada").value || 0);
+
+      if (houveRetiradaAntesEnvio && valorRetiradaAntesEnvio < 0) {
+        mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
+        return;
+      }
+
+      let finalizado = false;
+
+      function finalizarBotao() {
+        finalizado = true;
+        destravarTelaEnvio();
+        btn.disabled = false;
+        btn.textContent = "Enviar comprovante";
+      }
+
+      const timeoutEnvio = setTimeout(function() {
+        if (!finalizado) {
+          finalizarBotao();
+          mostrarMensagem(
+            "erro",
+            "O envio demorou demais e foi interrompido na tela. Verifique se o arquivo é muito grande ou tente novamente."
+          );
+        }
+      }, 60000);
+
+      const reader = new FileReader();
+
+      reader.onerror = function() {
+        clearTimeout(timeoutEnvio);
+        finalizarBotao();
+        mostrarMensagem("erro", "Erro ao ler o arquivo selecionado. Tente anexar novamente.");
+      };
+
+      reader.onload = function(e) {
+        btn.textContent = "Enviando...";
+        travarTelaEnvio("Enviando comprovante...");   
+
+        const houveRetirada = document.getElementById("houve_retirada").value === "true";
+
+        const payload = {
+          arquivoBase64: e.target.result,
+          nomeArquivo: file.name,
+          mimeType: file.type || "application/pdf",
+          loja: loja,
+          data_movimento_inicio: converterDataInputParaBR(dataInicio),
+          data_movimento_fim: converterDataInputParaBR(dataFim || dataInicio),
+          houve_retirada: String(houveRetirada),
+          valor_retirada: houveRetirada ? document.getElementById("valor_retirada").value || 0 : 0,
+          motivo_retirada: houveRetirada
+            ? document.getElementById("motivo_retirada").value || ""
+            : "Não houve retirada",
+          mais_comprovantes: document.getElementById("mais_comprovantes").value
+        };
+
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            clearTimeout(timeoutEnvio);
+            finalizarBotao();
+
+            if (!resp || !resp.ok) {
+              mostrarMensagem("erro", resp && resp.erro ? resp.erro : "Erro ao enviar comprovante.");
+              return;
+            }
+
+            mostrarMensagem(
+              "ok",
+              "Comprovante recebido para processamento.\n\n" +
+              "Protocolo: " + resp.protocolo + "\n" +
+              "Status: " + resp.status + "\n\n" +
+              "A validação será feita automaticamente."
+            );
+
+            document.getElementById("arquivo").value = "";
+            atualizarUploadInfo(null);
+            document.getElementById("data_movimento_inicio").value = "";
+            document.getElementById("data_movimento_fim").value = "";
+
+            carregarBootstrap();
+          })
+          .withFailureHandler(function(err) {
+            clearTimeout(timeoutEnvio);
+            finalizarBotao();
+            mostrarMensagem("erro", err && err.message ? err.message : String(err));
+          })
+          .smartSlipEnviarComprovanteApp(payload);
+      };
+
+      reader.readAsDataURL(file);
+    }
   </script>
 </body>
 </html>
