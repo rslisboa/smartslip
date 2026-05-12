@@ -1,0 +1,2938 @@
+/****************************************************
+ * SMARTSLIP - API para Google AI Studio / Gemini
+ * 
+ * Funções:
+ * - consultar_info_loja
+ * - salvar_dados_comprovante_planilha
+ *
+ * Não interfere no fluxo BaseClara atual.
+ ****************************************************/
+
+const SMARTSLIP_TOKEN_PROPERTY = "SMARTSLIP_TOKEN";
+
+// Planilha antiga onde está a aba Info_limites.
+// ATENÇÃO: coloque aqui o ID exato da planilha Capta_Clara/Info_limites.
+const SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID = "1_XW0IqbYjiCPpqtwdEi1xPxDlIP2MSkMrLGbeinLIeI";
+
+// Nova planilha SmartSlip, onde ficam BASE_SMARTSLIP e SMARTSLIP_FILA.
+const SMARTSLIP_DB_SPREADSHEET_ID = "145m9bu6mg6n4Oeh0QPDaiKZIE6MhZv0vux0W1xR9dpY";
+
+const SMARTSLIP_ABA_INFO_LIMITES = "Info_limites";
+const SMARTSLIP_ABA_DESTINO = "BASE_SMARTSLIP";
+const SMARTSLIP_ABA_FILA = "SMARTSLIP_FILA";
+const SMARTSLIP_ABA_VEKTOR_EMAILS = "VEKTOR_EMAILS";
+const SMARTSLIP_VEKTOR_EMAILS_SPREADSHEET_ID = SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID;
+const SMARTSLIP_ABA_USUARIOS = "SMARTSLIP_USUARIOS";
+
+function smartSlipGetUsuarioAtual() {
+  const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+
+  const primeiroNome = smartSlipExtrairPrimeiroNome(email);
+
+  let isAdmin = false;
+  let lojaPadrao = "";
+  let empresaPadrao = "";
+
+  try {
+    isAdmin = smartSlipUsuarioEhAdmin(email);
+  } catch (errAdmin) {
+    Logger.log("Erro ao verificar admin: " + String(errAdmin && errAdmin.message ? errAdmin.message : errAdmin));
+    isAdmin = false;
+  }
+
+  try {
+    const prefs = smartSlipObterPreferenciasUsuario(email);
+
+    lojaPadrao = prefs.loja_padrao || "";
+    empresaPadrao = prefs.empresa_padrao || "";
+
+    if (!lojaPadrao) {
+      lojaPadrao = smartSlipObterUltimaLojaUsuario(email);
+
+      if (lojaPadrao) {
+        const infoLoja = smartSlipConsultarInfoLoja_(lojaPadrao);
+
+        if (infoLoja.ok) {
+          empresaPadrao = infoLoja.empresa;
+        }
+      }
+    }
+
+  } catch (errLoja) {
+    Logger.log("Erro ao obter loja padrão do usuário: " + String(errLoja && errLoja.message ? errLoja.message : errLoja));
+    lojaPadrao = "";
+    empresaPadrao = "";
+  }
+
+  return {
+    email: email,
+    primeiro_nome: primeiroNome,
+    is_admin: isAdmin,
+    loja_padrao: lojaPadrao,
+    empresa_padrao: empresaPadrao
+  };
+}
+
+function smartSlipExtrairPrimeiroNome(email) {
+  if (!email) return "Usuário";
+
+  const parte = String(email).split("@")[0] || "";
+  const primeiro = parte.split(/[._-]/)[0] || "Usuário";
+
+  return primeiro.charAt(0).toUpperCase() + primeiro.slice(1).toLowerCase();
+}
+
+function smartSlipUsuarioEhAdmin(email) {
+  try {
+    email = String(email || "").trim().toLowerCase();
+
+    if (!email) {
+      return false;
+    }
+
+    const ss = SpreadsheetApp.openById(SMARTSLIP_VEKTOR_EMAILS_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(SMARTSLIP_ABA_VEKTOR_EMAILS);
+
+    if (!sh) {
+      Logger.log("SmartSlip Admin: aba VEKTOR_EMAILS não encontrada.");
+      return false;
+    }
+
+    const values = sh.getDataRange().getValues();
+
+    if (values.length < 2) {
+      return false;
+    }
+
+    const headers = values[0].map(function(h) {
+      return String(h || "").trim();
+    });
+
+    const idxEmail = smartSlipEncontrarIndiceHeader_(headers, [
+      "Email",
+      "EMAIL",
+      "E-mail",
+      "E_MAIL"
+    ]);
+
+    const idxRole = smartSlipEncontrarIndiceHeader_(headers, [
+      "ROLE",
+      "Role",
+      "Perfil",
+      "PERFIL"
+    ]);
+
+    const idxAtivo = smartSlipEncontrarIndiceHeader_(headers, [
+      "ATIVO",
+      "Ativo",
+      "Status",
+      "STATUS"
+    ]);
+
+    if (idxEmail < 0 || idxRole < 0) {
+      Logger.log("SmartSlip Admin: colunas Email/ROLE não encontradas na VEKTOR_EMAILS.");
+      Logger.log(JSON.stringify(headers));
+      return false;
+    }
+
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+
+      const emailRow = String(row[idxEmail] || "").trim().toLowerCase();
+      const role = String(row[idxRole] || "").trim().toUpperCase();
+
+      const ativoRaw = idxAtivo >= 0
+        ? String(row[idxAtivo] || "").trim().toUpperCase()
+        : "SIM";
+
+      const estaAtivo = ![
+        "NÃO",
+        "NAO",
+        "FALSE",
+        "0",
+        "INATIVO",
+        "N"
+      ].includes(ativoRaw);
+
+      const ehAdmin =
+        role.includes("Administrador") ||
+        role.includes("ADMIN");
+
+      if (emailRow === email && estaAtivo && ehAdmin) {
+        return true;
+      }
+    }
+
+    return false;
+
+  } catch (err) {
+    Logger.log("Erro smartSlipUsuarioEhAdmin: " + String(err && err.message ? err.message : err));
+    return false;
+  }
+}
+
+
+function smartSlipGetToken() {
+  const token = PropertiesService
+    .getScriptProperties()
+    .getProperty(SMARTSLIP_TOKEN_PROPERTY);
+
+  if (!token) {
+    throw new Error("SMARTSLIP_TOKEN não configurado nas propriedades do script.");
+  }
+
+  return token;
+}
+
+/**
+ * Web App usado pelo Gemini / AI Studio.
+ *
+ * Recebe:
+ * {
+ *   token: "...",
+ *   acao: "consultar_info_loja" ou "salvar_dados_comprovante_planilha",
+ *   args: {...}
+ * }
+ */
+function doPost(e) {
+  try {
+    const body = JSON.parse(e.postData.contents || "{}");
+
+    const tokenEsperado = smartSlipGetToken();
+
+    if (body.token !== tokenEsperado) {
+      return smartSlipJson_({
+        ok: false,
+        erro: "Token inválido."
+      });
+    }
+
+    const acao = String(body.acao || "").trim();
+    const args = body.args || {};
+
+    if (acao === "consultar_info_loja") {
+      return smartSlipJson_(smartSlipConsultarInfoLoja_(args.loja_informada));
+    }
+
+    if (acao === "salvar_dados_comprovante_planilha") {
+      return smartSlipJson_(smartSlipSalvarDadosComprovantePlanilha_(args));
+    }
+
+    return smartSlipJson_({
+      ok: false,
+      erro: "Ação não reconhecida: " + acao
+    });
+
+  } catch (err) {
+    return smartSlipJson_({
+      ok: false,
+      erro: smartSlipSafeErr_(err)
+    });
+  }
+}
+
+/**
+ * Consulta a aba Info_limites para localizar a loja e empresa.
+ */
+function smartSlipConsultarInfoLoja_(lojaInformada) {
+  if (!lojaInformada) {
+    return {
+      ok: false,
+      erro: "loja_informada não recebida."
+    };
+  }
+
+  const lojaDigits = String(lojaInformada).replace(/\D/g, "");
+
+  if (!lojaDigits) {
+    return {
+      ok: false,
+      erro: "Número da loja inválido."
+    };
+  }
+
+  const lojaSemZeros = String(Number(lojaDigits));
+  const loja4 = lojaDigits.padStart(4, "0").slice(-4);
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_INFO_LIMITES);
+
+  if (!sh) {
+    throw new Error("Aba '" + SMARTSLIP_ABA_INFO_LIMITES + "' não encontrada.");
+  }
+
+  const values = sh.getDataRange().getValues();
+
+  if (values.length < 2) {
+    throw new Error("Aba '" + SMARTSLIP_ABA_INFO_LIMITES + "' está vazia.");
+  }
+
+  const headers = values[0].map(function(h) {
+    return String(h || "").trim();
+  });
+
+  const idxNormLoja = smartSlipEncontrarIndiceHeader_(headers, [
+    "Norm_Loja",
+    "NORM_LOJA",
+    "Norm Loja",
+    "Loja",
+    "LOJA"
+  ]);
+
+  let idxEmpresa = smartSlipEncontrarIndiceHeader_(headers, [
+    "EMPRESA0",
+    "EMPRESA",
+    "Empresa"
+  ]);
+
+  // Fallback: você comentou que EMPRESA0 está na coluna G.
+  // Coluna G = índice 6.
+  if (idxEmpresa < 0) {
+    idxEmpresa = 6;
+  }
+
+  if (idxNormLoja < 0) {
+    throw new Error("Coluna Norm_Loja não encontrada na aba Info_limites.");
+  }
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+
+    const normLojaRaw = row[idxNormLoja];
+    const normLojaDigits = String(normLojaRaw || "").replace(/\D/g, "");
+
+    if (!normLojaDigits) {
+      continue;
+    }
+
+    const normLojaSemZeros = String(Number(normLojaDigits));
+    const normLoja4 = normLojaDigits.padStart(4, "0").slice(-4);
+
+    const bateu =
+      normLojaSemZeros === lojaSemZeros ||
+      normLoja4 === loja4;
+
+    if (bateu) {
+      const empresaRaw = String(row[idxEmpresa] || "").trim();
+      const empresaNorm = smartSlipNormalizarEmpresa_(empresaRaw);
+
+      return {
+        ok: true,
+        loja_informada: String(lojaInformada),
+        loja_normalizada: normLoja4,
+        empresa: empresaNorm,
+        empresa_original: empresaRaw,
+        linha_info_limites: i + 1
+      };
+    }
+  }
+
+  return {
+    ok: false,
+    erro: "Loja não encontrada na Info_limites.",
+    loja_informada: String(lojaInformada),
+    loja_normalizada_tentativa: loja4
+  };
+}
+
+/**
+ * Salva o comprovante validado na aba BASE_SMARTSLIP.
+ */
+function smartSlipSalvarDadosComprovantePlanilha_(dados) {
+  const lock = LockService.getScriptLock();
+
+  try {
+    lock.waitLock(10000);
+
+   const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+    let sh = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
+
+    if (!sh) {
+      sh = ss.insertSheet(SMARTSLIP_ABA_DESTINO);
+      smartSlipCriarCabecalho_(sh);
+    }
+
+    smartSlipGarantirCabecalho_(sh);
+    smartSlipValidarDadosComprovante_(dados);
+
+      sh.appendRow([
+      new Date(),
+      dados.id_comprovante || "",
+      dados.hash_comprovante || "",
+      dados.protocolo || "",
+      dados.indice_comprovante || "",
+      dados.loja || "",
+      dados.empresa || "",
+      dados.tipo_documento || "",
+      dados.data_deposito || "",
+      dados.valor_deposito || 0,
+      dados.banco || "",
+      dados.data_movimento || "",
+      dados.houve_retirada === true ? "Sim" : "Não",
+      dados.valor_retirada || 0,
+      dados.motivo_retirada || "",
+      dados.data_geracao_documento || "",
+      dados.codigo_autenticacao || "",
+      dados.link_comprovante || "",
+      dados.status_processamento || "",
+      (dados.pendencias || []).join(" | "),
+      (dados.divergencias || []).join(" | "),
+      dados.confianca_geral || "",
+      JSON.stringify(dados)
+    ]);
+
+    return {
+      ok: true,
+      mensagem: "Dados salvos com sucesso na planilha.",
+      aba_destino: SMARTSLIP_ABA_DESTINO
+    };
+
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
+  }
+}
+
+/**
+ * Cria cabeçalho da aba BASE_SMARTSLIP.
+ */
+function smartSlipCriarCabecalho_(sh) {
+  sh.appendRow([
+    "Data Registro",
+    "ID Comprovante",
+    "Hash Comprovante",
+    "Protocolo",
+    "Índice Comprovante",
+    "Loja",
+    "Empresa",
+    "Tipo Documento",
+    "Data Depósito",
+    "Valor Depósito",
+    "Banco",
+    "Data Movimento",
+    "Houve Retirada",
+    "Valor Retirada",
+    "Motivo Retirada",
+    "Data Geração Documento",
+    "Código Autenticação",
+    "Link Comprovante",
+    "Status Processamento",
+    "Pendências",
+    "Divergências",
+    "Confiança Geral",
+    "JSON Original"
+  ]);
+}
+
+/**
+ * Garante que a aba tem cabeçalho.
+ */
+function smartSlipGarantirCabecalho_(sh) {
+  if (sh.getLastRow() === 0) {
+    smartSlipCriarCabecalho_(sh);
+    return;
+  }
+
+  const primeiraCelula = String(sh.getRange(1, 1).getValue() || "").trim();
+
+  if (!primeiraCelula) {
+    smartSlipCriarCabecalho_(sh);
+  }
+}
+
+/**
+ * Valida campos obrigatórios antes de salvar.
+ */
+function smartSlipValidarDadosComprovante_(dados) {
+  const obrigatorios = [
+    "loja",
+    "empresa",
+    "tipo_documento",
+    "data_deposito",
+    "valor_deposito",
+    "data_movimento",
+    "houve_retirada",
+    "valor_retirada",
+    "motivo_retirada",
+    "data_geracao_documento",
+    "status_processamento",
+    "pendencias",
+    "divergencias",
+    "confianca_geral"
+  ];
+
+  const faltantes = [];
+
+  obrigatorios.forEach(function(campo) {
+    const valor = dados[campo];
+
+    const vazio =
+      valor === undefined ||
+      valor === null ||
+      valor === "";
+
+    if (vazio) {
+      faltantes.push(campo);
+    }
+  });
+
+  if (!Array.isArray(dados.pendencias)) {
+    faltantes.push("pendencias deve ser array");
+  }
+
+  if (!Array.isArray(dados.divergencias)) {
+    faltantes.push("divergencias deve ser array");
+  }
+
+  if (faltantes.length) {
+    throw new Error("Campos obrigatórios ausentes/inválidos: " + faltantes.join(", "));
+  }
+}
+
+/**
+ * Localiza índice de cabeçalho por nomes possíveis.
+ */
+function smartSlipEncontrarIndiceHeader_(headers, nomesPossiveis) {
+  for (let i = 0; i < headers.length; i++) {
+    const h = String(headers[i] || "").trim().toLowerCase();
+
+    for (let j = 0; j < nomesPossiveis.length; j++) {
+      const alvo = String(nomesPossiveis[j] || "").trim().toLowerCase();
+
+      if (h === alvo) {
+        return i;
+      }
+    }
+  }
+
+  return -1;
+}
+
+/**
+ * Normaliza nome da empresa.
+ */
+function smartSlipNormalizarEmpresa_(empresaRaw) {
+  const txt = String(empresaRaw || "")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (txt.includes("FISIA") || txt.includes("NIKE")) {
+    return "Fisia";
+  }
+
+  if (txt.includes("CENTAURO")) {
+    return "Centauro";
+  }
+
+  return "Nao identificado";
+}
+
+/**
+ * Resposta JSON padrão.
+ */
+function smartSlipJson_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Erro seguro.
+ */
+function smartSlipSafeErr_(err) {
+  try {
+    if (!err) return "erro desconhecido";
+    if (err.message) return err.message;
+    return String(err);
+  } catch (e) {
+    return "erro ao serializar erro";
+  }
+}
+
+/**
+ * Teste manual da consulta de loja.
+ * Rode pelo Apps Script antes de conectar no AI Studio.
+ */
+function smartSlipTesteConsultarLoja() {
+  const r = smartSlipConsultarInfoLoja_("241");
+  Logger.log(JSON.stringify(r, null, 2));
+}
+
+/**
+ * Teste manual de salvamento.
+ * Rode pelo Apps Script antes de conectar no AI Studio.
+ */
+function smartSlipTesteSalvar() {
+  const r = smartSlipSalvarDadosComprovantePlanilha_({
+    loja: "0241",
+    empresa: "Centauro",
+    tipo_documento: "deposito_caixa_eletronico",
+    data_deposito: "2026-05-08",
+    valor_deposito: 37200.46,
+    banco: "Itaú",
+    data_movimento: "2026-05-07",
+    houve_retirada: false,
+    valor_retirada: 0,
+    motivo_retirada: "Não houve retirada",
+    data_geracao_documento: "2026-05-08",
+    codigo_autenticacao: "TESTE123",
+    link_comprovante: "",
+    status_processamento: "PRONTO_PARA_SALVAR",
+    pendencias: ["sem_pendencias"],
+    divergencias: ["sem_divergencias"],
+    confianca_geral: 0.95
+  });
+
+  Logger.log(JSON.stringify(r, null, 2));
+}
+
+function smartSlipTesteDoPostFake() {
+  const fakeEvent = {
+    postData: {
+      contents: JSON.stringify({
+        token: smartSlipGetToken(),
+        acao: "consultar_info_loja",
+        args: {
+          loja_informada: "241"
+        }
+      })
+    }
+  };
+
+  const r = doPost(fakeEvent);
+  Logger.log(r.getContent());
+}
+
+function smartSlipTesteGeminiPing() {
+  const apiKey = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY não configurada nas propriedades do script.");
+  }
+
+  const model = "gemini-3-flash-preview";
+
+  const url =
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model +
+    ":generateContent?key=" +
+    encodeURIComponent(apiKey);
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: "Responda somente este JSON: {\"ok\":true,\"mensagem\":\"Gemini funcionando no Apps Script\"}"
+          }
+        ]
+      }
+    ],
+    generationConfig: {
+      temperature: 0.1,
+      response_mime_type: "application/json"
+    }
+  };
+
+  const resp = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const statusCode = resp.getResponseCode();
+  const txt = resp.getContentText();
+
+  Logger.log("HTTP STATUS: " + statusCode);
+  Logger.log(txt);
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error("Erro Gemini API HTTP " + statusCode + ": " + txt);
+  }
+
+  const json = JSON.parse(txt);
+  const respostaTexto = json.candidates[0].content.parts[0].text;
+
+  Logger.log("RESPOSTA GEMINI:");
+  Logger.log(respostaTexto);
+
+  return respostaTexto;
+}
+
+function smartSlipTesteGeminiComArquivoDrive() {
+  const fileId = "1DtSSYlpbdpjDubLd05wue-XKgaosjcRN";
+
+  const file = DriveApp.getFileById(fileId);
+  const linkComprovante = file.getUrl();
+  const blob = file.getBlob();
+
+  const base64 = Utilities.base64Encode(blob.getBytes());
+  const mimeType = blob.getContentType();
+
+const respostasUsuario = {
+  loja: "0255",
+  data_movimento_inicio: "01/05/2026",
+  data_movimento_fim: "04/05/2026",
+  houve_retirada: false,
+  valor_retirada: 0,
+  motivo_retirada: "Não houve retirada",
+  mais_comprovantes: false
+};
+
+  const resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+
+  Logger.log(JSON.stringify(resultado, null, 2));
+
+  if (resultado.dados_comprovante && resultado.dados_comprovante.loja) {
+    const infoLoja = smartSlipConsultarInfoLoja_(resultado.dados_comprovante.loja);
+
+    Logger.log("INFO LOJA:");
+    Logger.log(JSON.stringify(infoLoja, null, 2));
+
+    if (infoLoja.ok) {
+      resultado.dados_comprovante.loja = infoLoja.loja_normalizada;
+      resultado.dados_comprovante.empresa = infoLoja.empresa;
+    }
+  }
+
+  Logger.log("RESULTADO FINAL:");
+  Logger.log(JSON.stringify(resultado, null, 2));
+}
+
+function smartSlipChamarGemini(base64Arquivo, mimeType, respostasUsuario) {
+  const apiKey = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY não configurada nas propriedades do script.");
+  }
+
+  const model = "gemini-2.5-flash";
+
+  const url =
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model +
+    ":generateContent?key=" +
+    encodeURIComponent(apiKey);
+
+  const prompt = `
+Você é o Agente SmartSlip, especialista em leitura, extração, validação e interpretação semântica de comprovantes de depósito numerário para lojas Centauro e Fisia/Nike.
+
+Objetivo:
+Ler o comprovante anexado, extrair dados essenciais e retornar SOMENTE JSON válido.
+
+Regras obrigatórias:
+- Nunca invente número de loja.
+- Nunca use CNPJ, código de barras, número de documento, autenticação, agência, conta ou identificador bancário como número de loja.
+- Se a loja não estiver clara no comprovante e também não estiver em respostasUsuario.loja, retorne loja como null.
+- Se respostasUsuario.loja estiver preenchido, use esse valor como loja informada pelo usuário.
+- A empresa só pode ser "Centauro", "Fisia" ou "Nao identificado".
+- Nunca use razão social como empresa. Exemplo proibido: "SBF COMERCIO DE PRODUTOS ESPORTIVOS S/A".
+- Se a empresa não foi consultada na base Info_limites, retorne empresa como "Nao identificado".
+- Se o comprovante estiver ilegível, retorne status = "INELEGIVEL".
+- Se faltar dado obrigatório, retorne status = "PRECISA_COMPLEMENTO".
+- Banco/origem deve ser lido exclusivamente do comprovante.
+- Se banco/origem não for identificado, retorne banco como "Nao identificado".
+- Banco/origem não é campo obrigatório e não deve gerar pergunta complementar.
+- Nunca pergunte banco/origem para a loja.
+- A data de movimento vem das respostas do usuário, não do comprovante.
+- A data de movimento pode ser uma data única ou um período com data inicial e data final.
+- Se houver data_movimento_inicio e data_movimento_fim, use ambas.
+- Se houver apenas data_movimento, trate como data única.
+- A data final do movimento nunca pode ser maior que a data do depósito/documento.
+- Se a data do movimento for maior que a data do depósito/documento, retorne status = "DIVERGENCIA".
+- Se todos os dados estiverem completos, retorne status = "PRONTO_PARA_SALVAR".
+- Datas devem estar no formato dd/mm/aaaa.
+- Se o comprovante trouxer data em outro formato, converta para dd/mm/aaaa.
+- Valor deve ser número decimal. Exemplo: 37200.46.
+- Não envie nada para Slack.
+- Não escreva explicações fora do JSON.
+- Para cada item em pendencias, crie uma pergunta correspondente em perguntas_complementares.
+- Se loja estiver ausente, perguntas_complementares deve conter: "Qual o número da loja?"
+- Se data_movimento estiver ausente, perguntas_complementares deve conter: "Qual a data do movimento desse depósito?"
+- Se houve_retirada estiver null, perguntas_complementares deve conter: "Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?"
+- Se houver múltiplos comprovantes na mesma imagem/PDF, tente identificar e processar todos os comprovantes legíveis.
+- Retorne um array chamado "comprovantes", com um item para cada comprovante identificado.
+- Cada item do array deve conter: tipo_documento, data_deposito, valor_deposito, banco, data_geracao_documento, codigo_autenticacao e observacoes.
+- Se algum comprovante estiver cortado, ilegível ou parcialmente visível, inclua esse item com status = "INELEGIVEL" e explique em observacoes.
+- Não misture valores de comprovantes diferentes.
+- Não some os valores dos comprovantes.
+- Não invente valores, datas ou banco.
+- A loja, empresa, data_movimento, houve_retirada, valor_retirada e motivo_retirada vêm das respostas do usuário e se aplicam ao arquivo inteiro.
+- codigo_autenticacao não é campo bloqueante. Se não for identificado, retorne como string vazia e registre em pendencias apenas como observação.
+
+Respostas complementares já informadas pelo usuário:
+${JSON.stringify(respostasUsuario || {}, null, 2)}
+
+Retorne exatamente neste formato JSON:
+
+{
+  "status": "PRONTO_PARA_SALVAR | PRECISA_COMPLEMENTO | DIVERGENCIA | PENDENCIA | INELEGIVEL",
+  "qtd_comprovantes_detectados": 0,
+  "dados_arquivo": {
+    "loja": null,
+    "empresa": "Nao identificado",
+    "data_movimento": null,
+    "data_movimento_inicio": null,
+    "data_movimento_fim": null,
+    "houve_retirada": null,
+    "valor_retirada": null,
+    "motivo_retirada": null,
+    "link_comprovante": ""
+  },
+  "comprovantes": [
+    {
+      "status": "PRONTO_PARA_SALVAR | INELEGIVEL | PENDENCIA",
+      "indice_comprovante": 1,
+      "tipo_documento": "boleto_bancario | deposito_caixa_eletronico | comprovante_carro_forte | outro_comprovante_deposito | nao_identificado",
+      "data_deposito": null,
+      "valor_deposito": null,
+      "banco": "Nao identificado",
+      "data_geracao_documento": null,
+      "codigo_autenticacao": "",
+      "observacoes": []
+    }
+  ],
+  "pendencias": [],
+  "divergencias": [],
+  "perguntas_complementares": [],
+  "confianca_geral": 0
+}
+`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            inline_data: {
+              mime_type: mimeType || "application/pdf",
+              data: base64Arquivo
+            }
+          },
+          {
+            text: prompt
+          }
+        ]
+      }
+    ],
+    generationConfig: {
+      temperature: 0.2,
+      response_mime_type: "application/json"
+    }
+  };
+
+  const resp = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const statusCode = resp.getResponseCode();
+  const txt = resp.getContentText();
+
+  Logger.log("HTTP GEMINI: " + statusCode);
+  Logger.log(txt);
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error("Erro Gemini API HTTP " + statusCode + ": " + txt);
+  }
+
+  const json = JSON.parse(txt);
+
+  const respostaTexto =
+    json &&
+    json.candidates &&
+    json.candidates[0] &&
+    json.candidates[0].content &&
+    json.candidates[0].content.parts &&
+    json.candidates[0].content.parts[0] &&
+    json.candidates[0].content.parts[0].text;
+
+  if (!respostaTexto) {
+    throw new Error("Gemini não retornou texto válido: " + txt);
+  }
+
+  const resultado = JSON.parse(respostaTexto);
+  return smartSlipAplicarRegrasComplementares_(resultado, respostasUsuario);
+}
+
+function smartSlipAplicarRegrasComplementares_(resultado, respostasUsuario) {
+  respostasUsuario = respostasUsuario || {};
+  resultado = resultado || {};
+
+  if (!resultado.dados_comprovante) {
+    resultado.dados_comprovante = {};
+  }
+
+  if (!Array.isArray(resultado.pendencias)) {
+    resultado.pendencias = [];
+  }
+
+  if (!Array.isArray(resultado.divergencias)) {
+    resultado.divergencias = [];
+  }
+
+  if (!Array.isArray(resultado.perguntas_complementares)) {
+    resultado.perguntas_complementares = [];
+  }
+
+  const dados = resultado.dados_comprovante;
+
+  smartSlipNormalizarPeriodoMovimento(respostasUsuario, dados);
+
+  // Se a loja foi respondida pelo usuário, usa essa loja.
+  if (!dados.loja && respostasUsuario.loja) {
+    dados.loja = smartSlipNormalizarLoja4(respostasUsuario.loja);
+  }
+
+  // Não aceitar razão social como empresa.
+  if (
+    dados.empresa &&
+    dados.empresa !== "Centauro" &&
+    dados.empresa !== "Fisia" &&
+    dados.empresa !== "Nao identificado"
+  ) {
+    dados.empresa = "Nao identificado";
+  }
+
+  if (!dados.empresa) {
+    dados.empresa = "Nao identificado";
+  }
+
+  // Código de autenticação não deve bloquear o fluxo.
+  if (dados.codigo_autenticacao === null || dados.codigo_autenticacao === undefined) {
+    dados.codigo_autenticacao = "";
+  }
+
+  if (dados.link_comprovante === null || dados.link_comprovante === undefined) {
+    dados.link_comprovante = "";
+  }
+
+  // Data de movimento respondida pelo usuário.
+  if (!dados.data_movimento && respostasUsuario.data_movimento) {
+    dados.data_movimento = respostasUsuario.data_movimento;
+  }
+
+  // Informação de retirada respondida pelo usuário.
+  if (
+    (dados.houve_retirada === null || dados.houve_retirada === undefined) &&
+    typeof respostasUsuario.houve_retirada === "boolean"
+  ) {
+    dados.houve_retirada = respostasUsuario.houve_retirada;
+  }
+
+  if (
+    (dados.valor_retirada === null || dados.valor_retirada === undefined) &&
+    respostasUsuario.valor_retirada !== undefined
+  ) {
+    dados.valor_retirada = Number(respostasUsuario.valor_retirada || 0);
+  }
+
+  if (!dados.motivo_retirada && respostasUsuario.motivo_retirada) {
+    dados.motivo_retirada = respostasUsuario.motivo_retirada;
+  }
+
+  // Se não houve retirada, padroniza os campos.
+  if (dados.houve_retirada === false) {
+    dados.valor_retirada = 0;
+    dados.motivo_retirada = dados.motivo_retirada || "Não houve retirada";
+  }
+
+  // Regras de pendência/pergunta.
+  smartSlipGarantirPergunta_(
+    !dados.loja,
+    resultado,
+    "Loja não informada.",
+    "Qual o número da loja?"
+  );
+
+  smartSlipGarantirPergunta_(
+    !dados.data_movimento,
+    resultado,
+    "Data de movimento não informada.",
+    "Qual a data do movimento desse depósito?"
+  );
+
+  smartSlipGarantirPergunta_(
+    dados.houve_retirada === null || dados.houve_retirada === undefined,
+    resultado,
+    "Informação sobre retirada não informada.",
+    "Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?"
+  );
+
+  smartSlipGarantirPergunta_(
+    dados.houve_retirada === true && (!dados.valor_retirada || !dados.motivo_retirada),
+    resultado,
+    "Retirada informada, mas valor ou motivo da retirada está ausente.",
+    "Informe o valor e o motivo da retirada."
+  );
+
+  smartSlipGarantirPergunta_(
+    !dados.data_deposito,
+    resultado,
+    "Data do depósito não identificada.",
+    "Qual a data do depósito?"
+  );
+
+  smartSlipGarantirPergunta_(
+    dados.valor_deposito === null || dados.valor_deposito === undefined || dados.valor_deposito === "",
+    resultado,
+    "Valor do depósito não identificado.",
+    "Qual o valor do depósito?"
+  );
+
+  smartSlipValidarGuardrailMovimento(resultado, dados);
+
+  // Se houver perguntas, o status precisa ser PRECISA_COMPLEMENTO.
+  if (resultado.perguntas_complementares.length > 0) {
+    resultado.status = "PRECISA_COMPLEMENTO";
+  }
+
+  // Se não houver perguntas nem divergências, pode ficar pronto para salvar.
+  if (
+    resultado.status !== "INELEGIVEL" &&
+    resultado.divergencias.length === 0 &&
+    resultado.perguntas_complementares.length === 0
+  ) {
+    resultado.status = "PRONTO_PARA_SALVAR";
+  }
+
+  return resultado;
+}
+
+function smartSlipGarantirPergunta_(condicao, resultado, pendencia, pergunta) {
+  if (!condicao) return;
+
+  if (resultado.pendencias.indexOf(pendencia) === -1) {
+    resultado.pendencias.push(pendencia);
+  }
+
+  if (resultado.perguntas_complementares.indexOf(pergunta) === -1) {
+    resultado.perguntas_complementares.push(pergunta);
+  }
+}
+
+function smartSlipNormalizarLoja4(loja) {
+  const digits = String(loja || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  return digits.padStart(4, "0").slice(-4);
+}
+
+function smartSlipTesteSalvarCompleto() {
+  const fileId = "1DtSSYlpbdpjDubLd05wue-XKgaosjcRN";
+
+const respostasUsuario = {
+  loja: "0241",
+  data_movimento_inicio: "01/05/2026",
+   data_movimento_fim: "04/05/2026",
+  houve_retirada: false,
+  valor_retirada: 0,
+  motivo_retirada: "Não houve retirada",
+  mais_comprovantes: false
+};
+
+const protocolo = "SS-TESTE-SALVAR-COMPLETO";
+
+const arquivoOrganizado = smartSlipCopiarArquivoParaPastaEstruturada(
+  fileId,
+  respostasUsuario,
+  protocolo
+);
+
+  const file = DriveApp.getFileById(arquivoOrganizado.file_id);
+  const linkComprovante = arquivoOrganizado.link_comprovante;
+  const blob = file.getBlob();
+
+  const base64 = Utilities.base64Encode(blob.getBytes());
+  const mimeType = blob.getContentType();
+
+  const resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+
+  Logger.log("RESULTADO GEMINI:");
+  Logger.log(JSON.stringify(resultado, null, 2));
+
+  const dados = resultado.dados_comprovante || {};
+
+  // Usa respostas complementares do usuário como fonte de verdade quando o comprovante não traz o dado.
+if (!dados.banco && respostasUsuario.banco) {
+  dados.banco = respostasUsuario.banco;
+}
+
+if (!dados.data_movimento && respostasUsuario.data_movimento) {
+  dados.data_movimento = respostasUsuario.data_movimento;
+}
+
+if (
+  (dados.houve_retirada === null || dados.houve_retirada === undefined) &&
+  typeof respostasUsuario.houve_retirada === "boolean"
+) {
+  dados.houve_retirada = respostasUsuario.houve_retirada;
+}
+
+if (
+  (dados.valor_retirada === null || dados.valor_retirada === undefined) &&
+  respostasUsuario.valor_retirada !== undefined
+) {
+  dados.valor_retirada = Number(respostasUsuario.valor_retirada || 0);
+}
+
+if (!dados.motivo_retirada && respostasUsuario.motivo_retirada) {
+  dados.motivo_retirada = respostasUsuario.motivo_retirada;
+}
+
+if (dados.codigo_autenticacao === null || dados.codigo_autenticacao === undefined) {
+  dados.codigo_autenticacao = "";
+}
+
+// 1. A loja informada pelo usuário é a fonte de verdade.
+// Não confiar em número de loja inferido do comprovante.
+if (respostasUsuario.loja) {
+  dados.loja = String(respostasUsuario.loja).replace(/\D/g, "").padStart(4, "0").slice(-4);
+
+  resultado.divergencias = (resultado.divergencias || []).filter(function(d) {
+    const txt = String(d || "").toLowerCase();
+
+    return !(
+      txt.includes("número da loja no comprovante") ||
+      txt.includes("numero da loja no comprovante") ||
+      txt.includes("difere do número de loja informado") ||
+      txt.includes("difere do numero de loja informado")
+    );
+  });
+}
+
+  // 2. Consulta Info_limites para obter empresa correta.
+  if (dados.loja) {
+    const infoLoja = smartSlipConsultarInfoLoja_(dados.loja);
+
+    Logger.log("INFO LOJA:");
+    Logger.log(JSON.stringify(infoLoja, null, 2));
+
+    if (infoLoja.ok) {
+      dados.loja = infoLoja.loja_normalizada;
+      dados.empresa = infoLoja.empresa;
+    } else {
+      resultado.status = "PRECISA_COMPLEMENTO";
+      resultado.pendencias = resultado.pendencias || [];
+      resultado.perguntas_complementares = resultado.perguntas_complementares || [];
+
+      resultado.pendencias.push("Loja não encontrada na Info_limites.");
+      resultado.perguntas_complementares.push("Confirme o número correto da loja.");
+
+      Logger.log("NÃO SALVOU: loja não encontrada na Info_limites.");
+      Logger.log(JSON.stringify(resultado, null, 2));
+      return;
+    }
+  }
+
+  // Código de autenticação não bloqueia salvamento.
+resultado.pendencias = (resultado.pendencias || []).filter(function(p) {
+  const txt = String(p || "").toLowerCase();
+
+  return !(
+    txt.includes("código de autenticação") ||
+    txt.includes("codigo de autenticacao")
+  );
+});
+
+  // 3. Valida campos obrigatórios antes de salvar.
+  const pendenciasBloqueantes = [];
+
+  if (!dados.loja) pendenciasBloqueantes.push("Loja não informada.");
+  if (!dados.empresa || dados.empresa === "Nao identificado") pendenciasBloqueantes.push("Empresa não identificada pela Info_limites.");
+  if (!resultado.tipo_documento || resultado.tipo_documento === "nao_identificado") pendenciasBloqueantes.push("Tipo de documento não identificado.");
+  if (!dados.data_deposito) pendenciasBloqueantes.push("Data do depósito não identificada.");
+  if (dados.valor_deposito === null || dados.valor_deposito === undefined || dados.valor_deposito === "") pendenciasBloqueantes.push("Valor do depósito não identificado.");
+  if (!dados.data_movimento) pendenciasBloqueantes.push("Data de movimento não informada.");
+  if (dados.houve_retirada === null || dados.houve_retirada === undefined) pendenciasBloqueantes.push("Informação sobre retirada não informada.");
+  if (!dados.data_geracao_documento) pendenciasBloqueantes.push("Data de geração do documento não identificada.");
+
+  if (dados.houve_retirada === true) {
+    if (!dados.valor_retirada) pendenciasBloqueantes.push("Valor da retirada não informado.");
+    if (!dados.motivo_retirada) pendenciasBloqueantes.push("Motivo da retirada não informado.");
+  }
+
+  if (pendenciasBloqueantes.length > 0) {
+    resultado.status = "PRECISA_COMPLEMENTO";
+    resultado.pendencias = pendenciasBloqueantes;
+    resultado.perguntas_complementares = smartSlipMontarPerguntasComplementares(pendenciasBloqueantes);
+
+    Logger.log("NÃO SALVOU: existem pendências bloqueantes.");
+    Logger.log(JSON.stringify(resultado, null, 2));
+    return;
+  }
+
+  // 4. Monta payload final para salvar.
+  const payloadSalvar = {
+    loja: dados.loja,
+    empresa: dados.empresa,
+    tipo_documento: resultado.tipo_documento,
+    data_deposito: dados.data_deposito,
+    valor_deposito: Number(dados.valor_deposito || 0),
+    banco: dados.banco || "Nao identificado",
+    data_movimento: dados.data_movimento,
+    houve_retirada: dados.houve_retirada === true,
+    valor_retirada: Number(dados.valor_retirada || 0),
+    motivo_retirada: dados.houve_retirada === true
+      ? dados.motivo_retirada
+      : "Não houve retirada",
+    data_geracao_documento: dados.data_geracao_documento,
+    codigo_autenticacao: dados.codigo_autenticacao || "",
+    link_comprovante: linkComprovante,
+    status_processamento: "PRONTO_PARA_SALVAR",
+    pendencias: [],
+    divergencias: resultado.divergencias || [],
+    confianca_geral: Number(resultado.confianca_geral || 0)
+  };
+
+  Logger.log("PAYLOAD PARA SALVAR:");
+  Logger.log(JSON.stringify(payloadSalvar, null, 2));
+
+  // 5. Salva na BASE_SMARTSLIP.
+  const retornoSalvar = smartSlipSalvarDadosComprovantePlanilha_(payloadSalvar);
+
+  Logger.log("RETORNO SALVAMENTO:");
+  Logger.log(JSON.stringify(retornoSalvar, null, 2));
+
+  Logger.log("PROCESSO CONCLUÍDO. Verifique a aba BASE_SMARTSLIP.");
+}
+
+function smartSlipMontarPerguntasComplementares(pendencias) {
+  const perguntas = [];
+
+  pendencias.forEach(function(p) {
+    const txt = String(p || "").toLowerCase();
+
+    if (txt.includes("loja")) {
+      perguntas.push("Qual o número da loja?");
+    } else if (txt.includes("empresa")) {
+      perguntas.push("Confirme o número da loja para consultar a empresa correta.");
+    } else if (txt.includes("tipo de documento")) {
+      perguntas.push("Qual é o tipo do comprovante?");
+    } else if (txt.includes("data do depósito")) {
+      perguntas.push("Qual a data do depósito?");
+    } else if (txt.includes("valor do depósito")) {
+      perguntas.push("Qual o valor do depósito?");
+    } else if (txt.includes("banco")) {
+      perguntas.push("Qual o banco do comprovante?");
+    } else if (txt.includes("data de movimento")) {
+      perguntas.push("Qual a data do movimento desse depósito?");
+    } else if (txt.includes("retirada")) {
+      perguntas.push("Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?");
+    } else if (txt.includes("data de geração")) {
+      perguntas.push("Qual a data de geração do documento?");
+    }
+  });
+
+  return [...new Set(perguntas)];
+}
+
+function smartSlipGarantirAbaFila() {
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh) {
+    sh = ss.insertSheet(SMARTSLIP_ABA_FILA);
+    sh.appendRow([
+      "Data Registro",
+      "Protocolo",
+      "Email Usuário",
+      "Loja Informada",
+      "Banco Informado",
+      "Data Movimento",
+      "Houve Retirada",
+      "Valor Retirada",
+      "Motivo Retirada",
+      "Mais Comprovantes",
+      "File ID",
+      "Link Comprovante",
+      "Nome Arquivo",
+      "Status Fila",
+      "Mensagem",
+      "JSON Respostas",
+      "JSON Resultado",
+      "Data Processamento"
+    ]);
+  }
+
+  return sh;
+}
+
+function smartSlipTesteFila() {
+  const sh = smartSlipGarantirCabecalhoFila();
+
+  const respostasUsuario = {
+    loja: "0025",
+    banco: "CARRO FORTE",
+    data_movimento: "04/05/2026",
+    houve_retirada: false,
+    valor_retirada: 0,
+    motivo_retirada: "Não houve retirada",
+    mais_comprovantes: false
+  };
+
+  const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+  sh.appendRow([
+    new Date(),
+    "SS-TESTE-001",
+    Session.getActiveUser().getEmail() || "",
+    smartSlipNormalizarLoja4(respostasUsuario.loja),
+    respostasUsuario.banco || "",
+    dataMovimentoTexto,
+    respostasUsuario.houve_retirada ? "Sim" : "Não",
+    respostasUsuario.valor_retirada,
+    respostasUsuario.motivo_retirada,
+    respostasUsuario.mais_comprovantes ? "Sim" : "Não",
+    "FILE_ID_TESTE",
+    "https://drive.google.com/teste",
+    "comprovante_teste.pdf",
+    "RECEBIDO",
+    "Linha de teste criada na fila.",
+    JSON.stringify(respostasUsuario),
+    "",
+    ""
+  ]);
+
+  Logger.log("Linha de teste criada na SMARTSLIP_FILA.");
+}
+
+function smartSlipGetScriptProperty(nome) {
+  const valor = PropertiesService
+    .getScriptProperties()
+    .getProperty(nome);
+
+  if (!valor) {
+    throw new Error("Propriedade do script não configurada: " + nome);
+  }
+
+  return valor;
+}
+
+function smartSlipGetRootFolderComprovantes() {
+  const folderId = smartSlipGetScriptProperty("SMARTSLIP_FOLDER_ID");
+  return DriveApp.getFolderById(folderId);
+}
+
+function smartSlipGetOrCreateFolder(parentFolder, folderName) {
+  const nome = smartSlipSanitizarNomePasta(folderName);
+  const folders = parentFolder.getFoldersByName(nome);
+
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+
+  return parentFolder.createFolder(nome);
+}
+
+function smartSlipSanitizarNomePasta(nome) {
+  return String(nome || "")
+    .trim()
+    .replace(/[\\\/:*?"<>|#%{}~&]/g, "-")
+    .replace(/\s+/g, " ")
+    .substring(0, 120);
+}
+
+function smartSlipNormalizarLojaParaPasta(loja) {
+  const digits = String(loja || "").replace(/\D/g, "");
+
+  if (!digits) {
+    throw new Error("Loja inválida para criação de pasta.");
+  }
+
+  return digits.padStart(4, "0").slice(-4);
+}
+
+function smartSlipObterAnoMes(dataMovimento) {
+  const data = smartSlipParseDateBR(dataMovimento);
+
+  if (data) {
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    return {
+      ano: Utilities.formatDate(data, tz, "yyyy"),
+      mes: Utilities.formatDate(data, tz, "MM")
+    };
+  }
+
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  const hoje = new Date();
+
+  return {
+    ano: Utilities.formatDate(hoje, tz, "yyyy"),
+    mes: Utilities.formatDate(hoje, tz, "MM")
+  };
+}
+
+function smartSlipObterPastaAnoMesLoja(dataMovimento, loja) {
+  const root = smartSlipGetRootFolderComprovantes();
+  const anoMes = smartSlipObterAnoMes(dataMovimento);
+  const loja4 = smartSlipNormalizarLojaParaPasta(loja);
+
+  const pastaAno = smartSlipGetOrCreateFolder(root, anoMes.ano);
+  const pastaMes = smartSlipGetOrCreateFolder(pastaAno, anoMes.mes);
+  const pastaLoja = smartSlipGetOrCreateFolder(pastaMes, loja4);
+
+  return pastaLoja;
+}
+
+function smartSlipMontarNomeArquivoComprovante(protocolo, loja, dataMovimento, nomeOriginal) {
+  const loja4 = smartSlipNormalizarLojaParaPasta(loja);
+  const data = String(dataMovimento || "sem-data").trim();
+  const nome = String(nomeOriginal || "comprovante.pdf").trim();
+
+  const nomeLimpo = nome
+    .replace(/[\\\/:*?"<>|#%{}~&]/g, "-")
+    .replace(/\s+/g, "_")
+    .substring(0, 120);
+
+  return [
+    protocolo || "SS-SEM-PROTOCOLO",
+    loja4,
+    data,
+    nomeLimpo
+  ].join("_");
+}
+
+function smartSlipSalvarUploadEmPastaEstruturada(form, respostasUsuario, protocolo) {
+  if (!form || !form.arquivoBase64) {
+    throw new Error("Arquivo não recebido.");
+  }
+
+  respostasUsuario = respostasUsuario || {};
+
+  const loja = respostasUsuario.loja || form.loja;
+
+  const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+  const dataMovimentoReferencia =
+    respostasUsuario.data_movimento_inicio ||
+    respostasUsuario.data_movimento ||
+    respostasUsuario.data_movimento_fim ||
+    form.data_movimento ||
+    "";
+
+  if (!loja) {
+    throw new Error("Loja não informada para salvar comprovante.");
+  }
+
+  if (!dataMovimentoTexto) {
+    throw new Error("Data de movimento não informada para salvar comprovante.");
+  }
+
+  if (!dataMovimentoReferencia) {
+    throw new Error("Data de referência do movimento não informada para salvar comprovante.");
+  }
+
+  const pastaDestino = smartSlipObterPastaAnoMesLoja(dataMovimentoReferencia, loja);
+
+  const base64Limpo = String(form.arquivoBase64).split(",").pop();
+  const bytes = Utilities.base64Decode(base64Limpo);
+
+  const nomeArquivo = smartSlipMontarNomeArquivoComprovante(
+    protocolo,
+    loja,
+    dataMovimentoTexto,
+    form.nomeArquivo || "comprovante.pdf"
+  );
+
+  const mimeType = form.mimeType || "application/pdf";
+  const blob = Utilities.newBlob(bytes, mimeType, nomeArquivo);
+
+  const file = pastaDestino.createFile(blob);
+
+  return {
+    file_id: file.getId(),
+    link_comprovante: file.getUrl(),
+    nome_arquivo: file.getName(),
+    pasta_id: pastaDestino.getId(),
+    pasta_url: pastaDestino.getUrl()
+  };
+}
+
+function smartSlipCopiarArquivoParaPastaEstruturada(fileId, respostasUsuario, protocolo) {
+  respostasUsuario = respostasUsuario || {};
+
+  const loja = respostasUsuario.loja;
+
+  const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+  const dataMovimentoReferencia =
+    respostasUsuario.data_movimento_inicio ||
+    respostasUsuario.data_movimento ||
+    respostasUsuario.data_movimento_fim ||
+    "";
+
+  if (!fileId) {
+    throw new Error("fileId não informado.");
+  }
+
+  if (!loja) {
+    throw new Error("Loja não informada.");
+  }
+
+  if (!dataMovimentoTexto) {
+    throw new Error("Data de movimento não informada.");
+  }
+
+  if (!dataMovimentoReferencia) {
+    throw new Error("Data de referência do movimento não informada.");
+  }
+
+  const fileOriginal = DriveApp.getFileById(fileId);
+
+  // A pasta ano/mês/loja usa uma data única de referência.
+  // Se for período, usa a data inicial.
+  const pastaDestino = smartSlipObterPastaAnoMesLoja(dataMovimentoReferencia, loja);
+
+  const nomeArquivo = smartSlipMontarNomeArquivoComprovante(
+    protocolo,
+    loja,
+    dataMovimentoTexto,
+    fileOriginal.getName()
+  );
+
+  const novoArquivo = fileOriginal.makeCopy(nomeArquivo, pastaDestino);
+
+  return {
+    file_id: novoArquivo.getId(),
+    link_comprovante: novoArquivo.getUrl(),
+    nome_arquivo: novoArquivo.getName(),
+    pasta_id: pastaDestino.getId(),
+    pasta_url: pastaDestino.getUrl()
+  };
+}
+
+function smartSlipTesteCriarPastasComprovante() {
+  const fileId = "1DtSSYlpbdpjDubLd05wue-XKgaosjcRN";
+
+  const respostasUsuario = {
+    loja: "0178",
+    data_movimento_inicio: "01/05/2026",
+    data_movimento_fim: "04/05/2026",
+    houve_retirada: false,
+    valor_retirada: 0,
+    motivo_retirada: "Não houve retirada",
+    mais_comprovantes: false
+  };
+
+  const protocolo = "SS-TESTE-PASTAS";
+
+  const arquivo = smartSlipCopiarArquivoParaPastaEstruturada(
+    fileId,
+    respostasUsuario,
+    protocolo
+  );
+
+  Logger.log(JSON.stringify(arquivo, null, 2));
+}
+
+function smartSlipParseDateBR(valor) {
+  if (!valor) return null;
+
+  const txt = String(valor).trim();
+
+  // Aceita dd/mm/aaaa
+  let m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) {
+    return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  }
+
+  // Aceita yyyy-mm-dd também, para compatibilidade com input type="date"
+  m = txt.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  return null;
+}
+
+function smartSlipFormatDateBR(date) {
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  return Utilities.formatDate(date, tz, "dd/MM/yyyy");
+}
+
+function smartSlipNormalizarPeriodoMovimento(respostasUsuario, dados) {
+  respostasUsuario = respostasUsuario || {};
+  dados = dados || {};
+
+  let inicio =
+    respostasUsuario.data_movimento_inicio ||
+    respostasUsuario.data_movimento ||
+    dados.data_movimento_inicio ||
+    dados.data_movimento ||
+    "";
+
+  let fim =
+    respostasUsuario.data_movimento_fim ||
+    dados.data_movimento_fim ||
+    inicio;
+
+  dados.data_movimento_inicio = inicio || "";
+  dados.data_movimento_fim = fim || "";
+
+  if (inicio && fim && inicio === fim) {
+    dados.data_movimento = inicio;
+  } else if (inicio && fim) {
+    dados.data_movimento = inicio + " a " + fim;
+  } else {
+    dados.data_movimento = inicio || "";
+  }
+
+  return dados;
+}
+
+function smartSlipValidarGuardrailMovimento(resultado, dados) {
+  resultado = resultado || {};
+  dados = dados || {};
+
+  if (!Array.isArray(resultado.divergencias)) {
+    resultado.divergencias = [];
+  }
+
+  const dataDeposito = smartSlipParseDateBR(dados.data_deposito);
+  const movInicio = smartSlipParseDateBR(dados.data_movimento_inicio);
+  const movFim = smartSlipParseDateBR(dados.data_movimento_fim);
+
+  if (!dataDeposito || !movInicio || !movFim) {
+    return resultado;
+  }
+
+  if (movInicio > movFim) {
+    resultado.status = "DIVERGENCIA";
+    resultado.divergencias.push(
+      "Data inicial do movimento maior que a data final do movimento."
+    );
+  }
+
+  if (movFim > dataDeposito) {
+    resultado.status = "DIVERGENCIA";
+    resultado.divergencias.push(
+      "Data de movimento maior que a data do depósito/documento. Movimento: " +
+      smartSlipFormatDateBR(movFim) +
+      " | Depósito/documento: " +
+      smartSlipFormatDateBR(dataDeposito)
+    );
+  }
+
+  return resultado;
+}
+
+function smartSlipGarantirCabecalhoFila() {
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh) {
+    sh = ss.insertSheet(SMARTSLIP_ABA_FILA);
+  }
+
+  const headers = [
+    "Data Registro",
+    "Protocolo",
+    "Email Usuário",
+    "Loja Informada",
+    "Banco",
+    "Data Movimento",
+    "Houve Retirada",
+    "Valor Retirada",
+    "Motivo Retirada",
+    "Mais Comprovantes",
+    "File ID",
+    "Link Comprovante",
+    "Nome Arquivo",
+    "Status Fila",
+    "Mensagem",
+    "JSON Respostas",
+    "JSON Resultado",
+    "Data Processamento"
+  ];
+
+  const primeiraCelula = String(sh.getRange(1, 1).getValue() || "").trim();
+
+  if (primeiraCelula !== "Data Registro") {
+    sh.insertRowBefore(1);
+  }
+
+  sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sh.setFrozenRows(1);
+
+  return sh;
+}
+
+function smartSlipTesteCabecalhoFila() {
+  smartSlipGarantirCabecalhoFila();
+  Logger.log("Cabeçalho da SMARTSLIP_FILA criado/verificado.");
+}
+
+function smartSlipMontarDataMovimentoTexto(respostasUsuario) {
+  respostasUsuario = respostasUsuario || {};
+
+  const inicio = respostasUsuario.data_movimento_inicio || respostasUsuario.data_movimento || "";
+  const fim = respostasUsuario.data_movimento_fim || "";
+
+  if (inicio && fim && inicio !== fim) {
+    return inicio + " a " + fim;
+  }
+
+  return inicio || fim || "";
+}
+
+function smartSlipTesteFilaPeriodo() {
+  const sh = smartSlipGarantirCabecalhoFila();
+
+  const respostasUsuario = {
+    loja: "0171",
+    banco: "",
+    data_movimento_inicio: "01/05/2026",
+    data_movimento_fim: "04/05/2026",
+    houve_retirada: false,
+    valor_retirada: 0,
+    motivo_retirada: "Não houve retirada",
+    mais_comprovantes: false
+  };
+
+  const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+  sh.appendRow([
+    new Date(),
+    "SS-TESTE-PERIODO-001",
+    Session.getActiveUser().getEmail() || "",
+    smartSlipNormalizarLoja4(respostasUsuario.loja),
+    respostasUsuario.banco || "",
+    dataMovimentoTexto,
+    respostasUsuario.houve_retirada ? "Sim" : "Não",
+    respostasUsuario.valor_retirada,
+    respostasUsuario.motivo_retirada,
+    respostasUsuario.mais_comprovantes ? "Sim" : "Não",
+    "FILE_ID_TESTE",
+    "https://drive.google.com/teste",
+    "comprovante_teste_periodo.pdf",
+    "RECEBIDO",
+    "Linha de teste com período criada na fila.",
+    JSON.stringify(respostasUsuario),
+    "",
+    ""
+  ]);
+
+  Logger.log("Linha de teste com período criada na SMARTSLIP_FILA.");
+  Logger.log("Data Movimento gravada: " + dataMovimentoTexto);
+}
+
+function doGet(e) {
+  return HtmlService
+    .createHtmlOutputFromFile("SmartSlipApp")
+    .setTitle("SmartSlip - Envio de Comprovantes")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function smartSlipEnviarComprovanteApp(form) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    if (!form) {
+      throw new Error("Formulário não recebido.");
+    }
+
+    if (!form.arquivoBase64) {
+      throw new Error("Arquivo não recebido.");
+    }
+
+    if (!form.loja) {
+      throw new Error("Número da loja não informado.");
+    }
+
+    if (!form.data_movimento_inicio) {
+      throw new Error("Data de movimento inicial não informada.");
+    }
+
+    const usuarioAtual = smartSlipGetUsuarioAtual();
+    const lojaForm = smartSlipNormalizarLoja4(form.loja);
+    const lojaPadraoUsuario = smartSlipNormalizarLoja4(usuarioAtual.loja_padrao || "");
+
+    if (!usuarioAtual.is_admin) {
+      if (!lojaPadraoUsuario) {
+        throw new Error("Configure sua loja padrão antes de enviar comprovantes.");
+      }
+
+      if (lojaForm && lojaForm !== lojaPadraoUsuario) {
+        throw new Error("A loja enviada não corresponde à loja padrão configurada para seu usuário.");
+      }
+    }
+
+    const protocolo = smartSlipGerarProtocolo();
+    const loja4 = usuarioAtual.is_admin ? lojaForm : lojaPadraoUsuario;
+
+    const respostasUsuario = {
+      loja: loja4,
+      data_movimento_inicio: form.data_movimento_inicio,
+      data_movimento_fim: form.data_movimento_fim || form.data_movimento_inicio,
+      houve_retirada: String(form.houve_retirada) === "true",
+      valor_retirada: Number(form.valor_retirada || 0),
+      motivo_retirada: form.motivo_retirada || "Não houve retirada",
+      mais_comprovantes: String(form.mais_comprovantes) === "true"
+    };
+
+    const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+    const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
+      form,
+      respostasUsuario,
+      protocolo
+    );
+
+    const sh = smartSlipGarantirCabecalhoFila();
+
+    const emailUsuario = Session.getActiveUser().getEmail() || "";
+
+    sh.appendRow([
+      new Date(),
+      protocolo,
+      emailUsuario,
+      loja4,
+      "",
+      dataMovimentoTexto,
+      respostasUsuario.houve_retirada ? "Sim" : "Não",
+      respostasUsuario.valor_retirada,
+      respostasUsuario.motivo_retirada,
+      respostasUsuario.mais_comprovantes ? "Sim" : "Não",
+      arquivo.file_id,
+      arquivo.link_comprovante,
+      arquivo.nome_arquivo,
+      "RECEBIDO",
+      "Comprovante recebido e aguardando processamento.",
+      JSON.stringify(respostasUsuario),
+      "",
+      ""
+    ]);
+
+    return {
+      ok: true,
+      protocolo: protocolo,
+      status: "RECEBIDO",
+      mensagem: "Comprovante recebido com sucesso."
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    };
+
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
+  }
+}
+
+function smartSlipGerarProtocolo() {
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  const agora = new Date();
+  const data = Utilities.formatDate(agora, tz, "yyyyMMdd-HHmmss");
+  const rand = Math.floor(Math.random() * 9000) + 1000;
+
+  return "SS-" + data + "-" + rand;
+}
+
+function smartSlipProcessarFila() {
+  const lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(1000)) {
+    return;
+  }
+
+  try {
+    const sh = smartSlipGarantirCabecalhoFila();
+    const lastRow = sh.getLastRow();
+
+    if (lastRow < 2) {
+      return;
+    }
+
+    const values = sh.getRange(2, 1, lastRow - 1, 18).getValues();
+    const limitePorExecucao = 10;
+    let processados = 0;
+
+    for (let i = 0; i < values.length; i++) {
+      if (processados >= limitePorExecucao) {
+        break;
+      }
+
+      const rowIndex = i + 2;
+      const row = values[i];
+      const protocolo = row[1];
+      const fileId = row[10];
+      const statusFila = row[13];
+      const jsonRespostas = row[15];
+
+      if (statusFila !== "RECEBIDO") {
+        continue;
+      }
+
+      sh.getRange(rowIndex, 14).setValue("PROCESSANDO");
+      sh.getRange(rowIndex, 15).setValue("Processando comprovante via Gemini...");
+
+      try {
+        const respostasUsuario = JSON.parse(jsonRespostas || "{}");
+        const resultado = smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo);
+
+        sh.getRange(rowIndex, 14).setValue(resultado.status_fila);
+        sh.getRange(rowIndex, 15).setValue(resultado.mensagem || "");
+        sh.getRange(rowIndex, 17).setValue(JSON.stringify(resultado));
+        sh.getRange(rowIndex, 18).setValue(new Date());
+
+        processados++;
+
+      } catch (err) {
+        sh.getRange(rowIndex, 14).setValue("ERRO_PROCESSAMENTO");
+        sh.getRange(rowIndex, 15).setValue(String(err && err.message ? err.message : err));
+        sh.getRange(rowIndex, 18).setValue(new Date());
+      }
+    }
+
+  } finally {
+    try {
+      lock.releaseLock();
+    } catch (e) {}
+  }
+}
+
+function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) {
+  const file = DriveApp.getFileById(fileId);
+  const linkComprovante = file.getUrl();
+  const blob = file.getBlob();
+
+  const base64 = Utilities.base64Encode(blob.getBytes());
+  const mimeType = blob.getContentType();
+
+  const resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+
+  const loja4 = smartSlipNormalizarLoja4(respostasUsuario.loja);
+  const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+
+  const infoLoja = smartSlipConsultarInfoLoja_(loja4);
+
+  if (!infoLoja.ok) {
+    return {
+      ok: false,
+      status_fila: "PENDENTE_INTERNO",
+      mensagem: "Loja não encontrada na Info_limites.",
+      resultado: resultado
+    };
+  }
+
+  const empresa = infoLoja.empresa;
+
+  const houveRetirada = respostasUsuario.houve_retirada === true;
+  const valorRetirada = Number(respostasUsuario.valor_retirada || 0);
+  const motivoRetirada = houveRetirada
+    ? respostasUsuario.motivo_retirada || ""
+    : "Não houve retirada";
+
+  const comprovantes = smartSlipExtrairComprovantesDoResultado(resultado);
+
+  if (!comprovantes.length) {
+    return {
+      ok: false,
+      status_fila: "PENDENTE_INTERNO",
+      mensagem: "Nenhum comprovante legível foi identificado no arquivo.",
+      resultado: resultado
+    };
+  }
+
+  let salvos = 0;
+  let pendentes = 0;
+  const mensagens = [];
+
+  let retiradaJaAplicada = false;
+
+  comprovantes.forEach(function(item) {
+    const pendenciasItem = [];
+
+    if (!item.tipo_documento || item.tipo_documento === "nao_identificado") {
+      pendenciasItem.push("Tipo de documento não identificado.");
+    }
+
+    if (!item.data_deposito) {
+      pendenciasItem.push("Data do depósito não identificada.");
+    }
+
+    if (item.valor_deposito === null || item.valor_deposito === undefined || item.valor_deposito === "") {
+      pendenciasItem.push("Valor do depósito não identificado.");
+    }
+
+    if (!item.data_geracao_documento) {
+      pendenciasItem.push("Data de geração do documento não identificada.");
+    }
+
+    const dadosGuardrail = {
+      data_deposito: item.data_deposito,
+      data_movimento: dataMovimentoTexto,
+      data_movimento_inicio: respostasUsuario.data_movimento_inicio || respostasUsuario.data_movimento || "",
+      data_movimento_fim: respostasUsuario.data_movimento_fim || respostasUsuario.data_movimento_inicio || respostasUsuario.data_movimento || ""
+    };
+
+    const resultadoGuardrail = {
+      status: "PRONTO_PARA_SALVAR",
+      divergencias: []
+    };
+
+    smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
+
+    if (resultadoGuardrail.divergencias.length > 0) {
+      pendenciasItem.push(resultadoGuardrail.divergencias.join(" | "));
+    }
+
+    if (pendenciasItem.length > 0 || item.status === "INELEGIVEL") {
+      pendentes++;
+      mensagens.push(
+        "Comprovante " +
+        (item.indice_comprovante || "?") +
+        ": " +
+        pendenciasItem.join(" | ")
+      );
+      return;
+    }
+
+    const aplicarRetiradaNestaLinha = houveRetirada && !retiradaJaAplicada;
+    const indiceComprovante = item.indice_comprovante || (salvos + pendentes + 1);
+    const idComprovante = smartSlipGerarIdComprovante(
+      protocolo,
+      indiceComprovante
+    );
+
+    const payloadSalvar = {
+      id_comprovante: idComprovante,
+      hash_comprovante: "",
+      protocolo: protocolo,
+      indice_comprovante: indiceComprovante,
+      loja: loja4,
+      empresa: empresa,
+      tipo_documento: item.tipo_documento || "nao_identificado",
+      data_deposito: item.data_deposito || "",
+      valor_deposito: Number(item.valor_deposito || 0),
+      banco: item.banco || "Nao identificado",
+      data_movimento: dataMovimentoTexto,
+      houve_retirada: aplicarRetiradaNestaLinha,
+      valor_retirada: aplicarRetiradaNestaLinha ? valorRetirada : 0,
+      motivo_retirada: aplicarRetiradaNestaLinha ? motivoRetirada : "Não houve retirada",
+      data_geracao_documento: item.data_geracao_documento || "",
+      codigo_autenticacao: item.codigo_autenticacao || "",
+      link_comprovante: linkComprovante,
+      status_processamento: "PRONTO_PARA_SALVAR",
+      pendencias: item.observacoes || [],
+      divergencias: [],
+      confianca_geral: Number(resultado.confianca_geral || 0)
+    };
+
+    payloadSalvar.hash_comprovante = smartSlipGerarHashComprovante(payloadSalvar);
+
+    smartSlipSalvarDadosComprovantePlanilha_(payloadSalvar);
+    if (aplicarRetiradaNestaLinha) {
+        retiradaJaAplicada = true;
+      }
+    salvos++;
+  });
+
+  if (salvos > 0 && pendentes === 0) {
+    return {
+      ok: true,
+      status_fila: "SALVO",
+      mensagem: salvos + " comprovante(s) processado(s) e salvo(s) na BASE_SMARTSLIP.",
+      qtd_salvos: salvos,
+      qtd_pendentes: pendentes,
+      resultado: resultado
+    };
+  }
+
+  if (salvos > 0 && pendentes > 0) {
+    return {
+      ok: true,
+      status_fila: "SALVO_PARCIAL",
+      mensagem: salvos + " comprovante(s) salvo(s). " + pendentes + " comprovante(s) com pendência.",
+      qtd_salvos: salvos,
+      qtd_pendentes: pendentes,
+      pendencias: mensagens,
+      resultado: resultado
+    };
+  }
+
+  return {
+    ok: false,
+    status_fila: "PENDENTE_INTERNO",
+    mensagem: "Nenhum comprovante foi salvo. " + mensagens.join(" | "),
+    qtd_salvos: salvos,
+    qtd_pendentes: pendentes,
+    pendencias: mensagens,
+    resultado: resultado
+  };
+}
+
+function smartSlipValidarBloqueiosFila(resultado, dados) {
+  const pendencias = [];
+
+  if (!dados.loja) pendencias.push("Loja não informada.");
+  if (!dados.empresa || dados.empresa === "Nao identificado") pendencias.push("Empresa não identificada pela Info_limites.");
+  if (!resultado.tipo_documento || resultado.tipo_documento === "nao_identificado") pendencias.push("Tipo de documento não identificado.");
+  if (!dados.data_deposito) pendencias.push("Data do depósito não identificada.");
+  if (dados.valor_deposito === null || dados.valor_deposito === undefined || dados.valor_deposito === "") pendencias.push("Valor do depósito não identificado.");
+  if (!dados.data_movimento) pendencias.push("Data de movimento não informada.");
+  if (dados.houve_retirada === null || dados.houve_retirada === undefined) pendencias.push("Informação sobre retirada não informada.");
+  if (!dados.data_geracao_documento) pendencias.push("Data de geração do documento não identificada.");
+
+  if (dados.houve_retirada === true) {
+    if (!dados.valor_retirada) pendencias.push("Valor da retirada não informado.");
+    if (!dados.motivo_retirada) pendencias.push("Motivo da retirada não informado.");
+  }
+
+  return pendencias;
+}
+
+function smartSlipInstalarTriggerFila() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === "smartSlipProcessarFila") {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+
+  ScriptApp.newTrigger("smartSlipProcessarFila")
+    .timeBased()
+    .everyMinutes(1)
+    .create();
+
+  Logger.log("Trigger smartSlipProcessarFila instalado para rodar a cada minuto.");
+}
+
+function smartSlipExtrairListaComprovantes(resultado) {
+  resultado = resultado || {};
+
+  if (Array.isArray(resultado.comprovantes) && resultado.comprovantes.length > 0) {
+    return resultado.comprovantes;
+  }
+
+  // Compatibilidade com o formato antigo, de 1 comprovante só.
+  if (resultado.dados_comprovante) {
+    return [{
+      status: resultado.status || "PRONTO_PARA_SALVAR",
+      indice_comprovante: 1,
+      tipo_documento: resultado.tipo_documento || "nao_identificado",
+      data_deposito: resultado.dados_comprovante.data_deposito || null,
+      valor_deposito: resultado.dados_comprovante.valor_deposito || null,
+      banco: resultado.dados_comprovante.banco || "Nao identificado",
+      data_geracao_documento: resultado.dados_comprovante.data_geracao_documento || null,
+      codigo_autenticacao: resultado.dados_comprovante.codigo_autenticacao || "",
+      observacoes: resultado.pendencias || []
+    }];
+  }
+
+  return [];
+}
+
+function smartSlipExtrairComprovantesDoResultado(resultado) {
+  resultado = resultado || {};
+
+  if (Array.isArray(resultado.comprovantes) && resultado.comprovantes.length > 0) {
+    return resultado.comprovantes;
+  }
+
+  if (resultado.dados_comprovante) {
+    return [{
+      status: resultado.status || "PRONTO_PARA_SALVAR",
+      indice_comprovante: 1,
+      tipo_documento: resultado.tipo_documento || "nao_identificado",
+      data_deposito: resultado.dados_comprovante.data_deposito || null,
+      valor_deposito: resultado.dados_comprovante.valor_deposito || null,
+      banco: resultado.dados_comprovante.banco || "Nao identificado",
+      data_geracao_documento: resultado.dados_comprovante.data_geracao_documento || null,
+      codigo_autenticacao: resultado.dados_comprovante.codigo_autenticacao || "",
+      observacoes: resultado.pendencias || []
+    }];
+  }
+
+  return [];
+}
+
+function smartSlipGerarCodigoUnicoComprovante(protocolo, indiceComprovante) {
+  const indice = String(indiceComprovante || 1).padStart(3, "0");
+  const base = String(protocolo || "SS-SEM-PROTOCOLO").trim();
+
+  return base + "-C" + indice;
+}
+
+function smartSlipGerarIdComprovante(protocolo, indiceComprovante) {
+  const protocoloLimpo = String(protocolo || "SS-SEM-PROTOCOLO").trim();
+  const indice = String(indiceComprovante || 1).padStart(3, "0");
+
+  return protocoloLimpo + "-C" + indice;
+}
+
+function smartSlipGerarHashComprovante(dados) {
+  const base = [
+    dados.protocolo || "",
+    dados.indice_comprovante || "",
+    dados.loja || "",
+    dados.empresa || "",
+    dados.tipo_documento || "",
+    dados.data_deposito || "",
+    dados.valor_deposito || "",
+    dados.banco || "",
+    dados.data_movimento || "",
+    dados.link_comprovante || ""
+  ].join("|");
+
+  const bytes = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    base,
+    Utilities.Charset.UTF_8
+  );
+
+  return bytes.map(function(b) {
+    const v = (b < 0 ? b + 256 : b).toString(16);
+    return v.length === 1 ? "0" + v : v;
+  }).join("");
+}
+
+function smartSlipObterUltimaLojaUsuario(email) {
+  email = String(email || "").trim().toLowerCase();
+
+  if (!email) return "";
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return "";
+  }
+
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+
+    const emailRow = String(row[2] || "").trim().toLowerCase();
+    const loja = String(row[3] || "").trim();
+
+    if (emailRow === email && loja) {
+      return loja;
+    }
+  }
+
+  return "";
+}
+
+function smartSlipGetBootstrapApp() {
+  try {
+    const usuario = smartSlipGetUsuarioAtual();
+
+    let resumoMensal = [];
+    let historico = [];
+    let resumoDiario = [];
+    let resumoStatus = [];
+
+    try {
+      resumoMensal = smartSlipGetResumoMensal(usuario);
+    } catch (errResumo) {
+      Logger.log("Erro ao carregar resumo mensal: " + String(errResumo && errResumo.message ? errResumo.message : errResumo));
+      resumoMensal = [];
+    }
+
+    try {
+      resumoDiario = smartSlipGetResumoDiario(usuario);
+    } catch (errDiario) {
+      Logger.log("Erro ao carregar resumo diário: " + String(errDiario && errDiario.message ? errDiario.message : errDiario));
+      resumoDiario = [];
+    }
+
+    try {
+      historico = smartSlipGetHistorico(usuario);
+    } catch (errHist) {
+      Logger.log("Erro ao carregar histórico: " + String(errHist && errHist.message ? errHist.message : errHist));
+      historico = [];
+    }
+
+    try {
+      resumoStatus = smartSlipGetResumoStatus(usuario);
+    } catch (errStatus) {
+      Logger.log("Erro ao carregar resumo de status: " + String(errStatus && errStatus.message ? errStatus.message : errStatus));
+      resumoStatus = [];
+    }
+
+    return {
+      ok: true,
+      usuario: usuario,
+      lojas: smartSlipListarLojasInfoLimites(usuario),
+      resumo_mensal: resumoMensal,
+      resumo_diario: resumoDiario,
+      resumo_status: resumoStatus,
+      historico: historico
+    };
+
+  } catch (err) {
+    Logger.log("Erro smartSlipGetBootstrapApp: " + String(err && err.message ? err.message : err));
+
+    return {
+      ok: true,
+      erro_bootstrap: String(err && err.message ? err.message : err),
+      usuario: {
+        email: "",
+        primeiro_nome: "Usuário",
+        is_admin: false,
+        loja_padrao: ""
+      },
+      lojas: [],
+      resumo_mensal: [],
+      resumo_diario: [],
+      resumo_status: [],
+      historico: []
+    };
+  }
+}
+
+function smartSlipDiagnosticoBootstrap() {
+  const resp = smartSlipGetBootstrapApp();
+  Logger.log(JSON.stringify(resp, null, 2));
+  return resp;
+}
+
+function smartSlipGetBootstrapAppJson() {
+  try {
+    const resp = smartSlipGetBootstrapApp();
+
+    return JSON.stringify({
+      ok: true,
+      payload: resp
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
+function smartSlipGetHistorico(usuario) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return [];
+  }
+
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+  const historico = [];
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+
+    const emailRow = String(row[2] || "").trim().toLowerCase();
+
+    if (!usuario.is_admin && emailRow !== usuario.email) {
+      continue;
+    }
+
+    historico.push({
+      data_registro: smartSlipFormatarDataHora(row[0]),
+      protocolo: row[1] || "",
+      email_usuario: row[2] || "",
+      loja: row[3] || "",
+      data_movimento: smartSlipFormatarDataMovimentoHistorico(row[5]),
+      link_comprovante: row[11] || "",
+      nome_arquivo: row[12] || "",
+      status_fila: row[13] || "",
+      mensagem: row[14] || ""
+    });
+
+    if (historico.length >= 50) break;
+  }
+
+  return historico;
+}
+
+function smartSlipGetResumoStatus(usuario) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return [];
+  }
+
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+  const mapa = {};
+  let total = 0;
+
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i];
+    const emailRow = String(row[2] || "").trim().toLowerCase();
+
+    if (!usuario.is_admin && emailRow !== usuario.email) {
+      continue;
+    }
+
+    const status = String(row[13] || "").trim() || "SEM_STATUS";
+
+    mapa[status] = (mapa[status] || 0) + 1;
+    total++;
+  }
+
+  return Object.keys(mapa).sort().map(function(status) {
+    const quantidade = mapa[status] || 0;
+
+    return {
+      status: status,
+      quantidade: quantidade,
+      percentual: total > 0
+        ? Number(((quantidade / total) * 100).toFixed(2))
+        : 0
+    };
+  });
+}
+
+function smartSlipFormatarDataHora(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    return Utilities.formatDate(valor, tz, "dd/MM/yyyy HH:mm:ss");
+  }
+
+  return String(valor);
+}
+
+function smartSlipFormatarDataMovimentoHistorico(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    return Utilities.formatDate(valor, tz, "dd/MM/yyyy");
+  }
+
+  const txt = String(valor).trim();
+
+  if (!txt) return "";
+
+  if (txt.indexOf(" a ") > -1) {
+    return txt
+      .split(" a ")
+      .map(function(parte) {
+        return smartSlipFormatarDataMovimentoItem(parte);
+      })
+      .join(" a ");
+  }
+
+  return smartSlipFormatarDataMovimentoItem(txt);
+}
+
+function smartSlipFormatarDataMovimentoItem(valor) {
+  const txt = String(valor || "").trim();
+
+  if (!txt) return "";
+
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(txt)) {
+    return txt;
+  }
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(txt) || /^\d{4}-\d{2}-\d{2}T/.test(txt)) {
+    const d = new Date(txt);
+
+    if (!isNaN(d.getTime())) {
+      const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+      return Utilities.formatDate(d, tz, "dd/MM/yyyy");
+    }
+  }
+
+  return txt;
+}
+
+function smartSlipGetResumoMensal(usuario) {
+  try {
+    usuario = usuario || smartSlipGetUsuarioAtual();
+
+    const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+    const shBase = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
+    const shFila = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+    if (!shBase || shBase.getLastRow() < 2 || !shFila || shFila.getLastRow() < 2) {
+      return [];
+    }
+
+    const filaValues = shFila.getRange(2, 1, shFila.getLastRow() - 1, 18).getValues();
+    const protocolosPermitidos = {};
+
+    filaValues.forEach(function(row) {
+      const protocolo = String(row[1] || "").trim();
+      const emailRow = String(row[2] || "").trim().toLowerCase();
+
+      if (!protocolo) return;
+
+      if (usuario.is_admin || emailRow === usuario.email) {
+        protocolosPermitidos[protocolo] = true;
+      }
+    });
+
+    const baseValues = shBase.getDataRange().getValues();
+
+    if (baseValues.length < 2) {
+      return [];
+    }
+
+    const headers = baseValues[0].map(function(h) {
+      return String(h || "").trim();
+    });
+
+    const idxDataRegistro = smartSlipEncontrarIndiceHeader_(headers, ["Data Registro"]);
+    const idxProtocolo = smartSlipEncontrarIndiceHeader_(headers, ["Protocolo"]);
+    const idxLoja = smartSlipEncontrarIndiceHeader_(headers, ["Loja"]);
+    const idxValor = smartSlipEncontrarIndiceHeader_(headers, ["Valor Depósito"]);
+
+    if (idxDataRegistro < 0 || idxProtocolo < 0 || idxValor < 0) {
+      Logger.log("Resumo mensal: colunas necessárias não encontradas.");
+      Logger.log(JSON.stringify(headers));
+      return [];
+    }
+
+    const mapa = {};
+
+    for (let i = 1; i < baseValues.length; i++) {
+      const row = baseValues[i];
+
+      const protocolo = String(row[idxProtocolo] || "").trim();
+
+      if (!protocolosPermitidos[protocolo]) {
+        continue;
+      }
+
+      const loja = idxLoja >= 0 ? String(row[idxLoja] || "").trim() : "";
+
+      if (!usuario.is_admin && usuario.loja_padrao && loja !== usuario.loja_padrao) {
+        continue;
+      }
+
+      const mes = smartSlipMesAno(row[idxDataRegistro]);
+      const valor = smartSlipNumero(row[idxValor]);
+
+      if (!mapa[mes]) {
+        mapa[mes] = {
+          mes: mes,
+          quantidade: 0,
+          valor_total: 0
+        };
+      }
+
+      mapa[mes].quantidade++;
+      mapa[mes].valor_total += valor;
+    }
+
+    return Object.keys(mapa)
+      .sort()
+      .map(function(k) {
+        return mapa[k];
+      });
+
+  } catch (err) {
+    Logger.log("Erro smartSlipGetResumoMensal: " + String(err && err.message ? err.message : err));
+    return [];
+  }
+}
+
+function smartSlipGetResumoDiario(usuario) {
+  try {
+    usuario = usuario || smartSlipGetUsuarioAtual();
+
+    const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+    const shBase = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
+    const shFila = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+    if (!shBase || shBase.getLastRow() < 2 || !shFila || shFila.getLastRow() < 2) {
+      return [];
+    }
+
+    const filaValues = shFila.getRange(2, 1, shFila.getLastRow() - 1, 18).getValues();
+    const protocolosPermitidos = {};
+
+    filaValues.forEach(function(row) {
+      const protocolo = String(row[1] || "").trim();
+      const emailRow = String(row[2] || "").trim().toLowerCase();
+
+      if (!protocolo) return;
+
+      // Admin vê todos. Usuário normal vê apenas os envios dele.
+      if (usuario.is_admin || emailRow === usuario.email) {
+        protocolosPermitidos[protocolo] = true;
+      }
+    });
+
+    const baseValues = shBase.getDataRange().getValues();
+
+    if (baseValues.length < 2) {
+      return [];
+    }
+
+    const headers = baseValues[0].map(function(h) {
+      return String(h || "").trim();
+    });
+
+    const idxDataRegistro = smartSlipEncontrarIndiceHeader_(headers, ["Data Registro"]);
+    const idxProtocolo = smartSlipEncontrarIndiceHeader_(headers, ["Protocolo"]);
+    const idxValor = smartSlipEncontrarIndiceHeader_(headers, ["Valor Depósito"]);
+
+    if (idxDataRegistro < 0 || idxProtocolo < 0 || idxValor < 0) {
+      Logger.log("Resumo diário: colunas necessárias não encontradas.");
+      Logger.log(JSON.stringify(headers));
+      return [];
+    }
+
+    const mapa = {};
+
+    for (let i = 1; i < baseValues.length; i++) {
+      const row = baseValues[i];
+
+      const protocolo = String(row[idxProtocolo] || "").trim();
+
+      if (!protocolosPermitidos[protocolo]) {
+        continue;
+      }
+
+      const dia = smartSlipDiaIso(row[idxDataRegistro]);
+      const valor = smartSlipNumero(row[idxValor]);
+
+      if (!dia) {
+        continue;
+      }
+
+      if (!mapa[dia]) {
+        mapa[dia] = {
+          dia: dia,
+          quantidade: 0,
+          valor_total: 0
+        };
+      }
+
+      mapa[dia].quantidade++;
+      mapa[dia].valor_total += valor;
+    }
+
+    return Object.keys(mapa)
+      .sort()
+      .map(function(k) {
+        return mapa[k];
+      });
+
+  } catch (err) {
+    Logger.log("Erro smartSlipGetResumoDiario: " + String(err && err.message ? err.message : err));
+    return [];
+  }
+}
+
+function smartSlipDiaIso(valor) {
+  let d = valor;
+
+  if (Object.prototype.toString.call(d) !== "[object Date]") {
+    d = new Date(valor);
+  }
+
+  if (isNaN(d.getTime())) {
+    return "";
+  }
+
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  return Utilities.formatDate(d, tz, "yyyy-MM-dd");
+}
+
+function smartSlipMesAno(valor) {
+  let d = valor;
+
+  if (Object.prototype.toString.call(d) !== "[object Date]") {
+    d = new Date(valor);
+  }
+
+  if (isNaN(d.getTime())) {
+    return "Sem data";
+  }
+
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  return Utilities.formatDate(d, tz, "yyyy-MM");
+}
+
+function smartSlipNumero(valor) {
+  if (typeof valor === "number") return valor;
+
+  const txt = String(valor || "")
+    .replace(/[R$\s.]/g, "")
+    .replace(",", ".");
+
+  const n = Number(txt);
+
+  return isNaN(n) ? 0 : n;
+}
+
+function smartSlipGarantirAbaUsuarios() {
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SMARTSLIP_ABA_USUARIOS);
+
+  if (!sh) {
+    sh = ss.insertSheet(SMARTSLIP_ABA_USUARIOS);
+  }
+
+  if (sh.getLastRow() === 0) {
+    sh.appendRow([
+      "Email",
+      "Loja Padrao",
+      "Empresa",
+      "Data Atualizacao"
+    ]);
+  }
+
+  return sh;
+}
+
+function smartSlipObterPreferenciasUsuario(email) {
+  email = String(email || "").trim().toLowerCase();
+
+  if (!email) {
+    return {
+      loja_padrao: "",
+      empresa_padrao: ""
+    };
+  }
+
+  const sh = smartSlipGarantirAbaUsuarios();
+  const lastRow = sh.getLastRow();
+
+  if (lastRow < 2) {
+    return {
+      loja_padrao: "",
+      empresa_padrao: ""
+    };
+  }
+
+  const values = sh.getRange(2, 1, lastRow - 1, 4).getValues();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+    const emailRow = String(row[0] || "").trim().toLowerCase();
+
+    if (emailRow === email) {
+      return {
+        loja_padrao: String(row[1] || "").trim(),
+        empresa_padrao: String(row[2] || "").trim()
+      };
+    }
+  }
+
+  return {
+    loja_padrao: "",
+    empresa_padrao: ""
+  };
+}
+
+function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
+  const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+
+  if (!email) {
+    throw new Error("Não foi possível identificar o e-mail do usuário.");
+  }
+
+  const infoLoja = smartSlipConsultarInfoLoja_(lojaInformada);
+
+  if (!infoLoja.ok) {
+    throw new Error(infoLoja.erro || "Loja não encontrada na Info_limites.");
+  }
+
+  const usuarioAtual = smartSlipGetUsuarioAtual();
+  const empresaPermitida = usuarioAtual.is_admin
+    ? ""
+    : smartSlipObterEmpresaPermitidaPorEmail(usuarioAtual.email);
+
+  if (empresaPermitida && infoLoja.empresa !== empresaPermitida) {
+    throw new Error(
+      "Essa loja pertence à empresa " +
+      infoLoja.empresa +
+      ", mas seu perfil permite apenas lojas da empresa " +
+      empresaPermitida +
+      "."
+    );
+  }
+
+  const loja4 = infoLoja.loja_normalizada;
+  const empresa = infoLoja.empresa;
+
+  const sh = smartSlipGarantirAbaUsuarios();
+  const lastRow = sh.getLastRow();
+
+  if (lastRow >= 2) {
+    const values = sh.getRange(2, 1, lastRow - 1, 4).getValues();
+
+    for (let i = 0; i < values.length; i++) {
+      const rowIndex = i + 2;
+      const emailRow = String(values[i][0] || "").trim().toLowerCase();
+
+      if (emailRow === email) {
+        sh.getRange(rowIndex, 2).setValue(loja4);
+        sh.getRange(rowIndex, 3).setValue(empresa);
+        sh.getRange(rowIndex, 4).setValue(new Date());
+
+        return {
+          ok: true,
+          email: email,
+          loja_padrao: loja4,
+          empresa_padrao: empresa
+        };
+      }
+    }
+  }
+
+  sh.appendRow([
+    email,
+    loja4,
+    empresa,
+    new Date()
+  ]);
+
+  return {
+    ok: true,
+    email: email,
+    loja_padrao: loja4,
+    empresa_padrao: empresa
+  };
+}
+
+function smartSlipSalvarPreferenciasUsuarioJson(lojaInformada) {
+  try {
+    return JSON.stringify({
+      ok: true,
+      payload: smartSlipSalvarPreferenciasUsuario(lojaInformada)
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
+function smartSlipListarLojasInfoLimites(usuario) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+
+  const empresaPermitida = usuario.is_admin
+    ? ""
+    : smartSlipObterEmpresaPermitidaPorEmail(usuario.email);
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_INFO_LIMITES);
+
+  if (!sh) {
+    throw new Error("Aba Info_limites não encontrada.");
+  }
+
+  const values = sh.getDataRange().getValues();
+
+  if (values.length < 2) {
+    return [];
+  }
+
+  const headers = values[0].map(function(h) {
+    return String(h || "").trim();
+  });
+
+  const idxNormLoja = smartSlipEncontrarIndiceHeader_(headers, [
+    "Norm_Loja",
+    "NORM_LOJA",
+    "Norm Loja",
+    "Loja",
+    "LOJA"
+  ]);
+
+  let idxEmpresa = smartSlipEncontrarIndiceHeader_(headers, [
+    "EMPRESA0",
+    "EMPRESA",
+    "Empresa"
+  ]);
+
+  if (idxEmpresa < 0) {
+    idxEmpresa = 6;
+  }
+
+  if (idxNormLoja < 0) {
+    throw new Error("Coluna Norm_Loja não encontrada na Info_limites.");
+  }
+
+  const mapa = {};
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+
+    const lojaRaw = row[idxNormLoja];
+    const lojaDigits = String(lojaRaw || "").replace(/\D/g, "");
+
+    if (!lojaDigits) {
+      continue;
+    }
+
+    const loja4 = lojaDigits.padStart(4, "0").slice(-4);
+    const empresaRaw = String(row[idxEmpresa] || "").trim();
+    const empresa = smartSlipNormalizarEmpresa_(empresaRaw);
+
+    if (empresaPermitida && empresa !== empresaPermitida) {
+      continue;
+    }
+
+    if (!mapa[loja4]) {
+      mapa[loja4] = {
+        loja: loja4,
+        empresa: empresa,
+        empresa_original: empresaRaw
+      };
+    }
+  }
+
+  return Object.keys(mapa)
+    .sort()
+    .map(function(k) {
+      return mapa[k];
+    });
+}
+
+function smartSlipObterEmpresaPermitidaPorEmail(email) {
+  const txt = String(email || "").trim().toLowerCase();
+
+  if (!txt) {
+    return "";
+  }
+
+  if (
+    txt.includes("@fisia") ||
+    txt.includes(".fisia") ||
+    txt.includes("+fisia") ||
+    txt.includes("fisia")
+  ) {
+    return "Fisia";
+  }
+
+  if (
+    txt.includes("@centauro") ||
+    txt.includes(".centauro") ||
+    txt.includes("+centauro") ||
+    txt.includes("centauro")
+  ) {
+    return "Centauro";
+  }
+
+  return "";
+}
