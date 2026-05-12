@@ -2,11 +2,14 @@
 <html>
 <head>
   <base target="_top">
+  <title>SmartSlip</title>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
+
     :root {
       --green-dark: #005E27;
       --green-dark-2: #003b19;
@@ -477,14 +480,23 @@ body.intro-lock {
 }
 
 .intro-note {
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(181,255,32,.14);
-  border: 1px solid rgba(0,94,39,.12);
-  color: #314238;
-  font-size: 13px;
-  line-height: 1.45;
-  margin-bottom: 22px;
+  padding: 18px 24px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid #d7e2d2;
+  color: #050807;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-align: center;
+  margin: 28px auto 24px;
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .08);
+}
+
+.intro-note b {
+  color: #050807;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .intro-button {
@@ -641,6 +653,471 @@ body.intro-lock {
     opacity: 1;
     transform: none;
   }
+}
+
+#view-comp-hub {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.comp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.comp-kpi-grid .kpi-card {
+  min-height: 78px;
+  padding: 13px 15px;
+  border-radius: 18px;
+}
+
+.comp-kpi-grid .kpi-card span {
+  font-size: 10px;
+  line-height: 1.15;
+}
+
+.comp-kpi-grid .kpi-card strong {
+  margin-top: 6px;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.comp-table-panel {
+  overflow: visible;
+}
+
+.comp-filter-head,
+.comp-table-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.comp-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.comp-table-panel {
+  overflow: hidden;
+}
+
+.comp-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.comp-actions select {
+  width: auto;
+  min-width: 130px;
+}
+
+.comp-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  max-height: calc(100vh - 360px);
+  border: 1px solid #e6eee1;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.comp-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+.comp-table th {
+  background: #f3f8f1;
+  color: var(--green-dark);
+  text-transform: uppercase;
+  letter-spacing: .25px;
+  font-size: 11px;
+  padding: 11px 10px;
+  border-bottom: 1px solid #dfeadb;
+  text-align: left;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.comp-table td {
+  padding: 10px;
+  border-bottom: 1px solid #eef4eb;
+  vertical-align: top;
+  white-space: nowrap;
+  color: #26352c;
+}
+
+.comp-table tbody tr:hover {
+  background: rgba(181,255,32,.10);
+}
+
+.comp-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.comp-hash {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.comp-json-cell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: bottom;
+}
+
+.comp-link {
+  color: var(--green-dark);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.comp-link:hover {
+  text-decoration: underline;
+}
+
+.comp-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 10px;
+  text-transform: uppercase;
+  border: 1px solid rgba(0,94,39,.14);
+  background: rgba(0,94,39,.07);
+  color: var(--green-dark);
+}
+
+.comp-status-ok {
+  background: #ecfdf3;
+  color: #027a48;
+  border-color: #abefc6;
+}
+
+.comp-status-warn {
+  background: #fffaeb;
+  color: #b54708;
+  border-color: #fedf89;
+}
+
+.comp-status-error {
+  background: #fff1f0;
+  color: #b42318;
+  border-color: #fecdca;
+}
+
+.comp-conf {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 90px;
+}
+
+.comp-conf-bar {
+  width: 54px;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5eadf;
+  overflow: hidden;
+}
+
+.comp-conf-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green-dark);
+}
+
+.comp-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.comp-updated {
+  color: var(--muted);
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.comp-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 85000;
+  background: rgba(5, 8, 7, .72);
+  backdrop-filter: blur(5px);
+  padding: 24px;
+  align-items: center;
+  justify-content: center;
+}
+
+.comp-modal.show {
+  display: flex;
+}
+
+.comp-modal-card {
+  width: min(980px, 100%);
+  max-height: 88vh;
+  overflow: auto;
+  background: #ffffff;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 70px rgba(0,0,0,.28);
+}
+
+.comp-modal-head {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px;
+  border-bottom: 1px solid #e6eee1;
+}
+
+.comp-modal-body {
+  padding: 22px;
+}
+
+.comp-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+}
+
+.comp-detail-item {
+  min-width: 0;
+  min-height: 86px;
+  border: 1px solid #e6eee1;
+  border-radius: 16px;
+  padding: 12px;
+  background: #f9fbf7;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.comp-detail-item b {
+  display: block;
+  font-size: 10px;
+  color: var(--green-dark);
+  text-transform: uppercase;
+  margin-bottom: 7px;
+  line-height: 1.15;
+  letter-spacing: .2px;
+}
+
+.comp-detail-item span {
+  display: block;
+  min-width: 0;
+  color: #111827;
+  font-size: 13px;
+  line-height: 1.35;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.comp-detail-item .comp-conf {
+  margin-top: 4px;
+}
+
+.comp-modal-body {
+  padding: 22px;
+  overflow-x: hidden;
+}
+
+.comp-detail-item:hover {
+  border-color: rgba(0, 94, 39, .24);
+  background: #ffffff;
+}
+
+.comp-json-box {
+  margin-top: 16px;
+  border-radius: 16px;
+  background: #050807;
+  color: #e8ffe1;
+  padding: 16px;
+  overflow: auto;
+  max-height: 260px;
+  max-width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .comp-kpi-grid,
+  .comp-filter-grid,
+  .comp-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comp-filter-head,
+  .comp-table-toolbar {
+    flex-direction: column;
+  }
+
+  .comp-actions {
+    width: 100%;
+  }
+
+  .comp-actions button,
+  .comp-actions select {
+    width: 100%;
+  }
+}
+
+.comp-columns-panel {
+  margin-bottom: 18px;
+}
+
+.comp-columns-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.comp-columns-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.comp-columns-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.comp-col-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  border: 1px solid #dbe8d4;
+  background: #f7fbf4;
+  color: #314238;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+}
+
+.comp-col-check:hover {
+  border-color: var(--green-dark);
+  background: rgba(181,255,32,.18);
+}
+
+.comp-col-check input {
+  width: auto;
+  margin: 0;
+  accent-color: var(--green-dark);
+}
+
+.smart-loader {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 88000;
+  background:
+    radial-gradient(circle at top left, rgba(181,255,32,.16), transparent 28%),
+    #050807;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.smart-loader.show {
+  display: flex;
+}
+
+.smart-loader-card {
+  width: min(520px, 100%);
+  background: #ffffff;
+  border: 1px solid rgba(181,255,32,.35);
+  border-radius: 28px;
+  padding: 26px;
+  box-shadow: 0 24px 70px rgba(0,0,0,.35);
+}
+
+.smart-loader-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.smart-loader-brand strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.smart-loader-brand span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.smart-loader-progress {
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  background: #e6eee1;
+  overflow: hidden;
+}
+
+.smart-loader-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green-dark), var(--green-light));
+  transition: width .35s ease;
+}
+
+.smart-loader-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  color: #314238;
+  font-size: 13px;
+  font-weight: 800;
 }
 
     .view {
@@ -1157,6 +1634,143 @@ body.intro-lock {
         grid-template-columns: 1fr;
       }
     }
+
+  #view-comp-hub .kpi-grid.comp-kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 14px !important;
+}
+
+#view-comp-hub .comp-kpi-grid .kpi-card {
+  background: #050807 !important;
+  border: 1px solid rgba(181, 255, 32, .28) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .18) !important;
+  min-height: 62px !important;
+  padding: 10px 14px !important;
+  border-radius: 16px !important;
+}
+
+#view-comp-hub .comp-kpi-grid .kpi-card span {
+  color: var(--green-light) !important;
+  font-size: 11px !important;
+  line-height: 1.15 !important;
+  font-weight: 900 !important;
+  letter-spacing: .35px !important;
+}
+
+#view-comp-hub .comp-kpi-grid .kpi-card strong {
+  color: #ffffff !important;
+  margin-top: 5px !important;
+  font-size: 18px !important;
+  line-height: 1.05 !important;
+  font-weight: 900 !important;
+}
+
+#view-comp-hub .comp-sort-btn {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 900;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+#view-comp-hub .comp-sort-btn:hover {
+  color: var(--green-light);
+}
+
+#view-comp-hub .comp-sort-icon {
+  color: var(--green-light);
+  font-size: 10px;
+  line-height: 1;
+}
+
+/* Botão Ver da coluna Detalhes */
+#view-comp-hub .comp-detail-btn {
+  background: #40E0D0 !important;
+  color: #050807 !important;
+  border: 1px solid rgba(5, 8, 7, .18) !important;
+  font-weight: 900 !important;
+  border-radius: 14px !important;
+  padding: 11px 18px !important;
+  box-shadow: 0 8px 18px rgba(64, 224, 208, .22) !important;
+}
+
+/* Hover do botão Ver */
+#view-comp-hub .comp-detail-btn:hover {
+  background: #28CFC0 !important;
+  color: #050807 !important;
+  transform: translateY(-1px);
+}
+
+/* Ajuste refinado da tabela Comp Hub */
+#view-comp-hub .comp-table {
+  font-family: 'Inter', Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+}
+
+/* Dados da tabela sem aparência de negrito excessivo */
+#view-comp-hub .comp-table td,
+#view-comp-hub .comp-table td span,
+#view-comp-hub .comp-table td a {
+  font-family: 'Inter', Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+}
+
+/* Campos que antes estavam mono/mais pesados */
+#view-comp-hub .comp-table .comp-mono {
+  font-family: 'Inter', Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Cabeçalho geral */
+#view-comp-hub .comp-table th {
+  background: #071E3D !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+/* Botões de ordenação do cabeçalho */
+#view-comp-hub .comp-table th .comp-sort-btn,
+#view-comp-hub .comp-table th .comp-sort-btn span {
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+/* Destaque mais visível para Valor Depósito e Valor Retirada */
+#view-comp-hub .comp-table th.comp-th-money {
+  background: #1D6FD1 !important;
+  color: #ffffff !important;
+}
+
+/* Mantém texto branco dentro dos cabeçalhos destacados */
+#view-comp-hub .comp-table th.comp-th-money .comp-sort-btn,
+#view-comp-hub .comp-table th.comp-th-money .comp-sort-btn span,
+#view-comp-hub .comp-table th.comp-th-money .comp-sort-icon {
+  color: #ffffff !important;
+}
+
+/* Link Abrir continua destacado */
+#view-comp-hub .comp-table td a.comp-link {
+  color: #005E27 !important;
+  font-weight: 800 !important;
+}
+
   </style>
 </head>
 
@@ -1220,6 +1834,26 @@ body.intro-lock {
           </div>
         </div>
       </div>
+      <div id="smartSlipLoader" class="smart-loader">
+        <div class="smart-loader-card">
+          <div class="smart-loader-brand">
+            <div class="brand-mark">S</div>
+            <div>
+              <strong>SmartSlip</strong>
+              <span>Preparando ambiente</span>
+            </div>
+          </div>
+
+          <div class="smart-loader-progress">
+            <div id="smartLoaderBar" class="smart-loader-bar"></div>
+          </div>
+
+          <div class="smart-loader-meta">
+            <span id="smartLoaderText">Iniciando...</span>
+            <b id="smartLoaderPercent">0%</b>
+          </div>
+        </div>
+      </div>
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
@@ -1230,12 +1864,13 @@ body.intro-lock {
         </div>
       </div>
 
-      <div class="nav">
-        <button class="nav-item active" type="button" onclick="abrirView('inicio', this)">⌂ Início</button>
-        <button class="nav-item" type="button" onclick="abrirView('comprovantes', this)">▣ Comprovantes</button>
-        <button class="nav-item" type="button" onclick="abrirView('historico', this)">↺ Histórico</button>
-        <button class="nav-item" type="button" onclick="abrirView('configuracoes', this)">⚙ Configurações</button>
-      </div>
+        <div class="nav">
+          <button class="nav-item active" type="button" onclick="abrirView('inicio', this)">⌂ Início</button>
+          <button class="nav-item" type="button" onclick="abrirView('comprovantes', this)">▣ Comprovantes</button>
+          <button class="nav-item" type="button" onclick="abrirView('historico', this)">↺ Histórico</button>
+          <button id="navCompHub" class="nav-item" type="button" style="display:none;" onclick="abrirView('comp-hub', this)">▦ Comp Hub</button>
+          <button class="nav-item" type="button" onclick="abrirView('configuracoes', this)">⚙ Configurações</button>
+        </div>
 
       <div class="sidebar-footer">
         <strong id="userNameSide">Usuário</strong>
@@ -1402,7 +2037,14 @@ body.intro-lock {
             <div class="row">
               <div>
                 <label>Valor da retirada</label>
-                <input id="valor_retirada" type="number" step="0.01" min="0" value="0" oninput="normalizarValorRetirada()">
+                <input
+                  id="valor_retirada"
+                  type="text"
+                  inputmode="decimal"
+                  placeholder="0,00"
+                  oninput="onValorRetiradaInput()"
+                  onblur="normalizarValorRetirada()"
+                >
               </div>
 
               <div>
@@ -1466,6 +2108,161 @@ body.intro-lock {
 
       </section>
 
+      <section id="view-comp-hub" class="view">
+  <div class="top-pill">Comp Hub</div>
+  <h1>Consulta administrativa de comprovantes</h1>
+  <p class="page-sub">
+    Base administrativa para consulta, conferência e apoio à conciliação dos comprovantes processados.
+  </p>
+
+  <div class="kpi-grid comp-kpi-grid">
+    <div class="kpi-card">
+      <span>Total de linhas</span>
+      <strong id="compKpiTotal">0</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Valor depósito</span>
+      <strong id="compKpiValor">R$ 0,00</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Pendências</span>
+      <strong id="compKpiPend">0</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Divergências</span>
+      <strong id="compKpiDiv">0</strong>
+    </div>
+  </div>
+
+  <div class="panel comp-filter-panel">
+    <div class="comp-filter-head">
+      <div>
+        <h2>Filtros de pesquisa</h2>
+        <p class="chart-sub">Filtre por data, loja, empresa, banco, tipo, status ou identificadores.</p>
+      </div>
+
+      <button type="button" class="btn-secondary" onclick="limparFiltrosCompHub()">Limpar filtros</button>
+    </div>
+
+    <div class="comp-filter-grid">
+      <div>
+        <label>Data Registro — De</label>
+        <input id="compDataDe" type="date" onchange="aplicarFiltrosCompHub()">
+      </div>
+
+      <div>
+        <label>Data Registro — Até</label>
+        <input id="compDataAte" type="date" onchange="aplicarFiltrosCompHub()">
+      </div>
+
+      <div>
+        <label>Loja</label>
+        <select id="compFiltroLoja" onchange="aplicarFiltrosCompHub()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Empresa</label>
+        <select id="compFiltroEmpresa" onchange="aplicarFiltrosCompHub()">
+          <option value="">Todas</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Banco</label>
+        <select id="compFiltroBanco" onchange="aplicarFiltrosCompHub()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Tipo Documento</label>
+        <select id="compFiltroTipo" onchange="aplicarFiltrosCompHub()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Status</label>
+        <select id="compFiltroStatus" onchange="aplicarFiltrosCompHub()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Busca livre</label>
+        <input id="compBusca" type="text" placeholder="ID, hash, protocolo, loja..." oninput="aplicarFiltrosCompHub()">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel comp-columns-panel">
+  <div class="comp-columns-head">
+    <div>
+      <h2>Colunas visíveis</h2>
+      <p class="chart-sub">Escolha quais campos da BASE_SMARTSLIP devem aparecer na tabela.</p>
+    </div>
+
+    <div class="comp-columns-actions">
+      <button type="button" class="btn-secondary" onclick="selecionarTodasColunasCompHub()">Selecionar todas</button>
+      <button type="button" class="btn-secondary" onclick="restaurarColunasPadraoCompHub()">Padrão</button>
+    </div>
+  </div>
+
+  <div id="compColunasBox" class="comp-columns-box"></div>
+</div>
+
+  <div class="panel comp-table-panel">
+    <div class="comp-table-toolbar">
+      <div class="table-info">
+        Exibindo <b id="compQtdExibida">0</b> de <b id="compQtdTotal">0</b> registros
+        <span id="compAtualizadoEm" class="comp-updated"></span>
+      </div>
+
+      <div class="comp-actions">
+        <select id="compPerPage" onchange="alterarCompHubPorPagina()">
+          <option value="10">10 / página</option>
+          <option value="25" selected>25 / página</option>
+          <option value="50">50 / página</option>
+          <option value="100">100 / página</option>
+        </select>
+
+        <button type="button" class="btn-secondary" onclick="exportarCompHubCSV()">Exportar CSV</button>
+        <button type="button" class="btn-primary" onclick="carregarCompHub(true)">Atualizar</button>
+      </div>
+    </div>
+
+    <div id="compHubTabela" class="comp-table-wrap">
+      <p class="page-sub">Clique em Comp Hub para carregar a base.</p>
+    </div>
+
+    <div class="comp-pagination">
+      <button type="button" class="btn-secondary" onclick="mudarPaginaCompHub(-1)">Anterior</button>
+      <span id="compPageInfo">Página 1 de 1</span>
+      <button type="button" class="btn-secondary" onclick="mudarPaginaCompHub(1)">Próxima</button>
+    </div>
+  </div>
+
+  <div id="compModal" class="comp-modal">
+    <div class="comp-modal-card">
+      <div class="comp-modal-head">
+        <div>
+          <h2>Detalhes do comprovante</h2>
+          <p id="compModalSub" class="chart-sub"></p>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="fecharModalCompHub()">Fechar</button>
+      </div>
+
+      <div id="compModalBody" class="comp-modal-body"></div>
+    </div>
+  </div>
+</section>
+
       <section id="view-configuracoes" class="view">
         <div class="top-pill">Configurações</div>
         <h1>Preferências</h1>
@@ -1498,6 +2295,24 @@ body.intro-lock {
               <span id="cfgEmpresa">-</span>
             </div>
 
+            <div class="config-row config-row-edit">
+            <b>Range Comp Hub</b>
+            <div class="config-loja-control">
+              <select id="cfgCompHubDias">
+                <option value="20">Últimos 20 dias</option>
+                <option value="30">Últimos 30 dias</option>
+                <option value="40">Últimos 40 dias</option>
+                <option value="60">Últimos 60 dias</option>
+                <option value="90">Últimos 90 dias</option>
+                <option value="120">Últimos 120 dias</option>
+                <option value="180">Últimos 180 dias</option>
+              </select>
+              <div class="hint">
+                Define o volume padrão carregado no Comp Hub para não pesar a consulta.
+              </div>
+            </div>
+          </div>
+
             <div class="config-actions">
               <button type="button" class="btn-primary" onclick="salvarConfiguracoesUsuario()">Salvar configurações</button>
             </div>
@@ -1516,8 +2331,47 @@ body.intro-lock {
       resumo_mensal: [],
       resumo_diario: [],
       resumo_status: [],
-      historico: []
+      historico: [],
+      comp_hub: [],
+      comp_hub_filtrado: []
     };
+
+    let COMP_HUB_PAGE = 1;
+    let COMP_HUB_PER_PAGE = 25;
+    let COMP_HUB_CARREGADO = false;
+
+    let COMP_HUB_SORT = {
+      key: "",
+      dir: "asc"
+    };
+
+    const COMP_HUB_COLUNAS = [
+  { key: "dataRegistro", label: "Data Registro", visible: true },
+  { key: "idComprovante", label: "ID Comprovante", visible: true },
+  { key: "hashComprovante", label: "Hash Comprovante", visible: false },
+  { key: "protocolo", label: "Protocolo", visible: true },
+  { key: "indiceComprovante", label: "Índice", visible: false },
+  { key: "loja", label: "Loja", visible: true },
+  { key: "empresa", label: "Empresa", visible: true },
+  { key: "tipoDocumento", label: "Tipo Documento", visible: true },
+  { key: "dataDeposito", label: "Data Depósito", visible: true },
+  { key: "valorDeposito", label: "Valor Depósito", visible: true },
+  { key: "banco", label: "Banco", visible: true },
+  { key: "dataMovimento", label: "Data Movimento", visible: true },
+  { key: "houveRetirada", label: "Houve Retirada", visible: true },
+  { key: "valorRetirada", label: "Valor Retirada", visible: false },
+  { key: "motivoRetirada", label: "Motivo Retirada", visible: false },
+  { key: "dataGeracaoDocumento", label: "Data Geração", visible: false },
+  { key: "codigoAutenticacao", label: "Cód. Autenticação", visible: false },
+  { key: "linkComprovante", label: "Link", visible: true },
+  { key: "statusProcessamento", label: "Status", visible: true },
+  { key: "pendencias", label: "Pendências", visible: true },
+  { key: "divergencias", label: "Divergências", visible: true },
+  { key: "confiancaGeral", label: "Confiança", visible: true },
+  { key: "jsonOriginal", label: "JSON Original", visible: false }
+];
+
+  const COMP_HUB_COLUNAS_STORAGE_PREFIX = "SMARTSLIP_COMP_HUB_COLUNAS_";
 
     let SMARTSLIP_AUTO_REFRESH_ID = null;
     const SMARTSLIP_AUTO_REFRESH_MS = 60000;
@@ -1525,13 +2379,42 @@ body.intro-lock {
     const SMARTSLIP_ACTIVE_TAB_KEY = "SMARTSLIP_ACTIVE_TAB_ID";
     let SMARTSLIP_TELA_CANCELADA = false;
     const SMARTSLIP_INTRO_KEY = "SMARTSLIP_INTRO_VISTA_EM";
+    const SMARTSLIP_COMP_HUB_DIAS_PADRAO = 60;
+    const SMARTSLIP_COMP_HUB_DIAS_STORAGE_PREFIX = "SMARTSLIP_COMP_HUB_DIAS_";
 
-    window.onload = function() {
-      controlarIntroSmartSlip();
-      registrarAbaAtivaSmartSlip();
-      carregarBootstrap({ silencioso: false });
-      iniciarAutoRefreshSmartSlip();
-    };
+  window.onload = function() {
+  registrarAbaAtivaSmartSlip();
+  controlarIntroSmartSlip();
+  iniciarAutoRefreshSmartSlip();
+  aplicarLimiteDatasMovimento();
+
+  const intro = document.getElementById("introSmartSlip");
+
+  // Se a intro NÃO estiver aparecendo, carrega o sistema automaticamente.
+  // Se a intro estiver aparecendo, o carregamento só começa depois do clique no botão.
+  if (!intro || !intro.classList.contains("show")) {
+    iniciarCargaInicialSmartSlip();
+  }
+};
+
+function aplicarLimiteDatasMovimento() {
+  const hoje = new Date();
+  const yyyy = hoje.getFullYear();
+  const mm = String(hoje.getMonth() + 1).padStart(2, "0");
+  const dd = String(hoje.getDate()).padStart(2, "0");
+  const hojeIso = yyyy + "-" + mm + "-" + dd;
+
+  const inicio = document.getElementById("data_movimento_inicio");
+  const fim = document.getElementById("data_movimento_fim");
+
+  if (inicio) {
+    inicio.max = hojeIso;
+  }
+
+  if (fim) {
+    fim.max = hojeIso;
+  }
+}
 
     function smartSlipHojeISO() {
   const agora = new Date();
@@ -1579,6 +2462,71 @@ function fecharIntroSmartSlip() {
   }
 
   document.body.classList.remove("intro-lock");
+
+  iniciarCargaInicialSmartSlip();
+}
+
+function setSmartLoader(percentual, texto) {
+  const loader = document.getElementById("smartSlipLoader");
+  const bar = document.getElementById("smartLoaderBar");
+  const text = document.getElementById("smartLoaderText");
+  const pct = document.getElementById("smartLoaderPercent");
+
+  if (loader) {
+    loader.classList.add("show");
+  }
+
+  if (bar) {
+    bar.style.width = Math.max(0, Math.min(100, percentual)) + "%";
+  }
+
+  if (text) {
+    text.textContent = texto || "Carregando...";
+  }
+
+  if (pct) {
+    pct.textContent = Math.round(percentual) + "%";
+  }
+}
+
+function esconderSmartLoader() {
+  const loader = document.getElementById("smartSlipLoader");
+
+  if (loader) {
+    loader.classList.remove("show");
+  }
+}
+
+function iniciarCargaInicialSmartSlip() {
+  setSmartLoader(10, "Preparando sessão...");
+
+  setTimeout(function() {
+    setSmartLoader(30, "Carregando visão geral...");
+
+    carregarBootstrapComCallback(function() {
+      setSmartLoader(60, "Carregando Comp Hub no range configurado...");
+
+      const usuario = SMARTSLIP_STATE.usuario || {};
+
+      if (usuario.can_comp_hub === true) {
+        carregarCompHubComCallback(function() {
+          setSmartLoader(90, "Aplicando preferências...");
+
+          setTimeout(function() {
+            setSmartLoader(100, "Pronto.");
+            setTimeout(esconderSmartLoader, 350);
+          }, 250);
+        });
+      } else {
+        setSmartLoader(90, "Aplicando preferências...");
+
+        setTimeout(function() {
+          setSmartLoader(100, "Pronto.");
+          setTimeout(esconderSmartLoader, 350);
+        }, 250);
+      }
+    });
+  }, 200);
 }
 
     function registrarAbaAtivaSmartSlip() {
@@ -1638,22 +2586,28 @@ function cancelarTelaSmartSlip() {
   }
 }
 
-    function carregarBootstrap(options) {
+function carregarBootstrap(options, callback) {
   options = options || {};
   const silencioso = options.silencioso === true;
 
   const chart = document.getElementById("chartMensal");
   const hist = document.getElementById("historicoTabela");
 
-  if (!silencioso) {
-  if (chart) {
-    chart.innerHTML = "<p class='page-sub'>Carregando resumo...</p>";
+  function finalizarCallback(ok) {
+    if (typeof callback === "function") {
+      callback(ok === true);
+    }
   }
 
-  if (hist) {
-    hist.innerHTML = "<p class='page-sub'>Carregando histórico...</p>";
+  if (!silencioso) {
+    if (chart) {
+      chart.innerHTML = "<p class='page-sub'>Carregando resumo...</p>";
+    }
+
+    if (hist) {
+      hist.innerHTML = "<p class='page-sub'>Carregando histórico...</p>";
+    }
   }
-}
 
   google.script.run
     .withSuccessHandler(function(txt) {
@@ -1671,6 +2625,7 @@ function cancelarTelaSmartSlip() {
           hist.innerHTML = "<p class='page-sub'>Resposta vazia do backend. Verifique a função smartSlipGetBootstrapAppJson.</p>";
         }
 
+        finalizarCallback(false);
         return;
       }
 
@@ -1683,16 +2638,15 @@ function cancelarTelaSmartSlip() {
         document.getElementById("userRoleSide").textContent = "JSON inválido";
 
         if (chart) {
-          chart.innerHTML =
-            "<p class='page-sub'>Backend retornou texto, mas não era JSON válido.</p>";
+          chart.innerHTML = "<p class='page-sub'>Backend retornou texto, mas não era JSON válido.</p>";
         }
 
         if (hist) {
-          hist.innerHTML =
-            "<p class='page-sub'>JSON inválido retornado pelo backend.</p>";
+          hist.innerHTML = "<p class='page-sub'>JSON inválido retornado pelo backend.</p>";
         }
 
         console.error("Texto recebido:", txt);
+        finalizarCallback(false);
         return;
       }
 
@@ -1714,6 +2668,7 @@ function cancelarTelaSmartSlip() {
             "</p>";
         }
 
+        finalizarCallback(false);
         return;
       }
 
@@ -1721,13 +2676,25 @@ function cancelarTelaSmartSlip() {
 
       console.log("BOOTSTRAP PARSED:", resp);
 
+      const compHubAnterior = SMARTSLIP_STATE.comp_hub || [];
+      const compHubFiltradoAnterior = SMARTSLIP_STATE.comp_hub_filtrado || [];
+      const compHubCarregadoAnterior = COMP_HUB_CARREGADO;
+
       SMARTSLIP_STATE = resp;
       SMARTSLIP_STATE.lojas = resp.lojas || [];
+
+      // Preserva dados já carregados do Comp Hub.
+      // O bootstrap não retorna comp_hub, então não pode apagar esse estado.
+      SMARTSLIP_STATE.comp_hub = compHubAnterior;
+      SMARTSLIP_STATE.comp_hub_filtrado = compHubFiltradoAnterior;
+      COMP_HUB_CARREGADO = compHubCarregadoAnterior;
 
       aplicarUsuario(resp.usuario || {});
       renderResumo(resp.resumo_mensal || [], resp.resumo_diario || []);
       renderHistorico(resp.historico || []);
       renderResumoStatus(resp.resumo_status || []);
+
+      finalizarCallback(true);
     })
     .withFailureHandler(function(err) {
       const msg = err && err.message ? err.message : String(err);
@@ -1751,28 +2718,44 @@ function cancelarTelaSmartSlip() {
           escapeHtml(msg) +
           "</p>";
       }
+
+      finalizarCallback(false);
     })
     .smartSlipGetBootstrapAppJson();
 }
 
-    function iniciarAutoRefreshSmartSlip() {
+function carregarBootstrapComCallback(callback) {
+  carregarBootstrap({ silencioso: true }, callback);
+}
+
+function iniciarAutoRefreshSmartSlip() {
   if (SMARTSLIP_AUTO_REFRESH_ID) {
     clearInterval(SMARTSLIP_AUTO_REFRESH_ID);
   }
 
   SMARTSLIP_AUTO_REFRESH_ID = setInterval(function() {
-    if (!deveAtualizarSmartSlipAgora()) {
+    const viewAtiva = document.querySelector(".view.active");
+
+    if (!viewAtiva) {
       return;
     }
 
-    carregarBootstrap({ silencioso: true });
+    // Auto-refresh somente para telas leves.
+    // NÃO atualizar Comp Hub automaticamente.
+    if (
+      viewAtiva.id === "view-inicio" ||
+      viewAtiva.id === "view-historico"
+    ) {
+      carregarBootstrap({ silencioso: true });
+    }
   }, SMARTSLIP_AUTO_REFRESH_MS);
 }
 
 function deveAtualizarSmartSlipAgora() {
   if (SMARTSLIP_TELA_CANCELADA) {
-  return false;
-}
+    return false;
+  }
+
   // Não atualiza se a aba do navegador estiver em segundo plano.
   if (document.hidden) {
     return false;
@@ -1792,6 +2775,7 @@ function deveAtualizarSmartSlipAgora() {
   }
 
   // Atualiza automaticamente só Início e Histórico.
+  // Comp Hub NÃO deve atualizar automaticamente, pois a base é pesada.
   return (
     viewAtiva.id === "view-inicio" ||
     viewAtiva.id === "view-historico"
@@ -1799,7 +2783,22 @@ function deveAtualizarSmartSlipAgora() {
 }
 
 document.addEventListener("visibilitychange", function() {
-  if (!document.hidden && deveAtualizarSmartSlipAgora()) {
+  if (document.hidden) {
+    return;
+  }
+
+  const viewAtiva = document.querySelector(".view.active");
+
+  if (!viewAtiva) {
+    return;
+  }
+
+  // Ao voltar para a aba, atualiza só telas leves.
+  // Comp Hub não deve recarregar sozinho.
+  if (
+    viewAtiva.id === "view-inicio" ||
+    viewAtiva.id === "view-historico"
+  ) {
     carregarBootstrap({ silencioso: true });
   }
 });
@@ -1808,7 +2807,8 @@ document.addEventListener("visibilitychange", function() {
       usuario = usuario || {};
 
       const primeiroNome = usuario.primeiro_nome || "usuário";
-      const perfil = usuario.is_admin ? "Administrador" : "Usuário";
+      const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
+      const podeCompHub = usuario.can_comp_hub === true;
       const lojaPadrao = usuario.loja_padrao || "";
 
       document.getElementById("primeiroNome").textContent = primeiroNome;
@@ -1818,6 +2818,18 @@ document.addEventListener("visibilitychange", function() {
       document.getElementById("cfgEmail").textContent = usuario.email || "-";
       document.getElementById("cfgPerfil").textContent = perfil;
       document.getElementById("kpiLoja").textContent = lojaPadrao || "-";
+
+      const navCompHub = document.getElementById("navCompHub");
+
+      if (navCompHub) {
+        navCompHub.style.display = podeCompHub ? "block" : "none";
+      }
+
+      const viewCompHub = document.getElementById("view-comp-hub");
+
+      if (viewCompHub && !podeCompHub && viewCompHub.classList.contains("active")) {
+        abrirView("inicio", document.querySelector(".nav-item"));
+      }
 
       popularSelectLojasConfiguracao(SMARTSLIP_STATE.lojas || [], lojaPadrao);
       document.getElementById("cfgEmpresa").textContent = usuario.empresa_padrao || obterEmpresaPorLoja(lojaPadrao) || "-";
@@ -1833,6 +2845,8 @@ document.addEventListener("visibilitychange", function() {
       document.getElementById("histSub").textContent = usuario.is_admin
         ? "Mostrando todos os envios."
         : "Mostrando apenas seus envios.";
+
+        carregarConfigRangeCompHub();
 
         const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
 
@@ -1917,6 +2931,7 @@ function limparCfgMensagem() {
 
 function salvarConfiguracoesUsuario() {
   limparCfgMensagem();
+  salvarConfigRangeCompHub();
 
   const select = document.getElementById("cfgLojaSelect");
   const loja = select ? select.value : "";
@@ -1973,6 +2988,14 @@ function salvarConfiguracoesUsuario() {
 }
 
     function abrirView(nome, btn) {
+      if (nome === "comp-hub") {
+      const usuario = SMARTSLIP_STATE.usuario || {};
+
+      if (usuario.can_comp_hub !== true) {
+        alert("Acesso restrito. O Comp Hub está disponível apenas para Administrador ou Analista Pro.");
+        return;
+      }
+    }
       document.querySelectorAll(".view").forEach(function(v) {
         v.classList.remove("active");
       });
@@ -1990,15 +3013,44 @@ function salvarConfiguracoesUsuario() {
       if (btn) {
         btn.classList.add("active");
       }
-      if (nome === "inicio" || nome === "historico") {
+     if (nome === "inicio" || nome === "historico") {
         carregarBootstrap({ silencioso: true });
+      }
+
+      if (nome === "comp-hub") {
+        carregarCompHub(false);
       }
     }
 
-    function toggleRetirada() {
-      const houve = document.getElementById("houve_retirada").value === "true";
-      document.getElementById("boxRetirada").style.display = houve ? "block" : "none";
+function toggleRetirada() {
+  const houveEl = document.getElementById("houve_retirada");
+  const box = document.getElementById("boxRetirada");
+  const valorEl = document.getElementById("valor_retirada");
+  const motivoEl = document.getElementById("motivo_retirada");
+
+  const houve = houveEl && houveEl.value === "true";
+  const valorRetirada = valorEl ? smartSlipNumeroBR(valorEl.value) : 0;
+
+  const deveMostrar = houve || valorRetirada > 0;
+
+  if (box) {
+    box.style.display = deveMostrar ? "block" : "none";
+  }
+
+  if (!deveMostrar) {
+    if (valorEl) {
+      valorEl.value = "";
     }
+
+    if (motivoEl) {
+      motivoEl.value = "";
+    }
+  }
+
+  if (motivoEl) {
+    motivoEl.required = valorRetirada > 0;
+  }
+}
 
     function mostrarMensagem(tipo, texto) {
       const msg = document.getElementById("msg");
@@ -2739,6 +3791,913 @@ function converterDataHoraBRParaInput(valor) {
   return ano + "-" + mes + "-" + dia;
 }
 
+function carregarCompHub(forcar, callback) {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  function finalizarCallback(ok) {
+    if (typeof callback === "function") {
+      callback(ok === true);
+    }
+  }
+
+  if (usuario.can_comp_hub !== true) {
+    finalizarCallback(true);
+    return;
+  }
+
+  if (COMP_HUB_CARREGADO && forcar !== true) {
+    desenharCompHub();
+    finalizarCallback(true);
+    return;
+  }
+
+  const box = document.getElementById("compHubTabela");
+
+  if (box) {
+    box.innerHTML = "<p class='page-sub'>Carregando BASE_SMARTSLIP...</p>";
+  }
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope;
+
+      try {
+        envelope = JSON.parse(txt);
+      } catch (e) {
+        if (box) {
+          box.innerHTML = "<p class='page-sub'>Retorno inválido ao carregar Comp Hub.</p>";
+        }
+
+        finalizarCallback(false);
+        return;
+      }
+
+      if (!envelope.ok) {
+        if (box) {
+          box.innerHTML =
+            "<p class='page-sub'>" +
+            escapeHtml(envelope.erro || "Erro ao carregar Comp Hub.") +
+            "</p>";
+        }
+
+        finalizarCallback(false);
+        return;
+      }
+
+      const payload = envelope.payload || {};
+
+      SMARTSLIP_STATE.comp_hub = (payload.rows || []).map(function(item, idx) {
+        item._rowId = idx;
+        return item;
+      });
+
+      SMARTSLIP_STATE.comp_hub_filtrado = SMARTSLIP_STATE.comp_hub.slice();
+
+      COMP_HUB_PAGE = 1;
+      COMP_HUB_CARREGADO = true;
+
+      const atualizado = document.getElementById("compAtualizadoEm");
+
+      if (atualizado) {
+        const textoRange = payload.range_dias
+          ? " | Range: últimos " + payload.range_dias + " dias"
+          : "";
+
+        atualizado.textContent = payload.atualizado_em
+          ? "Atualizado em " + payload.atualizado_em + textoRange
+          : "";
+      }
+
+      popularFiltrosCompHub();
+      carregarPreferenciasColunasCompHub();
+      renderizarSeletorColunasCompHub();
+      vincularFiltrosCompHub();
+      aplicarFiltrosCompHub();
+
+      finalizarCallback(true);
+    })
+    .withFailureHandler(function(err) {
+      if (box) {
+        box.innerHTML =
+          "<p class='page-sub'>Erro ao carregar Comp Hub: " +
+          escapeHtml(err && err.message ? err.message : String(err)) +
+          "</p>";
+      }
+
+      finalizarCallback(false);
+    })
+    .smartSlipGetCompHubJson(JSON.stringify({
+      dias: getCompHubDiasSelecionados()
+    }));
+}
+
+function carregarCompHubComCallback(callback) {
+  carregarCompHub(true, callback);
+}
+
+function popularFiltrosCompHub() {
+  const dados = SMARTSLIP_STATE.comp_hub || [];
+
+  popularSelectCompHub("compFiltroLoja", dados, "loja", "Todas");
+  popularSelectCompHub("compFiltroEmpresa", dados, "empresa", "Todas");
+  popularSelectCompHub("compFiltroBanco", dados, "banco", "Todos");
+  popularSelectCompHub("compFiltroTipo", dados, "tipoDocumento", "Todos");
+  popularSelectCompHub("compFiltroStatus", dados, "statusProcessamento", "Todos");
+}
+
+function renderizarSeletorColunasCompHub() {
+  const box = document.getElementById("compColunasBox");
+
+  if (!box) return;
+
+  let html = "";
+
+  COMP_HUB_COLUNAS.forEach(function(col) {
+    html +=
+      "<label class='comp-col-check'>" +
+        "<input type='checkbox' " +
+          (col.visible ? "checked" : "") +
+          " onchange='alterarColunaCompHub(\"" + col.key + "\", this.checked)'>" +
+        escapeHtml(col.label) +
+      "</label>";
+  });
+
+  box.innerHTML = html;
+}
+
+function getCompHubColunasStorageKey() {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+  const email = String(usuario.email || "anonimo").trim().toLowerCase();
+
+  return COMP_HUB_COLUNAS_STORAGE_PREFIX + email;
+}
+
+function getCompHubDiasStorageKey() {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+  const email = String(usuario.email || "anonimo").trim().toLowerCase();
+
+  return SMARTSLIP_COMP_HUB_DIAS_STORAGE_PREFIX + email;
+}
+
+function getCompHubDiasSelecionados() {
+  try {
+    const select = document.getElementById("cfgCompHubDias");
+
+    if (select && select.value) {
+      return Number(select.value || SMARTSLIP_COMP_HUB_DIAS_PADRAO);
+    }
+
+    const salvo = localStorage.getItem(getCompHubDiasStorageKey());
+
+    if (salvo) {
+      return Number(salvo || SMARTSLIP_COMP_HUB_DIAS_PADRAO);
+    }
+
+    return SMARTSLIP_COMP_HUB_DIAS_PADRAO;
+  } catch (err) {
+    return SMARTSLIP_COMP_HUB_DIAS_PADRAO;
+  }
+}
+
+function carregarConfigRangeCompHub() {
+  const select = document.getElementById("cfgCompHubDias");
+
+  if (!select) return;
+
+  let dias = SMARTSLIP_COMP_HUB_DIAS_PADRAO;
+
+  try {
+    dias = Number(localStorage.getItem(getCompHubDiasStorageKey()) || SMARTSLIP_COMP_HUB_DIAS_PADRAO);
+  } catch (err) {
+    dias = SMARTSLIP_COMP_HUB_DIAS_PADRAO;
+  }
+
+  select.value = String(dias);
+}
+
+function salvarConfigRangeCompHub() {
+  const select = document.getElementById("cfgCompHubDias");
+
+  if (!select) return;
+
+  const dias = Number(select.value || SMARTSLIP_COMP_HUB_DIAS_PADRAO);
+
+  try {
+    localStorage.setItem(getCompHubDiasStorageKey(), String(dias));
+  } catch (err) {
+    console.warn("Não foi possível salvar range do Comp Hub.", err);
+  }
+
+  // Como mudou o range, a base carregada fica inválida.
+  COMP_HUB_CARREGADO = false;
+  SMARTSLIP_STATE.comp_hub = [];
+  SMARTSLIP_STATE.comp_hub_filtrado = [];
+}
+
+function salvarPreferenciasColunasCompHub() {
+  try {
+    const prefs = {};
+
+    COMP_HUB_COLUNAS.forEach(function(col) {
+      prefs[col.key] = col.visible === true;
+    });
+
+    localStorage.setItem(getCompHubColunasStorageKey(), JSON.stringify(prefs));
+  } catch (err) {
+    console.warn("Não foi possível salvar preferências de colunas do Comp Hub.", err);
+  }
+}
+
+function carregarPreferenciasColunasCompHub() {
+  try {
+    const txt = localStorage.getItem(getCompHubColunasStorageKey());
+
+    if (!txt) return;
+
+    const prefs = JSON.parse(txt);
+
+    COMP_HUB_COLUNAS.forEach(function(col) {
+      if (Object.prototype.hasOwnProperty.call(prefs, col.key)) {
+        col.visible = prefs[col.key] === true;
+      }
+    });
+  } catch (err) {
+    console.warn("Não foi possível carregar preferências de colunas do Comp Hub.", err);
+  }
+}
+
+function alterarColunaCompHub(key, visible) {
+  const col = COMP_HUB_COLUNAS.find(function(c) {
+    return c.key === key;
+  });
+
+  if (!col) return;
+
+  col.visible = visible === true;
+  salvarPreferenciasColunasCompHub();
+  desenharCompHub();
+}
+
+function selecionarTodasColunasCompHub() {
+  COMP_HUB_COLUNAS.forEach(function(col) {
+    col.visible = true;
+  });
+  salvarPreferenciasColunasCompHub();
+  renderizarSeletorColunasCompHub();
+  desenharCompHub();
+}
+
+function restaurarColunasPadraoCompHub() {
+  const padraoVisivel = {
+    dataRegistro: true,
+    idComprovante: true,
+    hashComprovante: false,
+    protocolo: true,
+    indiceComprovante: false,
+    loja: true,
+    empresa: true,
+    tipoDocumento: true,
+    dataDeposito: true,
+    valorDeposito: true,
+    banco: true,
+    dataMovimento: true,
+    houveRetirada: true,
+    valorRetirada: false,
+    motivoRetirada: false,
+    dataGeracaoDocumento: false,
+    codigoAutenticacao: false,
+    linkComprovante: true,
+    statusProcessamento: true,
+    pendencias: true,
+    divergencias: true,
+    confiancaGeral: true,
+    jsonOriginal: false
+  };
+
+  COMP_HUB_COLUNAS.forEach(function(col) {
+    col.visible = padraoVisivel[col.key] === true;
+  });
+  salvarPreferenciasColunasCompHub();
+  renderizarSeletorColunasCompHub();
+  desenharCompHub();
+}
+
+function popularSelectCompHub(id, dados, campo, labelTodos) {
+  const select = document.getElementById(id);
+
+  if (!select) return;
+
+  const valorAtual = select.value;
+  const set = {};
+
+  dados.forEach(function(item) {
+    const valor = String(item[campo] || "").trim();
+
+    if (valor) {
+      set[valor] = true;
+    }
+  });
+
+  select.innerHTML = "<option value=''>" + labelTodos + "</option>";
+
+const valoresOrdenados = Object.keys(set).sort(function(a, b) {
+  if (campo === "loja") {
+    const numA = Number(String(a).replace(/\D/g, ""));
+    const numB = Number(String(b).replace(/\D/g, ""));
+
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return numA - numB;
+    }
+  }
+
+  return String(a).localeCompare(String(b), "pt-BR", {
+    numeric: true,
+    sensitivity: "base"
+  });
+});
+
+valoresOrdenados.forEach(function(valor) {
+  const opt = document.createElement("option");
+  opt.value = valor;
+  opt.textContent = valor;
+  select.appendChild(opt);
+});
+
+  if (valorAtual && set[valorAtual]) {
+    select.value = valorAtual;
+  }
+}
+
+function vincularFiltrosCompHub() {
+  [
+    "compDataDe",
+    "compDataAte",
+    "compFiltroLoja",
+    "compFiltroEmpresa",
+    "compFiltroBanco",
+    "compFiltroTipo",
+    "compFiltroStatus",
+    "compBusca"
+  ].forEach(function(id) {
+    const el = document.getElementById(id);
+
+    if (!el || el.dataset.compFiltroVinculado === "1") {
+      return;
+    }
+
+    const evento = el.tagName === "INPUT" ? "input" : "change";
+
+    el.addEventListener(evento, function() {
+      aplicarFiltrosCompHub();
+    });
+
+    el.dataset.compFiltroVinculado = "1";
+  });
+}
+
+function aplicarFiltrosCompHub() {
+  const dados = SMARTSLIP_STATE.comp_hub || [];
+
+  const dataDe = document.getElementById("compDataDe").value;
+  const dataAte = document.getElementById("compDataAte").value;
+  const loja = document.getElementById("compFiltroLoja").value;
+  const empresa = document.getElementById("compFiltroEmpresa").value;
+  const banco = document.getElementById("compFiltroBanco").value;
+  const tipo = document.getElementById("compFiltroTipo").value;
+  const status = document.getElementById("compFiltroStatus").value;
+  const busca = String(document.getElementById("compBusca").value || "").trim().toLowerCase();
+
+  SMARTSLIP_STATE.comp_hub_filtrado = dados.filter(function(item) {
+    if (dataDe) {
+      if (!item.dataRegistroInput || item.dataRegistroInput < dataDe) return false;
+    }
+
+    if (dataAte) {
+      if (!item.dataRegistroInput || item.dataRegistroInput > dataAte) return false;
+    }
+    if (loja && String(item.loja || "") !== loja) return false;
+    if (empresa && String(item.empresa || "") !== empresa) return false;
+    if (banco && String(item.banco || "") !== banco) return false;
+    if (tipo && String(item.tipoDocumento || "") !== tipo) return false;
+    if (status && String(item.statusProcessamento || "") !== status) return false;
+
+    if (busca) {
+      const alvo = [
+        item.dataRegistro,
+        item.idComprovante,
+        item.hashComprovante,
+        item.protocolo,
+        item.indiceComprovante,
+        item.loja,
+        item.empresa,
+        item.tipoDocumento,
+        item.banco,
+        item.dataMovimento,
+        item.codigoAutenticacao,
+        item.statusProcessamento,
+        item.pendencias,
+        item.divergencias
+      ].join(" ").toLowerCase();
+
+      if (alvo.indexOf(busca) === -1) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  COMP_HUB_PAGE = 1;
+  desenharCompHub();
+}
+
+function limparFiltrosCompHub() {
+  [
+    "compDataDe",
+    "compDataAte",
+    "compBusca"
+  ].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  [
+    "compFiltroLoja",
+    "compFiltroEmpresa",
+    "compFiltroBanco",
+    "compFiltroTipo",
+    "compFiltroStatus"
+  ].forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+
+  aplicarFiltrosCompHub();
+}
+
+function desenharCompHub() {
+  atualizarKpisCompHub();
+
+  const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+  aplicarOrdenacaoCompHub();
+  const box = document.getElementById("compHubTabela");
+
+  if (!box) return;
+
+  document.getElementById("compQtdTotal").textContent = dados.length;
+
+  if (!dados.length) {
+    document.getElementById("compQtdExibida").textContent = "0";
+    document.getElementById("compPageInfo").textContent = "Página 1 de 1";
+    box.innerHTML = "<p class='page-sub'>Nenhum comprovante encontrado para os filtros selecionados.</p>";
+    return;
+  }
+
+  const totalPaginas = Math.max(1, Math.ceil(dados.length / COMP_HUB_PER_PAGE));
+
+  if (COMP_HUB_PAGE > totalPaginas) {
+    COMP_HUB_PAGE = totalPaginas;
+  }
+
+  const inicio = (COMP_HUB_PAGE - 1) * COMP_HUB_PER_PAGE;
+  const fim = Math.min(inicio + COMP_HUB_PER_PAGE, dados.length);
+  const pagina = dados.slice(inicio, fim);
+
+  document.getElementById("compQtdExibida").textContent = (inicio + 1) + "–" + fim;
+  document.getElementById("compPageInfo").textContent = "Página " + COMP_HUB_PAGE + " de " + totalPaginas;
+
+  let html = "";
+  const colunasVisiveis = COMP_HUB_COLUNAS.filter(function(col) {
+  return col.visible === true;
+});
+
+html += "<table class='comp-table'>";
+html += "<thead><tr>";
+
+colunasVisiveis.forEach(function(col) {
+  const icon = getIconeOrdenacaoCompHub(col.key);
+
+  const thClass = (
+    col.key === "valorDeposito" ||
+    col.key === "valorRetirada"
+  ) ? " class='comp-th-money'" : "";
+
+  html +=
+    "<th" + thClass + ">" +
+      "<button type='button' class='comp-sort-btn' onclick=\"ordenarCompHubPorColuna('" + escapeAttr(col.key) + "')\">" +
+        "<span>" + escapeHtml(col.label) + "</span>" +
+        "<span class='comp-sort-icon'>" + icon + "</span>" +
+      "</button>" +
+    "</th>";
+});
+
+html += "<th>Detalhes</th>";
+html += "</tr></thead><tbody>";
+
+pagina.forEach(function(item) {
+  html += "<tr>";
+
+  colunasVisiveis.forEach(function(col) {
+    html += "<td>" + renderCelulaCompHub(col.key, item) + "</td>";
+  });
+
+  html += "<td><button type='button' class='btn-secondary comp-detail-btn' onclick='abrirDetalheCompHubPorId(" + Number(item._rowId) + ")'>Ver</button></td>";
+  html += "</tr>";
+});
+
+  html += "</tbody></table>";
+
+  box.innerHTML = html;
+}
+
+function ordenarCompHubPorColuna(key) {
+  if (!key) return;
+
+  if (COMP_HUB_SORT.key === key) {
+    COMP_HUB_SORT.dir = COMP_HUB_SORT.dir === "asc" ? "desc" : "asc";
+  } else {
+    COMP_HUB_SORT.key = key;
+    COMP_HUB_SORT.dir = "asc";
+  }
+
+  COMP_HUB_PAGE = 1;
+  desenharCompHub();
+}
+
+function aplicarOrdenacaoCompHub() {
+  const key = COMP_HUB_SORT.key;
+
+  if (!key) return;
+
+  const dir = COMP_HUB_SORT.dir === "desc" ? -1 : 1;
+  const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+
+  dados.sort(function(a, b) {
+    const va = getValorOrdenacaoCompHub(a, key);
+    const vb = getValorOrdenacaoCompHub(b, key);
+
+    if (va < vb) return -1 * dir;
+    if (va > vb) return 1 * dir;
+    return 0;
+  });
+}
+
+function getValorOrdenacaoCompHub(item, key) {
+  let valor = item ? item[key] : "";
+
+  if (valor === null || valor === undefined) {
+    return "";
+  }
+
+  if (key === "valorDeposito" || key === "valorRetirada" || key === "confiancaGeral") {
+    return Number(valor || 0);
+  }
+
+  if (
+    key === "loja" ||
+    key === "indiceComprovante"
+  ) {
+    const n = Number(String(valor).replace(/\D/g, ""));
+
+    if (!isNaN(n)) {
+      return n;
+    }
+  }
+
+  if (
+    key === "dataRegistro" ||
+    key === "dataDeposito" ||
+    key === "dataMovimento" ||
+    key === "dataGeracaoDocumento"
+  ) {
+    return converterDataOrdenacaoCompHub(valor);
+  }
+
+  return String(valor || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function converterDataOrdenacaoCompHub(valor) {
+  if (!valor) return 0;
+
+  const txt = String(valor).trim();
+
+  let m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?/);
+
+  if (m) {
+    return new Date(
+      Number(m[3]),
+      Number(m[2]) - 1,
+      Number(m[1]),
+      Number(m[4] || 0),
+      Number(m[5] || 0),
+      Number(m[6] || 0)
+    ).getTime();
+  }
+
+  m = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+  if (m) {
+    return new Date(
+      Number(m[1]),
+      Number(m[2]) - 1,
+      Number(m[3])
+    ).getTime();
+  }
+
+  return 0;
+}
+
+function getIconeOrdenacaoCompHub(key) {
+  if (COMP_HUB_SORT.key !== key) {
+    return "↕";
+  }
+
+  return COMP_HUB_SORT.dir === "asc" ? "↑" : "↓";
+}
+
+function renderCelulaCompHub(key, item) {
+  if (key === "hashComprovante") {
+    return "<span class='comp-hash comp-mono' title='" + escapeAttr(item.hashComprovante) + "'>" + escapeHtml(item.hashComprovante) + "</span>";
+  }
+
+  if (key === "idComprovante" || key === "protocolo" || key === "codigoAutenticacao") {
+    return "<span class='comp-mono'>" + escapeHtml(item[key] || "") + "</span>";
+  }
+
+  if (key === "valorDeposito" || key === "valorRetirada") {
+    return "<span class='comp-mono'>" + formatBRL(item[key]) + "</span>";
+  }
+
+  if (key === "linkComprovante") {
+    if (!item.linkComprovante) return "-";
+    return "<a class='comp-link' href='" + escapeAttr(item.linkComprovante) + "' target='_blank'>Abrir</a>";
+  }
+
+  if (key === "statusProcessamento") {
+    return "<span class='comp-status " + getCompHubStatusClass(item.statusProcessamento) + "'>" + escapeHtml(item.statusProcessamento || "") + "</span>";
+  }
+
+  if (key === "confiancaGeral") {
+    return montarConfiancaCompHub(item.confiancaGeral);
+  }
+
+  if (key === "jsonOriginal") {
+    return "<span class='comp-json-cell'>" + escapeHtml(item.jsonOriginal || "-") + "</span>";
+  }
+
+  return escapeHtml(item[key] || "-");
+}
+
+function atualizarKpisCompHub() {
+  const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+
+  const total = dados.length;
+  const valor = dados.reduce(function(acc, item) {
+    return acc + Number(item.valorDeposito || 0);
+  }, 0);
+
+  const pend = dados.filter(function(item) {
+    return String(item.pendencias || "").trim() !== "";
+  }).length;
+
+  const div = dados.filter(function(item) {
+    return String(item.divergencias || "").trim() !== "";
+  }).length;
+
+  document.getElementById("compKpiTotal").textContent = total;
+  document.getElementById("compKpiValor").textContent = formatBRL(valor);
+  document.getElementById("compKpiPend").textContent = pend;
+  document.getElementById("compKpiDiv").textContent = div;
+}
+
+function alterarCompHubPorPagina() {
+  COMP_HUB_PER_PAGE = Number(document.getElementById("compPerPage").value || 25);
+  COMP_HUB_PAGE = 1;
+  desenharCompHub();
+}
+
+function mudarPaginaCompHub(delta) {
+  const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+  const totalPaginas = Math.max(1, Math.ceil(dados.length / COMP_HUB_PER_PAGE));
+
+  COMP_HUB_PAGE += delta;
+
+  if (COMP_HUB_PAGE < 1) COMP_HUB_PAGE = 1;
+  if (COMP_HUB_PAGE > totalPaginas) COMP_HUB_PAGE = totalPaginas;
+
+  desenharCompHub();
+}
+
+function getCompHubStatusClass(status) {
+  const s = String(status || "").toUpperCase();
+
+  if (s.includes("PRONTO") || s.includes("SALVO")) return "comp-status-ok";
+  if (s.includes("PEND") || s.includes("PARCIAL")) return "comp-status-warn";
+  if (s.includes("ERRO") || s.includes("DIVERG")) return "comp-status-error";
+
+  return "";
+}
+
+function montarConfiancaCompHub(valor) {
+  const n = Number(valor || 0);
+  const perc = n <= 1 ? Math.round(n * 100) : Math.round(n);
+  const width = Math.max(0, Math.min(100, perc));
+
+  return (
+    "<div class='comp-conf'>" +
+      "<div class='comp-conf-bar'><div class='comp-conf-fill' style='width:" + width + "%'></div></div>" +
+      "<span class='comp-mono'>" + width + "%</span>" +
+    "</div>"
+  );
+}
+
+function abrirDetalheCompHubPorId(rowId) {
+  const dados = SMARTSLIP_STATE.comp_hub || [];
+
+  const item = dados.find(function(row) {
+    return Number(row._rowId) === Number(rowId);
+  });
+
+  if (!item) {
+    alert("Registro não encontrado na base carregada.");
+    return;
+  }
+
+  abrirDetalheCompHubItem(item);
+}
+
+function abrirDetalheCompHubItem(item) {
+  const modal = document.getElementById("compModal");
+  const sub = document.getElementById("compModalSub");
+  const body = document.getElementById("compModalBody");
+
+  if (!modal || !sub || !body) {
+    alert("Modal do Comp Hub não encontrado no HTML.");
+    return;
+  }
+
+  sub.textContent = (item.idComprovante || "-") + " | " + (item.protocolo || "-");
+
+  let html = "";
+
+  html += "<div class='comp-detail-grid'>";
+  html += montarItemDetalheCompHub("Data Registro", item.dataRegistro);
+  html += montarItemDetalheCompHub("ID Comprovante", item.idComprovante);
+  html += montarItemDetalheCompHub("Hash Comprovante", item.hashComprovante);
+  html += montarItemDetalheCompHub("Protocolo", item.protocolo);
+  html += montarItemDetalheCompHub("Índice Comprovante", item.indiceComprovante);
+  html += montarItemDetalheCompHub("Loja", item.loja);
+  html += montarItemDetalheCompHub("Empresa", item.empresa);
+  html += montarItemDetalheCompHub("Tipo Documento", item.tipoDocumento);
+  html += montarItemDetalheCompHub("Data Depósito", item.dataDeposito);
+  html += montarItemDetalheCompHub("Valor Depósito", formatBRL(item.valorDeposito));
+  html += montarItemDetalheCompHub("Banco", item.banco);
+  html += montarItemDetalheCompHub("Data Movimento", item.dataMovimento);
+  html += montarItemDetalheCompHub("Houve Retirada", item.houveRetirada);
+  html += montarItemDetalheCompHub("Valor Retirada", formatBRL(item.valorRetirada));
+  html += montarItemDetalheCompHub("Motivo Retirada", item.motivoRetirada);
+  html += montarItemDetalheCompHub("Data Geração Documento", item.dataGeracaoDocumento);
+  html += montarItemDetalheCompHub("Código Autenticação", item.codigoAutenticacao);
+  html += montarItemDetalheCompHub("Status Processamento", item.statusProcessamento);
+  html += montarItemDetalheCompHub("Pendências", item.pendencias || "-");
+  html += montarItemDetalheCompHub("Divergências", item.divergencias || "-");
+  html += montarItemDetalheCompHub("Confiança Geral", montarConfiancaCompHub(item.confiancaGeral), true);
+
+  if (item.linkComprovante) {
+    html += montarItemDetalheCompHub(
+      "Link Comprovante",
+      "<a class='comp-link' target='_blank' href='" + escapeAttr(item.linkComprovante) + "'>Abrir comprovante</a>",
+      true
+    );
+  } else {
+    html += montarItemDetalheCompHub("Link Comprovante", "-");
+  }
+
+  html += "</div>";
+  html += "<div class='comp-json-box'>" + escapeHtml(formatarJsonCompHub(item.jsonOriginal)) + "</div>";
+
+  body.innerHTML = html;
+  modal.classList.add("show");
+}
+
+function montarItemDetalheCompHub(label, valor, htmlLivre) {
+  return (
+    "<div class='comp-detail-item'>" +
+      "<b>" + escapeHtml(label) + "</b>" +
+      "<span>" + (htmlLivre ? valor : escapeHtml(valor || "-")) + "</span>" +
+    "</div>"
+  );
+}
+
+function fecharModalCompHub() {
+  const modal = document.getElementById("compModal");
+
+  if (modal) {
+    modal.classList.remove("show");
+  }
+}
+
+function formatarJsonCompHub(valor) {
+  if (!valor) return "";
+
+  try {
+    return JSON.stringify(JSON.parse(valor), null, 2);
+  } catch (e) {
+    return String(valor);
+  }
+}
+
+function exportarCompHubCSV() {
+let dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+
+if (!dados.length && (SMARTSLIP_STATE.comp_hub || []).length) {
+  aplicarFiltrosCompHub();
+  dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+}
+
+if (!dados.length) {
+  alert("Não há dados para exportar nos filtros atuais.");
+  return;
+}
+
+  const headers = [
+    "Data Registro",
+    "ID Comprovante",
+    "Hash Comprovante",
+    "Protocolo",
+    "Índice Comprovante",
+    "Loja",
+    "Empresa",
+    "Tipo Documento",
+    "Data Depósito",
+    "Valor Depósito",
+    "Banco",
+    "Data Movimento",
+    "Houve Retirada",
+    "Valor Retirada",
+    "Motivo Retirada",
+    "Data Geração Documento",
+    "Código Autenticação",
+    "Link Comprovante",
+    "Status Processamento",
+    "Pendências",
+    "Divergências",
+    "Confiança Geral",
+    "JSON Original"
+  ];
+
+  const rows = dados.map(function(item) {
+    return [
+      item.dataRegistro,
+      item.idComprovante,
+      item.hashComprovante,
+      item.protocolo,
+      item.indiceComprovante,
+      item.loja,
+      item.empresa,
+      item.tipoDocumento,
+      item.dataDeposito,
+      item.valorDeposito,
+      item.banco,
+      item.dataMovimento,
+      item.houveRetirada,
+      item.valorRetirada,
+      item.motivoRetirada,
+      item.dataGeracaoDocumento,
+      item.codigoAutenticacao,
+      item.linkComprovante,
+      item.statusProcessamento,
+      item.pendencias,
+      item.divergencias,
+      item.confiancaGeral,
+      item.jsonOriginal
+    ];
+  });
+
+  const csv = [headers].concat(rows).map(function(row) {
+    return row.map(function(v) {
+      return "\"" + String(v === null || v === undefined ? "" : v).replace(/"/g, "\"\"") + "\"";
+    }).join(";");
+  }).join("\n");
+
+  const blob = new Blob(["\ufeff" + csv], {
+    type: "text/csv;charset=utf-8;"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = "comp_hub_smartslip.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
     function getStatusClass(status) {
       const s = String(status || "").toUpperCase();
 
@@ -2903,7 +4862,136 @@ function destravarTelaEnvio() {
   }
 }
 
+function smartSlipParseDataCampo(valor) {
+  const txt = String(valor || "").trim();
+
+  if (!txt) return null;
+
+  // yyyy-mm-dd
+  let m = txt.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+
+  // dd/mm/aaaa
+  m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) {
+    return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  }
+
+  return null;
+}
+
+function smartSlipHojeSemHora() {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  return hoje;
+}
+
+function smartSlipNumeroBR(valor) {
+  const txt = String(valor || "")
+    .replace(/[R$\s]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .trim();
+
+  const n = Number(txt);
+
+  return isNaN(n) ? 0 : n;
+}
+
+function smartSlipTemSinalNegativo(valor) {
+  return /[-−–—]/.test(String(valor || ""));
+}
+
+function onValorRetiradaInput() {
+  const input = document.getElementById("valor_retirada");
+
+  if (!input) return;
+
+  if (smartSlipTemSinalNegativo(input.value)) {
+    input.value = "";
+    mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
+  }
+
+  toggleRetirada();
+}
+
+function normalizarValorRetirada() {
+  const input = document.getElementById("valor_retirada");
+
+  if (!input) return;
+
+  const bruto = String(input.value || "").trim();
+
+  if (!bruto) {
+    toggleRetirada();
+    return;
+  }
+
+  if (smartSlipTemSinalNegativo(bruto)) {
+    input.value = "";
+    mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
+    toggleRetirada();
+    return;
+  }
+
+  const valor = smartSlipNumeroBR(bruto);
+
+  if (valor < 0) {
+    input.value = "";
+    mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
+    toggleRetirada();
+    return;
+  }
+
+  toggleRetirada();
+}
+
+function validarRegrasEnvioSmartSlip() {
+  function erro(texto) {
+    mostrarMensagem("erro", texto);
+    return false;
+  }
+
+  const dataInicioEl = document.getElementById("data_movimento_inicio");
+  const dataFimEl = document.getElementById("data_movimento_fim");
+  const valorRetiradaEl = document.getElementById("valor_retirada");
+  const motivoRetiradaEl = document.getElementById("motivo_retirada");
+
+  const dataInicioTxt = dataInicioEl ? dataInicioEl.value : "";
+  const dataFimTxt = dataFimEl ? dataFimEl.value : "";
+  const valorRetiradaTxt = valorRetiradaEl ? String(valorRetiradaEl.value || "").trim() : "";
+  const valorRetirada = valorRetiradaEl ? smartSlipNumeroBR(valorRetiradaTxt) : 0;
+  const motivoRetirada = motivoRetiradaEl ? String(motivoRetiradaEl.value || "").trim() : "";
+
+  const dataInicio = smartSlipParseDataCampo(dataInicioTxt);
+  const dataFim = smartSlipParseDataCampo(dataFimTxt || dataInicioTxt);
+  const hoje = smartSlipHojeSemHora();
+
+  if (dataFim && dataFim > hoje) {
+    return erro("A data movimento final não pode ser maior que a data atual.");
+  }
+
+  if (dataInicio && dataFim && dataFim < dataInicio) {
+    return erro("A data movimento final não pode ser menor que a data movimento inicial.");
+  }
+
+  if (smartSlipTemSinalNegativo(valorRetiradaTxt) || valorRetirada < 0) {
+    return erro("O valor da retirada não pode ser negativo.");
+  }
+
+  if (valorRetirada > 0 && !motivoRetirada) {
+    return erro("Informe o motivo da retirada.");
+  }
+
+  return true;
+}
+
     function enviar() {
+      if (!validarRegrasEnvioSmartSlip()) {
+        return;
+      }
       const inputArquivo = document.getElementById("arquivo");
       const file = inputArquivo.files[0];
 
@@ -2960,14 +5048,6 @@ function destravarTelaEnvio() {
       travarTelaEnvio("Lendo arquivo...");
       btn.textContent = "Lendo arquivo...";
 
-      const houveRetiradaAntesEnvio = document.getElementById("houve_retirada").value === "true";
-      const valorRetiradaAntesEnvio = Number(document.getElementById("valor_retirada").value || 0);
-
-      if (houveRetiradaAntesEnvio && valorRetiradaAntesEnvio < 0) {
-        mostrarMensagem("erro", "O valor da retirada não pode ser negativo.");
-        return;
-      }
-
       let finalizado = false;
 
       function finalizarBotao() {
@@ -2999,7 +5079,11 @@ function destravarTelaEnvio() {
         btn.textContent = "Enviando...";
         travarTelaEnvio("Enviando comprovante...");   
 
-        const houveRetirada = document.getElementById("houve_retirada").value === "true";
+        const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
+        const valorRetiradaEnvio = smartSlipNumeroBR(document.getElementById("valor_retirada").value || 0);
+        const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
+
+        const houveRetirada = houveRetiradaSelecionado || valorRetiradaEnvio > 0;
 
         const payload = {
           arquivoBase64: e.target.result,
@@ -3009,10 +5093,8 @@ function destravarTelaEnvio() {
           data_movimento_inicio: converterDataInputParaBR(dataInicio),
           data_movimento_fim: converterDataInputParaBR(dataFim || dataInicio),
           houve_retirada: String(houveRetirada),
-          valor_retirada: houveRetirada ? document.getElementById("valor_retirada").value || 0 : 0,
-          motivo_retirada: houveRetirada
-            ? document.getElementById("motivo_retirada").value || ""
-            : "Não houve retirada",
+          valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
+          motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
           mais_comprovantes: document.getElementById("mais_comprovantes").value
         };
 
