@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartSlip</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#005E27">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="SmartSlip">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./icons/smartslip-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/smartslip-192.png">
+
+  <style>
+    :root {
+      --green-dark: #005E27;
+      --green-light: #B5FF20;
+      --black: #050807;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--black);
+      font-family: Arial, sans-serif;
+    }
+
+    .app-frame {
+      width: 100%;
+      height: 100dvh;
+      border: 0;
+      display: block;
+      background: #f4f8f1;
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: #050807;
+      color: #ffffff;
+      font-weight: 800;
+      z-index: 1;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .loader-card {
+      max-width: 360px;
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .loader-logo {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 32px;
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="loader" class="loader">
+    <div class="loader-card">
+      <div class="loader-logo">S</div>
+      <div>Carregando SmartSlip...</div>
+    </div>
+  </div>
+
+  <iframe
+    id="smartSlipFrame"
+    class="app-frame"
+    title="SmartSlip"
+    src="https://script.google.com/a/macros/gruposbf.com.br/s/AKfycbx0W_VHGc_J9GOg4fyOVShXKRzWmHoeGVhkVprDVu5pCwswg7NjQb0dR5WimDJDK9bA/exec"
+    allow="camera *; clipboard-read *; clipboard-write *; fullscreen *"
+  ></iframe>
+
+  <script>
+    var frame = document.getElementById("smartSlipFrame");
+    var loader = document.getElementById("loader");
+
+    frame.addEventListener("load", function() {
+      if (loader) {
+        loader.style.display = "none";
+      }
+    });
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function() {
+        navigator.serviceWorker.register("./sw.js").catch(function(err) {
+          console.warn("Service Worker não registrado:", err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
 
