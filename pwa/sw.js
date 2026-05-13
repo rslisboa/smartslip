@@ -1,4 +1,4 @@
-const CACHE_NAME = "smartslip-shell-v1";
+const CACHE_NAME = "smartslip-shell-v2";
 
 const CORE_ASSETS = [
   "./",
@@ -37,16 +37,53 @@ self.addEventListener("activate", function(event) {
 });
 
 self.addEventListener("fetch", function(event) {
-  const url = new URL(event.request.url);
+  const request = event.request;
+
+  if (request.method !== "GET") {
+    return;
+  }
+
+  const url = new URL(request.url);
 
   if (url.origin !== self.location.origin) {
     return;
   }
 
+  const isHtmlNavigation =
+    request.mode === "navigate" ||
+    (request.headers.get("accept") || "").includes("text/html");
+
+  if (isHtmlNavigation) {
+    event.respondWith(
+      fetch(request)
+        .then(function(response) {
+          const copy = response.clone();
+
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(request, copy);
+          });
+
+          return response;
+        })
+        .catch(function() {
+          return caches.match("./index.html");
+        })
+    );
+
+    return;
+  }
+
   event.respondWith(
-    caches.match(event.request).then(function(cached) {
-      return cached || fetch(event.request);
+    caches.match(request).then(function(cached) {
+      return cached || fetch(request).then(function(response) {
+        const copy = response.clone();
+
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(request, copy);
+        });
+
+        return response;
+      });
     })
   );
 });
-
