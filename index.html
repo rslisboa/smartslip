@@ -4,7 +4,10 @@
   <base target="_top">
   <title>SmartSlip</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- VIEWPORT E PWA -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#005E27">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1771,6 +1774,1333 @@ body.intro-lock {
   font-weight: 800 !important;
 }
 
+/* =========================================================
+   SMARTSLIP MOBILE APP MODE - VERSÃO CONSOLIDADA
+   ========================================================= */
+
+.mobile-only {
+  display: none;
+}
+
+.nav-ico {
+  display: inline-block;
+  margin-right: 7px;
+}
+
+.nav-label {
+  display: inline;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
+    background: #f4f8f1 !important;
+  }
+
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  .app-shell {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100dvh !important;
+  }
+
+  .main {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 14px 12px calc(104px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .view {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .view.active {
+    display: block !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+
+  h1 {
+    font-size: 24px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -.4px !important;
+  }
+
+  h2 {
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+  }
+
+  .page-sub,
+  .chart-sub {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 14px !important;
+  }
+
+  .top-pill {
+    font-size: 11px !important;
+    padding: 7px 11px !important;
+    margin-bottom: 9px !important;
+  }
+
+  /* Menu inferior mobile */
+  .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 8000 !important;
+    height: calc(78px + env(safe-area-inset-bottom)) !important;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom)) !important;
+    border-radius: 22px 22px 0 0 !important;
+    background: #050807 !important;
+    box-shadow: 0 -14px 34px rgba(0, 0, 0, .22) !important;
+    display: block !important;
+  }
+
+  .brand,
+  .sidebar-footer {
+    display: none !important;
+  }
+
+  .nav {
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+
+  .nav-item {
+    width: 100% !important;
+    height: 60px !important;
+    padding: 6px 3px !important;
+    border-radius: 16px !important;
+    background: transparent !important;
+    color: rgba(255,255,255,.72) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: center !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+    transform: none !important;
+  }
+
+  .nav-item::first-letter {
+    font-size: inherit !important;
+  }
+
+  .nav-ico {
+    display: block !important;
+    margin: 0 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+  }
+
+  .nav-label {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  .nav-item.active {
+    background: rgba(181,255,32,.22) !important;
+    color: var(--green-light) !important;
+  }
+
+  .nav-item:hover {
+    transform: none !important;
+  }
+
+  #navCompHub,
+  #view-comp-hub,
+  #cfgCompHubRangeRow {
+    display: none !important;
+  }
+
+  /* Cards e painéis */
+  .kpi-grid,
+  .row,
+  .actions,
+  .filter-panel,
+  .config-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .kpi-grid {
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .kpi-card {
+    min-height: auto !important;
+    padding: 16px !important;
+    border-radius: 20px !important;
+  }
+
+  .kpi-card span {
+    font-size: 11px !important;
+  }
+
+  .kpi-card strong {
+    font-size: 24px !important;
+    margin-top: 6px !important;
+  }
+
+  .panel,
+  .form-card {
+    width: 100% !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+    box-shadow: 0 12px 26px rgba(16, 24, 40, .07) !important;
+  }
+
+  .mobile-home-action {
+    margin: 0 0 12px !important;
+  }
+
+  .mobile-home-action button {
+    width: 100% !important;
+    min-height: 54px !important;
+    font-size: 15px !important;
+  }
+
+  input,
+  select {
+    min-height: 48px !important;
+    font-size: 16px !important;
+    border-radius: 15px !important;
+  }
+
+  label {
+    font-size: 11px !important;
+    margin-top: 14px !important;
+  }
+
+  button {
+    min-height: 48px !important;
+    border-radius: 16px !important;
+    font-size: 15px !important;
+  }
+
+  .actions {
+    gap: 10px !important;
+    margin-top: 20px !important;
+  }
+
+  .upload-box {
+    min-height: 150px !important;
+    border-radius: 22px !important;
+    padding: 18px !important;
+  }
+
+  .upload-icon {
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 24px !important;
+  }
+
+  .upload-title {
+    font-size: 15px !important;
+  }
+
+  .upload-sub {
+    font-size: 12px !important;
+  }
+
+  .chart-panel {
+    min-height: auto !important;
+  }
+
+  .chart-panel-secondary {
+    margin-top: 14px !important;
+  }
+
+  .chart-head {
+    flex-direction: column !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .chart-controls {
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .chart-controls .year-control,
+  .year-control,
+  #boxMesResumo {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .line-chart {
+    min-height: 190px !important;
+  }
+
+  .line-chart svg {
+    height: 190px !important;
+  }
+
+  #statusPanelInicio {
+    display: none !important;
+  }
+
+  .filter-panel {
+    padding: 14px !important;
+  }
+
+  #boxFiltroHistLoja {
+    display: none !important;
+  }
+
+  .config-loja-control {
+    max-width: none !important;
+  }
+
+  .config-actions {
+    justify-content: stretch !important;
+  }
+
+  .config-actions .btn-primary {
+    width: 100% !important;
+  }
+
+  /* Histórico mobile por cards */
+  .history-table {
+    display: none !important;
+  }
+
+  .mobile-history-list {
+    display: grid !important;
+    gap: 12px !important;
+  }
+
+  .mobile-history-card {
+    background: #ffffff !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 18px !important;
+    padding: 14px !important;
+    box-shadow: 0 10px 22px rgba(16, 24, 40, .06) !important;
+  }
+
+  .mobile-history-top {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    margin-bottom: 10px !important;
+  }
+
+  .mobile-history-date {
+    font-weight: 900 !important;
+    color: #111827 !important;
+    font-size: 13px !important;
+  }
+
+  .mobile-history-protocol {
+    color: var(--muted) !important;
+    font-size: 11px !important;
+    word-break: break-word !important;
+  }
+
+  .mobile-history-grid {
+    display: grid !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    font-size: 13px !important;
+  }
+
+  .mobile-history-grid div {
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    border-top: 1px solid #edf2e8 !important;
+    padding-top: 8px !important;
+  }
+
+  .mobile-history-grid b {
+    color: var(--muted) !important;
+    font-size: 12px !important;
+  }
+
+  .mobile-history-link {
+    display: block !important;
+    margin-top: 12px !important;
+    text-align: center !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+    background: #050807 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-weight: 900 !important;
+  }
+}
+
+/* Força modo mobile via classe aplicada por JS */
+body.smart-mobile #navCompHub,
+body.smart-mobile #view-comp-hub,
+body.smart-mobile #cfgCompHubRangeRow {
+  display: none !important;
+}
+
+body.smart-mobile .intro-smartslip {
+  width: 100vw !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  padding: 12px !important;
+  overflow-y: auto !important;
+}
+
+body.smart-mobile .intro-hero-brand {
+  width: 100% !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin: 4px auto 10px !important;
+  transform: none !important;
+}
+
+body.smart-mobile .intro-hero-logo {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 16px !important;
+  font-size: 20px !important;
+}
+
+body.smart-mobile .intro-hero-brand strong {
+  font-size: 26px !important;
+}
+
+body.smart-mobile .intro-hero-brand span {
+  font-size: 13px !important;
+  margin-top: 4px !important;
+}
+
+body.smart-mobile .intro-card {
+  width: 100% !important;
+  margin: 0 auto 20px !important;
+  border-radius: 24px !important;
+}
+
+body.smart-mobile .intro-content {
+  padding: 16px !important;
+}
+
+body.smart-mobile .intro-pill {
+  font-size: 11px !important;
+  padding: 6px 11px !important;
+  margin-bottom: 10px !important;
+}
+
+body.smart-mobile .intro-content h1 {
+  font-size: 22px !important;
+  line-height: 1.12 !important;
+  letter-spacing: -.4px !important;
+}
+
+body.smart-mobile .intro-text {
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  margin-bottom: 14px !important;
+}
+
+body.smart-mobile .intro-grid {
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  margin: 14px 0 !important;
+}
+
+body.smart-mobile .intro-item {
+  min-height: auto !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+}
+
+body.smart-mobile .intro-item h3 {
+  font-size: 15px !important;
+}
+
+body.smart-mobile .intro-item p {
+  font-size: 12px !important;
+}
+
+body.smart-mobile .intro-note {
+  padding: 13px 14px !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  margin: 14px auto !important;
+}
+
+body.smart-mobile .intro-note b {
+  font-size: 13px !important;
+}
+
+body.smart-mobile .intro-button {
+  min-height: 50px !important;
+  font-size: 14px !important;
+  padding: 13px 16px !important;
+}
+
+body.smart-mobile .smart-loader {
+  padding: 14px !important;
+}
+
+body.smart-mobile .smart-loader-card {
+  width: 92vw !important;
+  max-width: 420px !important;
+  padding: 18px !important;
+  border-radius: 22px !important;
+}
+
+body.smart-mobile .smart-loader-brand strong {
+  font-size: 18px !important;
+}
+
+body.smart-mobile .smart-loader-brand span {
+  font-size: 12px !important;
+}
+
+/* =========================================================
+   PATCH FINAL SMARTSLIP - MOBILE REAL
+   Corrige tela desktop miniaturizada no celular
+   ========================================================= */
+
+@media (max-width: 1024px), (pointer: coarse) {
+  html,
+  body {
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    -webkit-text-size-adjust: 100% !important;
+    text-size-adjust: 100% !important;
+    background: #f4f8f1 !important;
+  }
+
+  body {
+    min-height: 100dvh !important;
+  }
+
+  .app-shell {
+    display: block !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    min-height: 100dvh !important;
+  }
+
+  .main {
+    display: block !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 14px 12px calc(98px + env(safe-area-inset-bottom)) !important;
+    overflow: visible !important;
+  }
+
+  .view {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .view.active {
+    display: block !important;
+  }
+
+  .panel,
+  .form-card,
+  .kpi-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    border-radius: 20px !important;
+    padding: 16px !important;
+  }
+
+  .kpi-grid,
+  .row,
+  .actions,
+  .filter-panel,
+  .config-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    gap: 12px !important;
+  }
+
+  h1 {
+    font-size: 24px !important;
+    line-height: 1.15 !important;
+  }
+
+  h2 {
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+  }
+
+  .page-sub,
+  .chart-sub {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+
+  input,
+  select,
+  textarea,
+  button {
+    width: 100% !important;
+    max-width: 100% !important;
+    font-size: 16px !important;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 48px !important;
+  }
+
+  button {
+    min-height: 50px !important;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    z-index: 8000 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: calc(78px + env(safe-area-inset-bottom)) !important;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom)) !important;
+    border-radius: 22px 22px 0 0 !important;
+    background: #050807 !important;
+    box-shadow: 0 -14px 34px rgba(0, 0, 0, .24) !important;
+    display: block !important;
+  }
+
+  .brand,
+  .sidebar-footer {
+    display: none !important;
+  }
+
+  .nav {
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+
+  .nav-item {
+    width: 100% !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    padding: 6px 3px !important;
+    border-radius: 16px !important;
+    background: transparent !important;
+    color: rgba(255,255,255,.72) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    text-align: center !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+    font-weight: 800 !important;
+    transform: none !important;
+  }
+
+  .nav-item.active {
+    background: rgba(181,255,32,.22) !important;
+    color: #B5FF20 !important;
+  }
+
+  .nav-ico {
+    display: block !important;
+    margin: 0 !important;
+    font-size: 22px !important;
+    line-height: 1 !important;
+  }
+
+  .nav-label {
+    display: block !important;
+    font-size: 10px !important;
+    line-height: 1.05 !important;
+    white-space: nowrap !important;
+  }
+
+  #navCompHub,
+  #view-comp-hub,
+  #cfgCompHubRangeRow {
+    display: none !important;
+  }
+
+  .intro-smartslip {
+    display: none !important;
+  }
+
+  body.intro-lock {
+    overflow: auto !important;
+  }
+
+  .history-table {
+    display: none !important;
+  }
+
+  .mobile-history-list {
+    display: grid !important;
+    gap: 12px !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - GRÁFICOS MOBILE DA HOME
+   ========================================================= */
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .chart-panel {
+    min-height: auto !important;
+    padding: 18px !important;
+  }
+
+  .line-chart {
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  .line-chart svg {
+    display: none !important;
+  }
+
+  .mobile-smart-chart {
+    width: 100%;
+    display: grid;
+    gap: 14px;
+  }
+
+  .mobile-smart-chart-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .mobile-smart-chart-kpi {
+    border: 1px solid #dce8d6;
+    background: linear-gradient(180deg, #ffffff, #f7fbf4);
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .mobile-smart-chart-kpi span {
+    display: block;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .35px;
+    margin-bottom: 5px;
+  }
+
+  .mobile-smart-chart-kpi strong {
+    display: block;
+    color: #050807;
+    font-size: 24px;
+    line-height: 1.1;
+    font-weight: 900;
+  }
+
+  .mobile-smart-chart-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .mobile-smart-chart-row {
+    display: grid;
+    gap: 7px;
+    padding: 12px;
+    border: 1px solid #e1ecdc;
+    background: #ffffff;
+    border-radius: 16px;
+  }
+
+  .mobile-smart-chart-row-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .mobile-smart-chart-label {
+    color: #314238;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .mobile-smart-chart-value {
+    color: #050807;
+    font-size: 13px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .mobile-smart-chart-track {
+    width: 100%;
+    height: 13px;
+    border-radius: 999px;
+    background: #e8efe3;
+    overflow: hidden;
+  }
+
+  .mobile-smart-chart-fill {
+    height: 100%;
+    min-width: 4px;
+    border-radius: 999px;
+  }
+
+  .mobile-smart-chart-empty {
+    padding: 14px;
+    border-radius: 16px;
+    background: #f7fbf4;
+    border: 1px solid #e1ecdc;
+    color: #667085;
+    font-size: 13px;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - HOME MOBILE SEM GRÁFICOS
+   ========================================================= */
+
+.mobile-smartslip-info {
+  display: none;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  #view-inicio .home-chart-panel {
+    display: none !important;
+  }
+
+  #view-inicio #statusPanelInicio {
+    display: none !important;
+  }
+
+  .mobile-smartslip-info {
+    display: block !important;
+    margin-top: 14px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .mobile-smartslip-info-head {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .mobile-smartslip-info-head h2 {
+    margin: 0 0 4px !important;
+    font-size: 20px !important;
+    line-height: 1.15 !important;
+    color: #050807 !important;
+  }
+
+  .mobile-smartslip-info-head p {
+    margin: 0 !important;
+    color: #667085 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+    font-weight: 700 !important;
+  }
+
+  .mobile-smartslip-carousel {
+    display: flex !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 2px 2px 14px !important;
+  }
+
+  .mobile-smartslip-carousel::-webkit-scrollbar {
+    height: 4px !important;
+  }
+
+  .mobile-smartslip-carousel::-webkit-scrollbar-thumb {
+    background: rgba(0, 94, 39, .35) !important;
+    border-radius: 999px !important;
+  }
+
+  .mobile-smartslip-card {
+    flex: 0 0 82% !important;
+    scroll-snap-align: start !important;
+    min-height: 178px !important;
+    border-radius: 22px !important;
+    padding: 18px !important;
+    background:
+      radial-gradient(circle at top right, rgba(181,255,32,.32), transparent 38%),
+      linear-gradient(180deg, #ffffff, #f7fbf4) !important;
+    border: 1px solid #dce8d6 !important;
+    box-shadow: 0 12px 26px rgba(16, 24, 40, .08) !important;
+  }
+
+  .mobile-smartslip-step {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 14px !important;
+    display: grid !important;
+    place-items: center !important;
+    background: #005E27 !important;
+    color: #B5FF20 !important;
+    font-weight: 900 !important;
+    font-size: 16px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .mobile-smartslip-card h3 {
+    margin: 0 0 8px !important;
+    font-size: 18px !important;
+    line-height: 1.15 !important;
+    color: #050807 !important;
+    font-weight: 900 !important;
+  }
+
+  .mobile-smartslip-card p {
+    margin: 0 !important;
+    color: #475467 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    font-weight: 600 !important;
+  }
+}
+
+  /* =========================================================
+   SMARTSLIP - MINI MODAL DE STATUS DO HISTÓRICO
+   Desktop + Mobile
+   Tema: preto + cards #B5FF20 + mensagem branca
+   ========================================================= */
+
+.status-pill-click {
+  cursor: pointer !important;
+  border: 1px solid rgba(49, 66, 56, .18) !important;
+  gap: 7px !important;
+  min-height: 0 !important;
+  width: auto !important;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease !important;
+}
+
+.status-pill-click:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 18px rgba(16, 24, 40, .10) !important;
+  border-color: rgba(0, 94, 39, .26) !important;
+}
+
+.status-pill-click small {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 900;
+  opacity: .72;
+  text-transform: none;
+}
+
+.status-pill-click small::before {
+  content: "•";
+  margin-right: 5px;
+  opacity: .7;
+}
+
+.hist-status-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 92000;
+  background: rgba(0, 0, 0, .58);
+  backdrop-filter: blur(6px);
+  padding: 22px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hist-status-modal.show {
+  display: flex;
+}
+
+body.hist-status-lock {
+  overflow: hidden;
+}
+
+.hist-status-modal-card {
+  width: min(660px, 100%);
+  max-height: min(84vh, 740px);
+  overflow: auto;
+  background: #050807;
+  border: 1px solid rgba(181, 255, 32, .28);
+  border-radius: 28px;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .46),
+    0 0 0 1px rgba(255, 255, 255, .04);
+}
+
+.hist-status-modal-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(181, 255, 32, .16), transparent 34%),
+    #050807;
+  border-bottom: 1px solid rgba(181, 255, 32, .22);
+}
+
+.hist-status-modal-head h2 {
+  margin: 10px 0 5px;
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 900;
+  letter-spacing: -.25px;
+}
+
+.hist-status-sub {
+  margin: 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.hist-status-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .10) !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  color: #ffffff !important;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .25px;
+  text-transform: uppercase;
+}
+
+.hist-status-close {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  border-radius: 14px !important;
+  background: rgba(255, 255, 255, .10) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  font-size: 26px !important;
+  line-height: 1 !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}
+
+.hist-status-close:hover {
+  background: rgba(181, 255, 32, .18) !important;
+  color: #B5FF20 !important;
+  border-color: rgba(181, 255, 32, .34) !important;
+}
+
+.hist-status-modal-body {
+  padding: 24px;
+}
+
+.hist-status-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hist-status-meta div {
+  min-width: 0;
+  padding: 14px 15px;
+  border-radius: 18px;
+  background: #B5FF20;
+  border: 1px solid rgba(181, 255, 32, .80);
+  box-shadow: 0 10px 24px rgba(181, 255, 32, .10);
+}
+
+.hist-status-meta b {
+  display: block;
+  margin-bottom: 6px;
+  color: #050807;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .38px;
+}
+
+.hist-status-meta span {
+  display: block;
+  color: #050807;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.hist-status-message-box {
+  padding: 17px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, .85);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .24);
+}
+
+.hist-status-message-box b {
+  display: block;
+  color: #050807;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+  margin-bottom: 10px;
+}
+
+.hist-status-message-box p {
+  margin: 0;
+  color: #050807;
+  font-size: 14px;
+  line-height: 1.58;
+  font-weight: 700;
+  white-space: pre-wrap;
+}
+
+/* Ajuste mobile somente quando o JS marcar body.smart-mobile */
+body.smart-mobile .status-pill-click {
+  width: auto !important;
+  max-width: 170px !important;
+  min-height: 0 !important;
+  padding: 6px 9px !important;
+  font-size: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+body.smart-mobile .status-pill-click small {
+  font-size: 9px !important;
+}
+
+body.smart-mobile .hist-status-modal {
+  padding: 14px !important;
+  align-items: flex-end !important;
+  background: rgba(0, 0, 0, .62) !important;
+}
+
+body.smart-mobile .hist-status-modal-card {
+  width: 100% !important;
+  max-height: 86dvh !important;
+  border-radius: 26px 26px 18px 18px !important;
+  background: #050807 !important;
+}
+
+body.smart-mobile .hist-status-modal-head {
+  padding: 18px !important;
+}
+
+body.smart-mobile .hist-status-modal-head h2 {
+  font-size: 19px !important;
+}
+
+body.smart-mobile .hist-status-sub {
+  font-size: 12px !important;
+}
+
+body.smart-mobile .hist-status-modal-body {
+  padding: 18px !important;
+}
+
+body.smart-mobile .hist-status-meta {
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+body.smart-mobile .hist-status-meta div {
+  padding: 13px 14px !important;
+  border-radius: 16px !important;
+}
+
+body.smart-mobile .hist-status-message-box {
+  padding: 15px !important;
+  border-radius: 18px !important;
+}
+
+body.smart-mobile .hist-status-message-box p {
+  font-size: 14px !important;
+}
+
+/* Garantia desktop: impede o modal de virar bottom sheet */
+body:not(.smart-mobile) .hist-status-modal {
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 22px !important;
+}
+
+body:not(.smart-mobile) .hist-status-modal-card {
+  width: min(660px, calc(100vw - 48px)) !important;
+  max-width: 660px !important;
+  max-height: min(84vh, 740px) !important;
+  border-radius: 28px !important;
+}
+
+/* =========================================================
+   SMARTSLIP - CARD DE ORIENTAÇÃO OCR NO ENVIO
+   ========================================================= */
+
+.ocr-guidance-card {
+  margin-top: 12px;
+  margin-bottom: 22px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #050807;
+  border: 1px solid rgba(181, 255, 32, .32);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .14);
+  color: #ffffff;
+}
+
+.ocr-guidance-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ocr-guidance-icon {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: #B5FF20;
+  color: #050807;
+  font-size: 20px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.ocr-guidance-head strong {
+  display: block;
+  color: #B5FF20;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.ocr-guidance-head span {
+  display: block;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.ocr-guidance-body p {
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, .86);
+  font-size: 13px;
+  line-height: 1.48;
+  font-weight: 600;
+}
+
+.ocr-guidance-list {
+  display: grid;
+  gap: 8px;
+}
+
+.ocr-guidance-list div {
+  position: relative;
+  padding-left: 16px;
+  color: rgba(255, 255, 255, .80);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
+.ocr-guidance-list div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #B5FF20;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .ocr-guidance-card {
+    margin-top: 12px !important;
+    margin-bottom: 18px !important;
+    padding: 14px !important;
+    border-radius: 18px !important;
+  }
+
+  .ocr-guidance-head {
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .ocr-guidance-icon {
+    width: 34px !important;
+    min-width: 34px !important;
+    height: 34px !important;
+    border-radius: 12px !important;
+    font-size: 18px !important;
+  }
+
+  .ocr-guidance-head strong {
+    font-size: 13px !important;
+  }
+
+  .ocr-guidance-head span,
+  .ocr-guidance-body p,
+  .ocr-guidance-list div {
+    font-size: 12px !important;
+  }
+}
+
   </style>
 </head>
 
@@ -1783,7 +3113,7 @@ body.intro-lock {
         <p class="session-blocker-small">Use apenas a aba mais recente.</p>
       </div>
     </div>
-      <div id="introSmartSlip" class="intro-smartslip show">
+      <div id="introSmartSlip" class="intro-smartslip">
         <div class="intro-hero-brand">
           <div class="intro-hero-logo">S</div>
           <div>
@@ -1865,11 +3195,30 @@ body.intro-lock {
       </div>
 
         <div class="nav">
-          <button class="nav-item active" type="button" onclick="abrirView('inicio', this)">⌂ Início</button>
-          <button class="nav-item" type="button" onclick="abrirView('comprovantes', this)">▣ Comprovantes</button>
-          <button class="nav-item" type="button" onclick="abrirView('historico', this)">↺ Histórico</button>
-          <button id="navCompHub" class="nav-item" type="button" style="display:none;" onclick="abrirView('comp-hub', this)">▦ Comp Hub</button>
-          <button class="nav-item" type="button" onclick="abrirView('configuracoes', this)">⚙ Configurações</button>
+          <button data-nav="inicio" class="nav-item active" type="button" onclick="abrirView('inicio', this)">
+            <span class="nav-ico">⌂</span>
+            <span class="nav-label">Início</span>
+          </button>
+
+          <button data-nav="comprovantes" class="nav-item" type="button" onclick="abrirView('comprovantes', this)">
+            <span class="nav-ico">▣</span>
+            <span class="nav-label">Envio</span>
+          </button>
+
+          <button data-nav="historico" class="nav-item" type="button" onclick="abrirView('historico', this)">
+            <span class="nav-ico">↺</span>
+            <span class="nav-label">Histórico</span>
+          </button>
+
+          <button data-nav="comp-hub" id="navCompHub" class="nav-item" type="button" style="display:none;" onclick="abrirView('comp-hub', this)">
+            <span class="nav-ico">▦</span>
+            <span class="nav-label">Comp Hub</span>
+          </button>
+
+          <button data-nav="configuracoes" class="nav-item" type="button" onclick="abrirView('configuracoes', this)">
+            <span class="nav-ico">⚙</span>
+            <span class="nav-label">Config.</span>
+          </button>
         </div>
 
       <div class="sidebar-footer">
@@ -1883,6 +3232,12 @@ body.intro-lock {
         <div class="top-pill">Visão geral</div>
         <h1>Olá, <span id="primeiroNome">usuário</span></h1>
         <p class="page-sub">Resumo mensal dos comprovantes enviados.</p>
+
+        <div class="mobile-only mobile-home-action">
+        <button type="button" class="btn-primary" onclick="abrirComprovantesMobile()">
+          Enviar comprovante
+        </button>
+      </div>
 
         <div class="kpi-grid">
           <div class="kpi-card">
@@ -1901,7 +3256,36 @@ body.intro-lock {
           </div>
         </div>
 
-          <div class="panel chart-panel">
+        <div class="mobile-smartslip-info">
+  <div class="mobile-smartslip-info-head">
+    <div>
+      <h2>Como funciona o SmartSlip</h2>
+      <p>Arraste para o lado e veja o fluxo de envio.</p>
+    </div>
+  </div>
+
+  <div class="mobile-smartslip-carousel">
+    <div class="mobile-smartslip-card">
+      <div class="mobile-smartslip-step">1</div>
+      <h3>Envio facilitado</h3>
+      <p>A loja anexa o comprovante, informa o movimento e envia direto pela plataforma.</p>
+    </div>
+
+    <div class="mobile-smartslip-card">
+      <div class="mobile-smartslip-step">2</div>
+      <h3>Leitura com IA</h3>
+      <p>O sistema interpreta os dados do comprovante e sinaliza pendências ou divergências.</p>
+    </div>
+
+    <div class="mobile-smartslip-card">
+      <div class="mobile-smartslip-step">3</div>
+      <h3>Acompanhamento</h3>
+      <p>Regionais e administradores acompanham valores, quantidades e status dos envios.</p>
+    </div>
+  </div>
+</div>
+
+          <div class="panel chart-panel home-chart-panel">
             <div class="chart-head">
               <div>
                 <h2>Valor dos comprovantes</h2>
@@ -1938,7 +3322,7 @@ body.intro-lock {
             </div>
           </div>
 
-          <div class="panel chart-panel chart-panel-secondary">
+          <div class="panel chart-panel chart-panel-secondary home-chart-panel">
             <div class="chart-head">
               <div>
                 <h2>Quantidade de envios</h2>
@@ -1955,7 +3339,7 @@ body.intro-lock {
             </div>
           </div>
 
-          <div class="panel chart-panel chart-panel-secondary">
+          <div id="statusPanelInicio" class="panel chart-panel chart-panel-secondary">
           <div class="chart-head">
             <div>
               <h2>Status dos comprovantes</h2>
@@ -1991,18 +3375,43 @@ body.intro-lock {
                 ondrop="onDropArquivo(event)">
               <input id="arquivo"
                     type="file"
-                    accept="application/pdf,image/*"
+                    accept="image/*,application/pdf"
+                    capture="environment"
                     onchange="onArquivoSelecionado()"
                     hidden>
 
               <div class="upload-icon">▧</div>
               <div class="upload-title" id="uploadTitle">Foto ou PDF do comprovante</div>
-              <div class="upload-sub" id="uploadSub">Clique para selecionar ou arraste o arquivo aqui</div>
+              <div class="upload-sub" id="uploadSub">Clique para selecionar ou arraste o arquivo aqui. Tamanho máximo de 10MB por arquivo</div>
             </div>
 
-            <div class="hint">
-              Envie uma foto/PDF legível. O sistema tentará identificar todos os comprovantes presentes no arquivo.
-            </div>
+              <div class="hint">
+                Envie uma foto/PDF legível. O sistema tentará identificar todos os comprovantes presentes no arquivo.
+              </div>
+
+                <div class="ocr-guidance-card">
+                <div class="ocr-guidance-head">
+                  <div class="ocr-guidance-icon">!</div>
+
+                  <div>
+                    <strong>Envio com vários comprovantes</strong>
+                    <span>Orientação para evitar leitura incorreta pela IA</span>
+                  </div>
+                </div>
+
+                <div class="ocr-guidance-body">
+                  <p>
+                    Você pode enviar uma única foto com mais de um comprovante, desde que todos estejam bem separados,
+                    visíveis e legíveis. O SmartSlip tentará identificar cada comprovante físico presente na imagem.
+                  </p>
+
+                  <div class="ocr-guidance-list">
+                    <div>Evite comprovantes sobrepostos, cortados ou muito distantes da câmera.</div>
+                    <div>Não dobre o papel sobre campos de valor, data, controle ou autenticação.</div>
+                    <div>Se a imagem estiver ruim, o envio pode ficar pendente para evitar leitura incorreta.</div>
+                  </div>
+                </div>
+              </div>
 
             <div class="row">
               <div>
@@ -2103,6 +3512,50 @@ body.intro-lock {
 
           <div id="historicoTabela">
             <p class="page-sub">Carregando histórico...</p>
+          </div>
+          <div id="histStatusModal" class="hist-status-modal" onclick="fecharStatusHistoricoModal()">
+            <div class="hist-status-modal-card" role="dialog" aria-modal="true" aria-labelledby="histStatusTitulo" onclick="event.stopPropagation()">
+              <div class="hist-status-modal-head">
+                <div>
+                  <span id="histStatusBadge" class="hist-status-badge">STATUS</span>
+                  <h2 id="histStatusTitulo">Detalhes do processamento</h2>
+                  <p id="histStatusSub" class="hist-status-sub"></p>
+                </div>
+
+                <button type="button" class="hist-status-close" onclick="fecharStatusHistoricoModal()" aria-label="Fechar">
+                  ×
+                </button>
+              </div>
+
+              <div class="hist-status-modal-body">
+                <div class="hist-status-meta">
+                  <div>
+                    <b>Protocolo</b>
+                    <span id="histStatusProtocolo">-</span>
+                  </div>
+
+                  <div>
+                    <b>Loja</b>
+                    <span id="histStatusLoja">-</span>
+                  </div>
+
+                  <div>
+                    <b>Movimento</b>
+                    <span id="histStatusMovimento">-</span>
+                  </div>
+
+                  <div>
+                    <b>Data do envio</b>
+                    <span id="histStatusData">-</span>
+                  </div>
+                </div>
+
+                <div class="hist-status-message-box">
+                  <b>Mensagem operacional</b>
+                  <p id="histStatusMensagem"></p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2295,7 +3748,7 @@ body.intro-lock {
               <span id="cfgEmpresa">-</span>
             </div>
 
-            <div class="config-row config-row-edit">
+            <div class="config-row config-row-edit" id="cfgCompHubRangeRow">
             <b>Range Comp Hub</b>
             <div class="config-loja-control">
               <select id="cfgCompHubDias">
@@ -2382,16 +3835,80 @@ body.intro-lock {
     const SMARTSLIP_COMP_HUB_DIAS_PADRAO = 60;
     const SMARTSLIP_COMP_HUB_DIAS_STORAGE_PREFIX = "SMARTSLIP_COMP_HUB_DIAS_";
 
-  window.onload = function() {
+    function isSmartSlipMobile() {
+  const larguraJanela = window.innerWidth || document.documentElement.clientWidth || 0;
+  const larguraTela = screen && screen.width ? screen.width : larguraJanela;
+
+  const porLargura = larguraJanela > 0 && larguraJanela <= 1024;
+  const porTela = larguraTela > 0 && larguraTela <= 1024;
+  const porToque = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+
+  const ua = String(navigator.userAgent || "").toLowerCase();
+  const porUserAgent = /android|iphone|ipad|ipod|mobile/i.test(ua);
+
+  return porLargura || porTela || porToque || porUserAgent;
+}
+
+function aplicarModoMobileSmartSlip() {
+  const mobile = isSmartSlipMobile();
+
+  document.documentElement.classList.toggle("smart-mobile", mobile);
+  document.body.classList.toggle("smart-mobile", mobile);
+
+  const navCompHub = document.getElementById("navCompHub");
+  const viewCompHub = document.getElementById("view-comp-hub");
+  const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
+  const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
+
+  if (mobile) {
+    if (navCompHub) {
+      navCompHub.style.display = "none";
+    }
+
+    if (cfgCompHubRangeRow) {
+      cfgCompHubRangeRow.style.display = "none";
+    }
+
+    if (boxFiltroHistLoja) {
+      boxFiltroHistLoja.style.display = "none";
+    }
+
+    if (viewCompHub && viewCompHub.classList.contains("active")) {
+      const btnInicio = document.querySelector('[data-nav="inicio"]');
+      abrirView("inicio", btnInicio);
+    }
+
+    return;
+  }
+
+  if (cfgCompHubRangeRow) {
+    cfgCompHubRangeRow.style.display = "";
+  }
+}
+
+window.onload = function() {
+  aplicarModoMobileSmartSlip();
+
   registrarAbaAtivaSmartSlip();
   controlarIntroSmartSlip();
   iniciarAutoRefreshSmartSlip();
   aplicarLimiteDatasMovimento();
 
+  window.addEventListener("resize", aplicarModoMobileSmartSlip);
+  window.addEventListener("orientationchange", aplicarModoMobileSmartSlip);
+
   const intro = document.getElementById("introSmartSlip");
 
-  // Se a intro NÃO estiver aparecendo, carrega o sistema automaticamente.
-  // Se a intro estiver aparecendo, o carregamento só começa depois do clique no botão.
+  if (isSmartSlipMobile()) {
+    if (intro) {
+      intro.classList.remove("show");
+    }
+
+    document.body.classList.remove("intro-lock");
+    iniciarCargaInicialSmartSlip();
+    return;
+  }
+
   if (!intro || !intro.classList.contains("show")) {
     iniciarCargaInicialSmartSlip();
   }
@@ -2430,19 +3947,11 @@ function controlarIntroSmartSlip() {
 
   if (!intro) return;
 
-  let dataVista = "";
-
-  try {
-    dataVista = localStorage.getItem(SMARTSLIP_INTRO_KEY) || "";
-  } catch (err) {
-    dataVista = "";
+  if (isSmartSlipMobile()) {
+    intro.classList.remove("show");
+    document.body.classList.remove("intro-lock");
+    return;
   }
-
-//  if (dataVista === smartSlipHojeISO()) {
-//    intro.classList.remove("show");
-//    document.body.classList.remove("intro-lock");
-//    return;
-//  }
 
   intro.classList.add("show");
   document.body.classList.add("intro-lock");
@@ -2461,9 +3970,10 @@ function fecharIntroSmartSlip() {
     intro.classList.remove("show");
   }
 
-  document.body.classList.remove("intro-lock");
+document.body.classList.remove("intro-lock");
 
-  iniciarCargaInicialSmartSlip();
+aplicarModoMobileSmartSlip();
+iniciarCargaInicialSmartSlip();
 }
 
 function setSmartLoader(percentual, texto) {
@@ -2498,17 +4008,20 @@ function esconderSmartLoader() {
 }
 
 function iniciarCargaInicialSmartSlip() {
+  aplicarModoMobileSmartSlip();
+
   setSmartLoader(10, "Preparando sessão...");
 
   setTimeout(function() {
     setSmartLoader(30, "Carregando visão geral...");
 
     carregarBootstrapComCallback(function() {
-      setSmartLoader(60, "Carregando Comp Hub no range configurado...");
-
       const usuario = SMARTSLIP_STATE.usuario || {};
+      const carregarCompHubDesktop = usuario.can_comp_hub === true && !isSmartSlipMobile();
 
-      if (usuario.can_comp_hub === true) {
+      if (carregarCompHubDesktop) {
+        setSmartLoader(60, "Carregando Comp Hub no range configurado...");
+
         carregarCompHubComCallback(function() {
           setSmartLoader(90, "Aplicando preferências...");
 
@@ -2517,14 +4030,16 @@ function iniciarCargaInicialSmartSlip() {
             setTimeout(esconderSmartLoader, 350);
           }, 250);
         });
-      } else {
-        setSmartLoader(90, "Aplicando preferências...");
 
-        setTimeout(function() {
-          setSmartLoader(100, "Pronto.");
-          setTimeout(esconderSmartLoader, 350);
-        }, 250);
+        return;
       }
+
+      setSmartLoader(75, "Preparando visão mobile...");
+
+      setTimeout(function() {
+        setSmartLoader(100, "Pronto.");
+        setTimeout(esconderSmartLoader, 350);
+      }, 250);
     });
   }, 200);
 }
@@ -2690,6 +4205,7 @@ function carregarBootstrap(options, callback) {
       COMP_HUB_CARREGADO = compHubCarregadoAnterior;
 
       aplicarUsuario(resp.usuario || {});
+      aplicarModoMobileSmartSlip();
       renderResumo(resp.resumo_mensal || [], resp.resumo_diario || []);
       renderHistorico(resp.historico || []);
       renderResumoStatus(resp.resumo_status || []);
@@ -2808,7 +4324,7 @@ document.addEventListener("visibilitychange", function() {
 
       const primeiroNome = usuario.primeiro_nome || "usuário";
       const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
-      const podeCompHub = usuario.can_comp_hub === true;
+      const podeCompHub = usuario.can_comp_hub === true && !isSmartSlipMobile();
       const lojaPadrao = usuario.loja_padrao || "";
 
       document.getElementById("primeiroNome").textContent = primeiroNome;
@@ -2850,9 +4366,15 @@ document.addEventListener("visibilitychange", function() {
 
         const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
 
-          if (boxFiltroHistLoja) {
-            boxFiltroHistLoja.style.display = usuario.is_admin ? "block" : "none";
-          }
+        if (boxFiltroHistLoja) {
+          boxFiltroHistLoja.style.display = usuario.is_admin && !isSmartSlipMobile() ? "block" : "none";
+        }
+
+        const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
+
+        if (cfgCompHubRangeRow) {
+          cfgCompHubRangeRow.style.display = !isSmartSlipMobile() ? "" : "none";
+        }
     }
 
     function popularSelectLojasConfiguracao(lojas, lojaSelecionada) {
@@ -2987,7 +4509,20 @@ function salvarConfiguracoesUsuario() {
     .smartSlipSalvarPreferenciasUsuarioJson(loja);
 }
 
+    function abrirComprovantesMobile() {
+      const btn = document.querySelector('[data-nav="comprovantes"]');
+      abrirView("comprovantes", btn);
+    }
+
     function abrirView(nome, btn) {
+      aplicarModoMobileSmartSlip();
+
+      if (nome === "comp-hub" && isSmartSlipMobile()) {
+        const btnInicio = document.querySelector('[data-nav="inicio"]');
+        abrirView("inicio", btnInicio);
+        return;
+      }
+
       if (nome === "comp-hub") {
       const usuario = SMARTSLIP_STATE.usuario || {};
 
@@ -3381,6 +4916,19 @@ function desenharGraficoLinhas(serie) {
 
   if (!box) return;
 
+  if (isSmartSlipMobile()) {
+    desenharGraficoMobileSmartSlip(box, serie, {
+      campo: "valor_total",
+      tipo: "valor",
+      tituloTotal: "Valor total",
+      tituloMaior: "Maior valor",
+      cor: "#B5FF20",
+      corTexto: "#314238",
+      mensagemVazio: "Não há valor processado para a visão selecionada."
+    });
+    return;
+  }
+
   const width = 960;
   const height = 260;
   const padLeft = 48;
@@ -3457,6 +5005,19 @@ function desenharGraficoQuantidade(serie) {
 
   if (!box) return;
 
+  if (isSmartSlipMobile()) {
+    desenharGraficoMobileSmartSlip(box, serie, {
+      campo: "quantidade",
+      tipo: "quantidade",
+      tituloTotal: "Total de envios",
+      tituloMaior: "Maior quantidade",
+      cor: "#005E27",
+      corTexto: "#005E27",
+      mensagemVazio: "Não há envios para a visão selecionada."
+    });
+    return;
+  }
+
   const width = 960;
   const height = 240;
   const padLeft = 48;
@@ -3526,6 +5087,118 @@ function desenharGraficoQuantidade(serie) {
   }
 
   box.innerHTML = svg;
+}
+
+function desenharGraficoMobileSmartSlip(box, serie, cfg) {
+  serie = Array.isArray(serie) ? serie : [];
+  cfg = cfg || {};
+
+  const campo = cfg.campo || "valor_total";
+  const tipo = cfg.tipo || "valor";
+  const cor = cfg.cor || "#005E27";
+  const corTexto = cfg.corTexto || "#005E27";
+
+  const total = serie.reduce(function(acc, item) {
+    return acc + Number(item[campo] || 0);
+  }, 0);
+
+  const maxValor = Math.max.apply(null, serie.map(function(item) {
+    return Number(item[campo] || 0);
+  })) || 1;
+
+  const temDados = serie.some(function(item) {
+    return Number(item[campo] || 0) > 0;
+  });
+
+  if (!temDados) {
+    box.innerHTML =
+      "<div class='mobile-smart-chart'>" +
+        "<div class='mobile-smart-chart-empty'>" +
+          escapeHtml(cfg.mensagemVazio || "Não há dados para exibir.") +
+        "</div>" +
+      "</div>";
+    return;
+  }
+
+  let maiorItem = null;
+
+  serie.forEach(function(item) {
+    const valor = Number(item[campo] || 0);
+
+    if (!maiorItem || valor > Number(maiorItem[campo] || 0)) {
+      maiorItem = item;
+    }
+  });
+
+  let serieExibicao = serie;
+
+  // Em visão diária, evita 30/31 linhas no celular.
+  // Mostra somente dias/itens com movimento.
+  if (serie.length > 14) {
+    serieExibicao = serie.filter(function(item) {
+      return Number(item[campo] || 0) > 0;
+    });
+  }
+
+  let html = "";
+
+  html += "<div class='mobile-smart-chart'>";
+
+  html +=
+    "<div class='mobile-smart-chart-summary'>" +
+      "<div class='mobile-smart-chart-kpi'>" +
+        "<span>" + escapeHtml(cfg.tituloTotal || "Total") + "</span>" +
+        "<strong>" + formatarValorGraficoMobileSmartSlip(total, tipo) + "</strong>" +
+      "</div>";
+
+  if (maiorItem) {
+    html +=
+      "<div class='mobile-smart-chart-kpi'>" +
+        "<span>" + escapeHtml(cfg.tituloMaior || "Maior valor") + "</span>" +
+        "<strong>" +
+          escapeHtml(maiorItem.label || "") +
+          " · " +
+          formatarValorGraficoMobileSmartSlip(Number(maiorItem[campo] || 0), tipo) +
+        "</strong>" +
+      "</div>";
+  }
+
+  html += "</div>";
+
+  html += "<div class='mobile-smart-chart-list'>";
+
+  serieExibicao.forEach(function(item) {
+    const valor = Number(item[campo] || 0);
+    const pct = Math.max(0, Math.min(100, (valor / maxValor) * 100));
+
+    html +=
+      "<div class='mobile-smart-chart-row'>" +
+        "<div class='mobile-smart-chart-row-head'>" +
+          "<span class='mobile-smart-chart-label'>" + escapeHtml(item.label || "") + "</span>" +
+          "<span class='mobile-smart-chart-value' style='color:" + corTexto + "'>" +
+            formatarValorGraficoMobileSmartSlip(valor, tipo) +
+          "</span>" +
+        "</div>" +
+        "<div class='mobile-smart-chart-track'>" +
+          "<div class='mobile-smart-chart-fill' style='width:" + pct + "%; background:" + cor + ";'></div>" +
+        "</div>" +
+      "</div>";
+  });
+
+  html += "</div>";
+  html += "</div>";
+
+  box.innerHTML = html;
+}
+
+function formatarValorGraficoMobileSmartSlip(valor, tipo) {
+  valor = Number(valor || 0);
+
+  if (tipo === "quantidade") {
+    return String(valor);
+  }
+
+  return formatBRL(valor);
 }
 
 function renderResumoStatus(dados) {
@@ -3738,6 +5411,11 @@ function desenharTabelaHistorico(dados) {
 
   if (!box) return;
 
+  if (isSmartSlipMobile()) {
+    desenharHistoricoMobile(dados);
+    return;
+  }
+
   if (!dados || !dados.length) {
     box.innerHTML = "<p class='page-sub'>Nenhum envio encontrado para os filtros selecionados.</p>";
     return;
@@ -3765,7 +5443,7 @@ function desenharTabelaHistorico(dados) {
     html += "<td>" + escapeHtml(r.protocolo || "") + "</td>";
     html += "<td>" + escapeHtml(r.loja || "") + "</td>";
     html += "<td>" + escapeHtml(r.data_movimento || "") + "</td>";
-    html += "<td><span class='status-pill " + getStatusClass(r.status_fila) + "'>" + escapeHtml(r.status_fila || "") + "</span></td>";
+    html += "<td>" + montarBotaoStatusHistorico(r) + "</td>";
     html += "<td><a target='_blank' href='" + escapeAttr(link) + "'>Abrir</a></td>";
     html += "</tr>";
   });
@@ -3774,6 +5452,142 @@ function desenharTabelaHistorico(dados) {
 
   box.innerHTML = html;
 }
+
+function desenharHistoricoMobile(dados) {
+  const box = document.getElementById("historicoTabela");
+
+  if (!box) return;
+
+  if (!dados || !dados.length) {
+    box.innerHTML = "<p class='page-sub'>Nenhum envio encontrado para os filtros selecionados.</p>";
+    return;
+  }
+
+  let html = "<div class='mobile-history-list'>";
+
+  dados.forEach(function(r) {
+    const link = r.link_comprovante || "#";
+
+    html +=
+      "<div class='mobile-history-card'>" +
+        "<div class='mobile-history-top'>" +
+          "<div>" +
+            "<div class='mobile-history-date'>" + escapeHtml(r.data_registro || "") + "</div>" +
+            "<div class='mobile-history-protocol'>" + escapeHtml(r.protocolo || "") + "</div>" +
+          "</div>" +
+          montarBotaoStatusHistorico(r) +
+        "</div>" +
+
+        "<div class='mobile-history-grid'>" +
+          "<div><b>Loja</b><span>" + escapeHtml(r.loja || "") + "</span></div>" +
+          "<div><b>Movimento</b><span>" + escapeHtml(r.data_movimento || "") + "</span></div>" +
+        "</div>" +
+
+        "<a class='mobile-history-link' target='_blank' href='" + escapeAttr(link) + "'>Abrir comprovante</a>" +
+      "</div>";
+  });
+
+  html += "</div>";
+
+  box.innerHTML = html;
+}
+
+function montarBotaoStatusHistorico(r) {
+  r = r || {};
+
+  const status = String(r.status_fila || "SEM_STATUS").trim() || "SEM_STATUS";
+  const protocolo = String(r.protocolo || "").trim();
+  const temMensagem = String(r.mensagem || "").trim() !== "";
+
+  const protocoloSeguro = encodeURIComponent(protocolo);
+
+  return (
+    "<button type='button' " +
+      "class='status-pill status-pill-click " + getStatusClass(status) + "' " +
+      "onclick=\"abrirStatusHistoricoModal(decodeURIComponent('" + escapeAttr(protocoloSeguro) + "'))\" " +
+      "title='" + escapeAttr(temMensagem ? "Ver detalhes do processamento" : "Status sem mensagem operacional registrada") + "'>" +
+        "<span>" + escapeHtml(status) + "</span>" +
+        "<small>Detalhes</small>" +
+    "</button>"
+  );
+}
+
+function buscarHistoricoPorProtocolo(protocolo) {
+  protocolo = String(protocolo || "").trim();
+
+  const dados = SMARTSLIP_STATE.historico || [];
+
+  for (let i = 0; i < dados.length; i++) {
+    const item = dados[i] || {};
+
+    if (String(item.protocolo || "").trim() === protocolo) {
+      return item;
+    }
+  }
+
+  return null;
+}
+
+function abrirStatusHistoricoModal(protocolo) {
+  const registro = buscarHistoricoPorProtocolo(protocolo);
+
+  if (!registro) {
+    alert("Não foi possível localizar os detalhes desse status no histórico carregado.");
+    return;
+  }
+
+  const modal = document.getElementById("histStatusModal");
+
+  if (!modal) return;
+
+  const status = String(registro.status_fila || "SEM_STATUS").trim() || "SEM_STATUS";
+  const mensagem = String(registro.mensagem || "").trim();
+
+  const badge = document.getElementById("histStatusBadge");
+
+  if (badge) {
+    badge.className = "hist-status-badge " + getStatusClass(status);
+    badge.textContent = status;
+  }
+
+  setTextoHistStatus_("histStatusSub", "Detalhes retornados pela rotina de processamento do SMARTSLIP.");
+  setTextoHistStatus_("histStatusProtocolo", registro.protocolo || "-");
+  setTextoHistStatus_("histStatusLoja", registro.loja || "-");
+  setTextoHistStatus_("histStatusMovimento", registro.data_movimento || "-");
+  setTextoHistStatus_("histStatusData", registro.data_registro || "-");
+
+  setTextoHistStatus_(
+    "histStatusMensagem",
+    mensagem || "Não há mensagem operacional registrada para este envio."
+  );
+
+  modal.classList.add("show");
+  document.body.classList.add("hist-status-lock");
+}
+
+function setTextoHistStatus_(id, texto) {
+  const el = document.getElementById(id);
+
+  if (el) {
+    el.textContent = texto || "";
+  }
+}
+
+function fecharStatusHistoricoModal() {
+  const modal = document.getElementById("histStatusModal");
+
+  if (modal) {
+    modal.classList.remove("show");
+  }
+
+  document.body.classList.remove("hist-status-lock");
+}
+
+document.addEventListener("keydown", function(event) {
+  if (event && event.key === "Escape") {
+    fecharStatusHistoricoModal();
+  }
+});
 
 function converterDataHoraBRParaInput(valor) {
   const txt = String(valor || "").trim();
@@ -3793,6 +5607,14 @@ function converterDataHoraBRParaInput(valor) {
 
 function carregarCompHub(forcar, callback) {
   const usuario = SMARTSLIP_STATE.usuario || {};
+
+    if (isSmartSlipMobile()) {
+    if (typeof callback === "function") {
+      callback(true);
+    }
+
+    return;
+  }
 
   function finalizarCallback(ok) {
     if (typeof callback === "function") {
@@ -4721,7 +6543,10 @@ if (!dados.length) {
     }
 
     function escapeAttr(valor) {
-      return String(valor || "")
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
         .replace(/"/g, "%22")
         .replace(/'/g, "%27");
     }
