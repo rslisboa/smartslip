@@ -806,6 +806,9 @@ Regras obrigatórias:
 - Se houve_retirada estiver null, perguntas_complementares deve conter: "Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?"
 - Se houver múltiplos comprovantes na mesma imagem/PDF, tente identificar e processar todos os comprovantes legíveis.
 - Retorne um array chamado "comprovantes", com um item para cada comprovante identificado.
+- Não crie comprovantes adicionais por inferência.
+- Não crie sequência de código de autenticação por continuação, controle, terminal, envelope ou qualquer outro identificador.
+- Não deduza valores ausentes com base em padrão visual, repetição ou sequência.
 - Cada item do array deve conter: tipo_documento, data_deposito, valor_deposito, banco, data_geracao_documento, codigo_autenticacao e observacoes.
 - Se algum comprovante estiver cortado, ilegível ou parcialmente visível, inclua esse item com status = "INELEGIVEL" e explique em observacoes.
 - Não misture valores de comprovantes diferentes.
@@ -1778,10 +1781,13 @@ function smartSlipTesteFilaPeriodo() {
 }
 
 function doGet(e) {
+  const faviconUrl = "https://raw.githubusercontent.com/rslisboa/smartslip/051387a22e6d310c60e8855e95f9cf3ed8ded2e6/alfabeto.png";
+
   return HtmlService
     .createHtmlOutputFromFile("SmartSlipApp")
     .setTitle("SmartSlip - Envio de Comprovantes")
-    .setFaviconUrl("https://raw.githubusercontent.com/rslisboa/smartslip/051387a22e6d310c60e8855e95f9cf3ed8ded2e6/alfabeto.png")
+    .setFaviconUrl(faviconUrl)
+    .addMetaTag("viewport", "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover")
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -3195,4 +3201,257 @@ function smartSlipObterEmpresaPermitidaPorEmail(email) {
   }
 
   return "";
+}
+
+/****************************************************
+ * SMARTSLIP MOBILE - PATCH BACKEND PARA APPS SCRIPT
+ *
+ * Cole este bloco no Code.gs, abaixo das funções SmartSlip
+ * que você já tem no projeto.
+ *
+ * Depende destas funções já existentes no seu backend:
+ * - smartSlipChamarGemini(base64Arquivo, mimeType, respostasUsuario)
+ * - smartSlipConsultarInfoLoja_(lojaInformada)
+ * - smartSlipSalvarDadosComprovantePlanilha_(dados)
+ * - smartSlipNormalizarLoja4(loja)
+ * - smartSlipSafeErr_(err)
+ ****************************************************/
+
+function smartSlipMobileProcessarArquivo(payload) {
+  try {
+    payload = payload || {};
+
+    var base64 = String(payload.base64 || "").trim();
+    base64 = base64.replace(/^data:[^;]+;base64,/, "");
+
+    if (!base64) {
+      throw new Error("Arquivo não recebido em base64.");
+    }
+
+    var mimeType = String(payload.mimeType || "application/pdf").trim();
+    var respostasUsuario = payload.respostasUsuario || {};
+
+    respostasUsuario = smartSlipMobileNormalizarRespostasUsuario_(respostasUsuario);
+
+    var resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+    resultado = resultado || {};
+    resultado.nome_arquivo = String(payload.filename || "");
+
+    smartSlipMobileAplicarRespostasUsuario_(resultado, respostasUsuario);
+    smartSlipMobileConsultarEmpresaPorLoja_(resultado);
+    smartSlipMobileNormalizarResultado_(resultado);
+
+    return {
+      ok: true,
+      resultado: resultado,
+      arquivo: {
+        nome: String(payload.filename || ""),
+        mimeType: mimeType
+      }
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      erro: smartSlipSafeErr_(err)
+    };
+  }
+}
+
+function smartSlipMobileSalvarResultado(payload) {
+  try {
+    payload = payload || {};
+    var resultado = payload.resultado || {};
+
+    smartSlipMobileConsultarEmpresaPorLoja_(resultado);
+    smartSlipMobileNormalizarResultado_(resultado);
+
+    if (resultado.status !== "PRONTO_PARA_SALVAR") {
+      return {
+        ok: false,
+        erro: "Resultado ainda não está pronto para salvar. Pendências: " + (resultado.pendencias || []).join(" | "),
+        resultado: resultado
+      };
+    }
+
+    var dados = resultado.dados_comprovante || {};
+
+    var payloadSalvar = {
+      loja: dados.loja || "",
+      empresa: dados.empresa || "",
+      tipo_documento: resultado.tipo_documento || "",
+      data_deposito: dados.data_deposito || "",
+      valor_deposito: Number(dados.valor_deposito || 0),
+      banco: dados.banco || "",
+      data_movimento: dados.data_movimento || "",
+      houve_retirada: dados.houve_retirada === true,
+      valor_retirada: Number(dados.valor_retirada || 0),
+      motivo_retirada: dados.houve_retirada === true
+        ? (dados.motivo_retirada || "")
+        : "Não houve retirada",
+      data_geracao_documento: dados.data_geracao_documento || "",
+      codigo_autenticacao: dados.codigo_autenticacao || "",
+      link_comprovante: dados.link_comprovante || payload.link_comprovante || "",
+      status_processamento: "PRONTO_PARA_SALVAR",
+      pendencias: [],
+      divergencias: resultado.divergencias || [],
+      confianca_geral: Number(resultado.confianca_geral || 0),
+      nome_arquivo: resultado.nome_arquivo || ""
+    };
+
+    var retorno = smartSlipSalvarDadosComprovantePlanilha_(payloadSalvar);
+
+    return {
+      ok: true,
+      retorno: retorno,
+      payload_salvo: payloadSalvar
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      erro: smartSlipSafeErr_(err)
+    };
+  }
+}
+
+function smartSlipMobileNormalizarRespostasUsuario_(r) {
+  r = r || {};
+
+  if (r.loja) {
+    r.loja = smartSlipNormalizarLoja4(r.loja);
+  }
+
+  if (r.houve_retirada === "sim") r.houve_retirada = true;
+  if (r.houve_retirada === "nao") r.houve_retirada = false;
+  if (r.houve_retirada === "") r.houve_retirada = null;
+
+  if (r.valor_retirada !== undefined && r.valor_retirada !== null && r.valor_retirada !== "") {
+    r.valor_retirada = Number(r.valor_retirada || 0);
+  }
+
+  return r;
+}
+
+function smartSlipMobileAplicarRespostasUsuario_(resultado, respostasUsuario) {
+  resultado.dados_comprovante = resultado.dados_comprovante || {};
+  var dados = resultado.dados_comprovante;
+
+  if (respostasUsuario.loja) {
+    dados.loja = respostasUsuario.loja;
+  }
+
+  if (!dados.banco && respostasUsuario.banco) {
+    dados.banco = respostasUsuario.banco;
+  }
+
+  if (respostasUsuario.data_movimento) {
+    dados.data_movimento = respostasUsuario.data_movimento;
+  }
+
+  if (typeof respostasUsuario.houve_retirada === "boolean") {
+    dados.houve_retirada = respostasUsuario.houve_retirada;
+  }
+
+  if (dados.houve_retirada === false) {
+    dados.valor_retirada = 0;
+    dados.motivo_retirada = "Não houve retirada";
+  }
+
+  if (dados.houve_retirada === true) {
+    if (respostasUsuario.valor_retirada !== undefined) {
+      dados.valor_retirada = Number(respostasUsuario.valor_retirada || 0);
+    }
+    if (respostasUsuario.motivo_retirada) {
+      dados.motivo_retirada = respostasUsuario.motivo_retirada;
+    }
+  }
+
+  if (dados.codigo_autenticacao === null || dados.codigo_autenticacao === undefined) {
+    dados.codigo_autenticacao = "";
+  }
+
+  if (dados.link_comprovante === null || dados.link_comprovante === undefined) {
+    dados.link_comprovante = "";
+  }
+}
+
+function smartSlipMobileConsultarEmpresaPorLoja_(resultado) {
+  resultado = resultado || {};
+  resultado.dados_comprovante = resultado.dados_comprovante || {};
+  resultado.pendencias = Array.isArray(resultado.pendencias) ? resultado.pendencias : [];
+  resultado.perguntas_complementares = Array.isArray(resultado.perguntas_complementares) ? resultado.perguntas_complementares : [];
+
+  var dados = resultado.dados_comprovante;
+
+  if (!dados.loja) return;
+
+  var loja4 = smartSlipNormalizarLoja4(dados.loja);
+  dados.loja = loja4;
+
+  var info = smartSlipConsultarInfoLoja_(loja4);
+
+  if (info && info.ok) {
+    dados.loja = info.loja_normalizada || loja4;
+    dados.empresa = info.empresa || "Nao identificado";
+  } else {
+    dados.empresa = "Nao identificado";
+    smartSlipMobileAddUnico_(resultado.pendencias, "Loja não encontrada na Info_limites.");
+    smartSlipMobileAddUnico_(resultado.perguntas_complementares, "Confirme o número correto da loja.");
+  }
+}
+
+function smartSlipMobileNormalizarResultado_(resultado) {
+  resultado = resultado || {};
+  resultado.dados_comprovante = resultado.dados_comprovante || {};
+  resultado.pendencias = [];
+  resultado.perguntas_complementares = [];
+  resultado.divergencias = Array.isArray(resultado.divergencias) ? resultado.divergencias : [];
+
+  var dados = resultado.dados_comprovante;
+
+  if (!dados.codigo_autenticacao) dados.codigo_autenticacao = "";
+  if (!dados.link_comprovante) dados.link_comprovante = "";
+
+  smartSlipMobilePerguntaSe_(resultado, !dados.loja, "Loja não informada.", "Qual o número da loja?");
+  smartSlipMobilePerguntaSe_(resultado, !dados.empresa || dados.empresa === "Nao identificado", "Empresa não identificada pela Info_limites.", "Confirme o número da loja para consultar a empresa correta.");
+  smartSlipMobilePerguntaSe_(resultado, !resultado.tipo_documento || resultado.tipo_documento === "nao_identificado", "Tipo de documento não identificado.", "Qual é o tipo do comprovante?");
+  smartSlipMobilePerguntaSe_(resultado, !dados.data_deposito, "Data do depósito não identificada.", "Qual a data do depósito?");
+  smartSlipMobilePerguntaSe_(resultado, dados.valor_deposito === null || dados.valor_deposito === undefined || dados.valor_deposito === "", "Valor do depósito não identificado.", "Qual o valor do depósito?");
+  smartSlipMobilePerguntaSe_(resultado, !dados.banco, "Banco não identificado.", "Qual o banco do comprovante?");
+  smartSlipMobilePerguntaSe_(resultado, !dados.data_movimento, "Data de movimento não informada.", "Qual a data do movimento desse depósito?");
+  smartSlipMobilePerguntaSe_(resultado, dados.houve_retirada === null || dados.houve_retirada === undefined, "Informação sobre retirada não informada.", "Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?");
+  smartSlipMobilePerguntaSe_(resultado, !dados.data_geracao_documento, "Data de geração do documento não identificada.", "Qual a data de geração do documento?");
+
+  if (dados.houve_retirada === true) {
+    smartSlipMobilePerguntaSe_(resultado, !dados.valor_retirada, "Valor da retirada não informado.", "Qual o valor da retirada?");
+    smartSlipMobilePerguntaSe_(resultado, !dados.motivo_retirada, "Motivo da retirada não informado.", "Qual o motivo da retirada?");
+  }
+
+  if (dados.houve_retirada === false) {
+    dados.valor_retirada = 0;
+    dados.motivo_retirada = "Não houve retirada";
+  }
+
+  if (resultado.pendencias.length || resultado.perguntas_complementares.length) {
+    resultado.status = "PRECISA_COMPLEMENTO";
+  } else if (resultado.divergencias.length) {
+    resultado.status = "DIVERGENCIA";
+  } else if (resultado.status !== "INELEGIVEL") {
+    resultado.status = "PRONTO_PARA_SALVAR";
+  }
+
+  return resultado;
+}
+
+function smartSlipMobilePerguntaSe_(resultado, condicao, pendencia, pergunta) {
+  if (!condicao) return;
+  smartSlipMobileAddUnico_(resultado.pendencias, pendencia);
+  smartSlipMobileAddUnico_(resultado.perguntas_complementares, pergunta);
+}
+
+function smartSlipMobileAddUnico_(arr, value) {
+  value = String(value || "").trim();
+  if (!value) return;
+  if (arr.indexOf(value) === -1) arr.push(value);
 }
