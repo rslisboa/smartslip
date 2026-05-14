@@ -666,8 +666,8 @@ body.intro-lock {
 
 .comp-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 8px;
   margin-bottom: 14px;
 }
 
@@ -1640,18 +1640,25 @@ body.intro-lock {
 
   #view-comp-hub .kpi-grid.comp-kpi-grid {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 10px !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 8px !important;
   margin-bottom: 14px !important;
 }
 
 #view-comp-hub .comp-kpi-grid .kpi-card {
   background: #050807 !important;
   border: 1px solid rgba(181, 255, 32, .28) !important;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, .18) !important;
-  min-height: 62px !important;
-  padding: 10px 14px !important;
-  border-radius: 16px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .16) !important;
+  min-height: 56px !important;
+  padding: 9px 12px !important;
+  border-radius: 15px !important;
+}
+
+#view-comp-hub .comp-kpi-grid .comp-kpi-last strong {
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
 }
 
 #view-comp-hub .comp-kpi-grid .kpi-card span {
@@ -2907,6 +2914,43 @@ body.hist-status-lock {
   white-space: pre-wrap;
 }
 
+.hist-status-action-box {
+  margin-top: 14px;
+  padding: 17px;
+  border-radius: 20px;
+  background: #B5FF20;
+  border: 1px solid rgba(181, 255, 32, .85);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, .20);
+}
+
+.hist-status-action-box b {
+  display: block;
+  color: #050807;
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+  margin-bottom: 10px;
+}
+
+.hist-status-action-box p {
+  margin: 0;
+  color: #050807;
+  font-size: 14px;
+  line-height: 1.58;
+  font-weight: 750;
+  white-space: pre-wrap;
+}
+
+body.smart-mobile .hist-status-action-box {
+  padding: 15px !important;
+  border-radius: 18px !important;
+}
+
+body.smart-mobile .hist-status-action-box p {
+  font-size: 14px !important;
+}
+
 /* Ajuste mobile somente quando o JS marcar body.smart-mobile */
 body.smart-mobile .status-pill-click {
   width: auto !important;
@@ -3409,6 +3453,7 @@ body:not(.smart-mobile) .hist-status-modal-card {
                     <div>Evite comprovantes sobrepostos, cortados ou muito distantes da câmera.</div>
                     <div>Não dobre o papel sobre campos de valor, data, controle ou autenticação.</div>
                     <div>Se a imagem estiver ruim, o envio pode ficar pendente para evitar leitura incorreta.</div>
+                    <div>Para fotos com vários comprovantes, envie a imagem com os comprovantes alinhados, sem rotação. Se houver mais de 6 comprovantes pequenos na mesma foto, prefira dividir em duas fotos.</div>
                   </div>
                 </div>
               </div>
@@ -3462,12 +3507,6 @@ body:not(.smart-mobile) .hist-status-modal-card {
               </div>
             </div>
           </div>
-
-          <label>Há mais algum comprovante para envio?</label>
-          <select id="mais_comprovantes">
-            <option value="false">Não</option>
-            <option value="true">Sim</option>
-          </select>
 
           <div class="actions">
             <button id="btnLimpar" class="btn-secondary" type="button" onclick="limparFormulario(false)">Limpar</button>
@@ -3554,6 +3593,10 @@ body:not(.smart-mobile) .hist-status-modal-card {
                   <b>Mensagem operacional</b>
                   <p id="histStatusMensagem"></p>
                 </div>
+                <div class="hist-status-action-box">
+                <b>Ação recomendada</b>
+                <p id="histStatusAcao"></p>
+              </div>
               </div>
             </div>
           </div>
@@ -3587,6 +3630,11 @@ body:not(.smart-mobile) .hist-status-modal-card {
     <div class="kpi-card">
       <span>Divergências</span>
       <strong id="compKpiDiv">0</strong>
+    </div>
+
+    <div class="kpi-card comp-kpi-last">
+      <span>Última info lançada</span>
+      <strong id="compKpiUltimaInfo">-</strong>
     </div>
   </div>
 
@@ -3657,7 +3705,7 @@ body:not(.smart-mobile) .hist-status-modal-card {
   <div class="comp-columns-head">
     <div>
       <h2>Colunas visíveis</h2>
-      <p class="chart-sub">Escolha quais campos da BASE_SMARTSLIP devem aparecer na tabela.</p>
+      <p class="chart-sub">Escolha quais campos devem aparecer na tabela.</p>
     </div>
 
     <div class="comp-columns-actions">
@@ -3817,7 +3865,8 @@ body:not(.smart-mobile) .hist-status-modal-card {
   { key: "dataGeracaoDocumento", label: "Data Geração", visible: false },
   { key: "codigoAutenticacao", label: "Cód. Autenticação", visible: false },
   { key: "linkComprovante", label: "Link", visible: true },
-  { key: "statusProcessamento", label: "Status", visible: true },
+  { key: "statusProcessamento", label: "Status Fila", visible: true },
+  { key: "statusBaseProcessamento", label: "Status Base", visible: false },
   { key: "pendencias", label: "Pendências", visible: true },
   { key: "divergencias", label: "Divergências", visible: true },
   { key: "confiancaGeral", label: "Confiança", visible: true },
@@ -5561,8 +5610,86 @@ function abrirStatusHistoricoModal(protocolo) {
     mensagem || "Não há mensagem operacional registrada para este envio."
   );
 
+  setTextoHistStatus_(
+  "histStatusAcao",
+  montarAcaoStatusHistorico_(registro)
+);
+
   modal.classList.add("show");
   document.body.classList.add("hist-status-lock");
+}
+
+function montarAcaoStatusHistorico_(registro) {
+  registro = registro || {};
+
+  const status = String(registro.status_fila || "").trim().toUpperCase();
+  const msg = String(registro.mensagem || "").trim().toLowerCase();
+
+  if (status === "SALVO") {
+    return "Nenhuma ação necessária. O comprovante foi processado e salvo com sucesso.";
+  }
+
+  if (status === "RECEBIDO") {
+    return "Aguarde o processamento automático. O comprovante já entrou na fila e ainda será lido pela IA.";
+  }
+
+  if (status === "PROCESSANDO") {
+    return "Aguarde alguns minutos e atualize o Histórico. O comprovante está em processamento.";
+  }
+
+  if (status === "SALVO_PARCIAL") {
+    return (
+      "Revise a mensagem operacional acima. Parte dos comprovantes foi salva e parte ficou pendente.\n\n" +
+      "Ação recomendada: abra o arquivo enviado, identifique quais comprovantes não foram processados e envie um novo arquivo apenas com os itens pendentes, em imagem mais legível e separada."
+    );
+  }
+
+  if (status === "PENDENTE_INTERNO") {
+    if (
+      msg.includes("anti-alucinação") ||
+      msg.includes("mesma evidência") ||
+      msg.includes("duplicidade") ||
+      msg.includes("evidência documental")
+    ) {
+      return (
+        "O sistema bloqueou o lote para evitar gravação incorreta.\n\n" +
+        "Ação recomendada: tire uma nova foto com os comprovantes mais separados, alinhados, sem sobreposição e com valores/códigos legíveis. Se houver muitos comprovantes pequenos, divida em mais de um envio."
+      );
+    }
+
+    if (
+      msg.includes("loja não encontrada") ||
+      msg.includes("loja nao encontrada")
+    ) {
+      return (
+        "A loja informada não foi localizada na base de referência.\n\n" +
+        "Ação recomendada: revise a loja padrão em Configurações. Se a loja estiver correta, acione o responsável pela base de lojas/Info_limites."
+      );
+    }
+
+    return (
+      "O envio ficou pendente por validação interna.\n\n" +
+      "Ação recomendada: revise a mensagem operacional acima. Se o problema for imagem, valor, data ou comprovante ilegível, faça um novo envio com arquivo mais claro."
+    );
+  }
+
+  if (status === "ERRO_PROCESSAMENTO") {
+    return (
+      "Ocorreu erro técnico durante o processamento.\n\n" +
+      "Ação recomendada: tente reenviar o comprovante. Se o erro se repetir, acione o administrador do SmartSlip com o protocolo deste envio."
+    );
+  }
+
+  if (status === "INELEGIVEL") {
+    return (
+      "O arquivo não apresentou leitura suficiente para processamento seguro.\n\n" +
+      "Ação recomendada: envie uma nova foto/PDF com melhor qualidade, sem cortes, sombras ou comprovantes sobrepostos."
+    );
+  }
+
+  return (
+    "Revise a mensagem operacional acima. Se o status não estiver claro, acione o responsável pelo SmartSlip informando o protocolo do envio."
+  );
 }
 
 function setTextoHistStatus_(id, texto) {
@@ -6278,22 +6405,84 @@ function atualizarKpisCompHub() {
   const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
 
   const total = dados.length;
+
   const valor = dados.reduce(function(acc, item) {
     return acc + Number(item.valorDeposito || 0);
   }, 0);
 
   const pend = dados.filter(function(item) {
-    return String(item.pendencias || "").trim() !== "";
+    return String(item.pendencias || "").trim() !== "" ||
+      String(item.statusProcessamento || "").toUpperCase().includes("PEND");
   }).length;
 
   const div = dados.filter(function(item) {
     return String(item.divergencias || "").trim() !== "";
   }).length;
 
+  const ultimaInfo = obterUltimaInfoLancadaCompHub_(dados);
+
   document.getElementById("compKpiTotal").textContent = total;
   document.getElementById("compKpiValor").textContent = formatBRL(valor);
   document.getElementById("compKpiPend").textContent = pend;
   document.getElementById("compKpiDiv").textContent = div;
+
+  const elUltima = document.getElementById("compKpiUltimaInfo");
+
+  if (elUltima) {
+    elUltima.textContent = ultimaInfo || "-";
+  }
+}
+
+function obterUltimaInfoLancadaCompHub_(dados) {
+  dados = Array.isArray(dados) ? dados : [];
+
+  let ultima = null;
+  let ultimaData = null;
+
+  dados.forEach(function(item) {
+    const status = String(item.statusProcessamento || item.statusFila || "").trim().toUpperCase();
+
+    // Regra solicitada: considerar apenas status operacional SALVO.
+    if (status !== "SALVO") {
+      return;
+    }
+
+    const dt = parseDataHoraBRCompHub_(item.dataRegistro);
+
+    if (!dt) {
+      return;
+    }
+
+    if (!ultimaData || dt > ultimaData) {
+      ultimaData = dt;
+      ultima = item;
+    }
+  });
+
+  if (!ultima) {
+    return "-";
+  }
+
+  return (ultima.dataRegistro || "-") + " | Loja " + (ultima.loja || "-");
+}
+
+function parseDataHoraBRCompHub_(valor) {
+  const txt = String(valor || "").trim();
+
+  const m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
+
+  if (!m) {
+    return null;
+  }
+
+  return new Date(
+    Number(m[3]),
+    Number(m[2]) - 1,
+    Number(m[1]),
+    Number(m[4] || 0),
+    Number(m[5] || 0),
+    Number(m[6] || 0)
+  );
 }
 
 function alterarCompHubPorPagina() {
@@ -6870,6 +7059,23 @@ function validarRegrasEnvioSmartSlip() {
         return;
       }
 
+      const houveRetiradaTela = document.getElementById("houve_retirada").value === "true";
+      const valorRetiradaTextoTela = String(document.getElementById("valor_retirada").value || "").trim();
+      const valorRetiradaTela = smartSlipNumeroBR(valorRetiradaTextoTela);
+      const motivoRetiradaTela = String(document.getElementById("motivo_retirada").value || "").trim();
+
+      if (houveRetiradaTela) {
+        if (!valorRetiradaTextoTela || valorRetiradaTela <= 0) {
+          mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+          return;
+        }
+
+        if (!motivoRetiradaTela) {
+          mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+          return;
+        }
+      }
+
       travarTelaEnvio("Lendo arquivo...");
       btn.textContent = "Lendo arquivo...";
 
@@ -6904,11 +7110,28 @@ function validarRegrasEnvioSmartSlip() {
         btn.textContent = "Enviando...";
         travarTelaEnvio("Enviando comprovante...");   
 
-        const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
-        const valorRetiradaEnvio = smartSlipNumeroBR(document.getElementById("valor_retirada").value || 0);
-        const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
+      const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
+      const valorRetiradaTextoEnvio = String(document.getElementById("valor_retirada").value || "").trim();
+      const valorRetiradaEnvio = smartSlipNumeroBR(valorRetiradaTextoEnvio);
+      const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
 
-        const houveRetirada = houveRetiradaSelecionado || valorRetiradaEnvio > 0;
+      const houveRetirada = houveRetiradaSelecionado;
+
+      if (houveRetirada) {
+        if (!valorRetiradaTextoEnvio || valorRetiradaEnvio <= 0) {
+          clearTimeout(timeoutEnvio);
+          finalizarBotao();
+          mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+          return;
+        }
+
+        if (!motivoRetiradaEnvio) {
+          clearTimeout(timeoutEnvio);
+          finalizarBotao();
+          mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+          return;
+        }
+      }
 
         const payload = {
           arquivoBase64: e.target.result,
@@ -6920,7 +7143,7 @@ function validarRegrasEnvioSmartSlip() {
           houve_retirada: String(houveRetirada),
           valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
           motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
-          mais_comprovantes: document.getElementById("mais_comprovantes").value
+          mais_comprovantes: "false"
         };
 
         google.script.run
