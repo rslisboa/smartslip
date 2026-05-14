@@ -804,18 +804,40 @@ Regras obrigatórias:
 - Se loja estiver ausente, perguntas_complementares deve conter: "Qual o número da loja?"
 - Se data_movimento estiver ausente, perguntas_complementares deve conter: "Qual a data do movimento desse depósito?"
 - Se houve_retirada estiver null, perguntas_complementares deve conter: "Houve alguma retirada desse movimento para estorno, reembolso no ato ou algo do tipo?"
-- Se houver múltiplos comprovantes na mesma imagem/PDF, tente identificar e processar todos os comprovantes legíveis.
-- Retorne um array chamado "comprovantes", com um item para cada comprovante identificado.
+- Se houver múltiplos comprovantes na mesma imagem/PDF, tente identificar e processar todos os comprovantes fisicamente visíveis e legíveis.
+- Retorne um array chamado "comprovantes", com um item para cada comprovante físico claramente separado na imagem/PDF.
+- qtd_comprovantes_detectados deve representar somente a quantidade de comprovantes físicos visíveis, não a quantidade de códigos, valores, linhas ou blocos de texto.
 - Não crie comprovantes adicionais por inferência.
-- Não crie sequência de código de autenticação por continuação, controle, terminal, envelope ou qualquer outro identificador.
+- Não continue sequência de código de autenticação, controle, terminal, envelope ou qualquer outro identificador.
+- Não replique comprovantes parecidos como se fossem novos.
 - Não deduza valores ausentes com base em padrão visual, repetição ou sequência.
-- Cada item do array deve conter: tipo_documento, data_deposito, valor_deposito, banco, data_geracao_documento, codigo_autenticacao e observacoes.
-- Se algum comprovante estiver cortado, ilegível ou parcialmente visível, inclua esse item com status = "INELEGIVEL" e explique em observacoes.
+- Não use valores de conta, terminal, envelope, autenticação, telefone, controle ou identificadores como valor de depósito.
+- O campo valor_deposito só pode ser preenchido quando houver evidência textual clara no próprio comprovante.
+- O valor_deposito deve ser extraído preferencialmente de linhas como "VALOR TOTAL EM DINHEIRO", "VALOR DO DEPÓSITO", "TOTAL", "VALOR RECEBIDO" ou expressão equivalente.
+- Cada item do array deve conter: status, indice_comprovante, tipo_documento, data_deposito, valor_deposito, banco, data_geracao_documento, codigo_autenticacao, observacoes, confianca_item, posicao_visual_aproximada e evidencias.
+- Para cada comprovante, retorne evidencias com os trechos textuais que sustentam os campos extraídos.
+- O objeto evidencias deve conter: valor_deposito_texto, data_deposito_texto, codigo_autenticacao_texto, controle_texto e bloco_textual_comprovante.
+- valor_deposito_texto deve conter o trecho exato onde o valor foi lido. Se o valor não estiver claro, retorne valor_deposito como null.
+- data_deposito_texto deve conter o trecho exato onde a data foi lida. Se a data não estiver clara, retorne data_deposito como null.
+- codigo_autenticacao_texto deve conter o trecho exato onde o código foi lido. Se não estiver claro, retorne codigo_autenticacao como string vazia.
+- bloco_textual_comprovante deve conter um resumo textual do próprio comprovante físico usado para aquele item, sem misturar dados de outro comprovante.
+- posicao_visual_aproximada deve indicar onde o comprovante aparece na imagem/PDF, por exemplo: "linha 1 coluna 1", "linha 2 coluna 3", "parte superior direita".
+- Se algum comprovante estiver cortado, ilegível ou parcialmente visível, inclua esse item com status = "INELEGIVEL", não preencha valor_deposito sem evidência e explique em observacoes.
+- Se houver dúvida sobre valor, data ou código, marque o item como "PENDENCIA" ou "INELEGIVEL"; nunca complete por suposição.
 - Não misture valores de comprovantes diferentes.
 - Não some os valores dos comprovantes.
-- Não invente valores, datas ou banco.
+- Não invente valores, datas, banco, controle ou código de autenticação.
+- Quando houver boleto bancário de fundo e recibo/comprovante de Lotéricas CAIXA por cima, trate o conjunto visual como um único comprovante de pagamento, usando o recibo da Lotéricas CAIXA como fonte principal do valor pago.
+- Não conte o boleto bancário de fundo como um segundo comprovante separado se ele estiver parcialmente coberto pelo recibo de pagamento.
+- Não replique o valor de um comprovante para outro.
+- Se dois comprovantes tiverem o mesmo valor, mesma data e mesmo banco, só retorne ambos se houver evidência documental distinta para cada um, com bloco_textual_comprovante e posicao_visual_aproximada claramente diferentes.
+- Se houver dúvida se dois itens são comprovantes distintos ou duplicação da mesma leitura, marque o item como PENDENCIA e explique em observacoes.
+- Valores iguais podem existir em comprovantes diferentes. Não trate valor repetido como duplicidade por si só.
+- Se dois comprovantes tiverem o mesmo valor, retorne ambos somente se houver evidência documental distinta para cada um.
+- Para valores repetidos, a posicao_visual_aproximada e o bloco_textual_comprovante precisam indicar claramente comprovantes físicos diferentes.
+- Se não for possível distinguir se o valor repetido pertence a dois comprovantes diferentes ou se é duplicação da mesma leitura, marque o item como PENDENCIA e explique em observacoes.
 - A loja, empresa, data_movimento, houve_retirada, valor_retirada e motivo_retirada vêm das respostas do usuário e se aplicam ao arquivo inteiro.
-- codigo_autenticacao não é campo bloqueante. Se não for identificado, retorne como string vazia e registre em pendencias apenas como observação.
+- codigo_autenticacao não é campo bloqueante. Se não for identificado, retorne como string vazia e registre em observacoes apenas como observação.
 
 Respostas complementares já informadas pelo usuário:
 ${JSON.stringify(respostasUsuario || {}, null, 2)}
@@ -825,6 +847,8 @@ Retorne exatamente neste formato JSON:
 {
   "status": "PRONTO_PARA_SALVAR | PRECISA_COMPLEMENTO | DIVERGENCIA | PENDENCIA | INELEGIVEL",
   "qtd_comprovantes_detectados": 0,
+  "alerta_qualidade_imagem": "",
+  "criterio_contagem": "",
   "dados_arquivo": {
     "loja": null,
     "empresa": "Nao identificado",
@@ -837,17 +861,26 @@ Retorne exatamente neste formato JSON:
     "link_comprovante": ""
   },
   "comprovantes": [
-    {
-      "status": "PRONTO_PARA_SALVAR | INELEGIVEL | PENDENCIA",
-      "indice_comprovante": 1,
-      "tipo_documento": "boleto_bancario | deposito_caixa_eletronico | comprovante_carro_forte | outro_comprovante_deposito | nao_identificado",
-      "data_deposito": null,
-      "valor_deposito": null,
-      "banco": "Nao identificado",
-      "data_geracao_documento": null,
-      "codigo_autenticacao": "",
-      "observacoes": []
-    }
+  {
+    "status": "PRONTO_PARA_SALVAR | INELEGIVEL | PENDENCIA",
+    "indice_comprovante": 1,
+    "tipo_documento": "boleto_bancario | deposito_caixa_eletronico | comprovante_carro_forte | outro_comprovante_deposito | nao_identificado",
+    "data_deposito": null,
+    "valor_deposito": null,
+    "banco": "Nao identificado",
+    "data_geracao_documento": null,
+    "codigo_autenticacao": "",
+    "confianca_item": 0,
+    "posicao_visual_aproximada": "",
+    "evidencias": {
+      "valor_deposito_texto": "",
+      "data_deposito_texto": "",
+      "codigo_autenticacao_texto": "",
+      "controle_texto": "",
+      "bloco_textual_comprovante": ""
+    },
+    "observacoes": []
+  }
   ],
   "pendencias": [],
   "divergencias": [],
@@ -1827,11 +1860,20 @@ function smartSlipEnviarComprovanteApp(form) {
       throw new Error("A data movimento final não pode ser maior que a data atual.");
     }
 
+    const houveRetiradaValidacao = String(form.houve_retirada) === "true";
     const valorRetiradaValidacao = Number(form.valor_retirada || 0);
     const motivoRetiradaValidacao = String(form.motivo_retirada || "").trim();
 
-    if (valorRetiradaValidacao > 0 && !motivoRetiradaValidacao) {
-      throw new Error("Informe o motivo da retirada quando o valor da retirada for maior que zero.");
+    if (houveRetiradaValidacao && (!valorRetiradaValidacao || valorRetiradaValidacao <= 0)) {
+      throw new Error("Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+    }
+
+    if (houveRetiradaValidacao && !motivoRetiradaValidacao) {
+      throw new Error("Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+    }
+
+    if (!houveRetiradaValidacao && valorRetiradaValidacao > 0) {
+      throw new Error("Se houver valor de retirada, marque 'Houve retirada?' como Sim.");
     }
 
     const usuarioAtual = smartSlipGetUsuarioAtual();
@@ -1851,13 +1893,17 @@ function smartSlipEnviarComprovanteApp(form) {
     const protocolo = smartSlipGerarProtocolo();
     const loja4 = usuarioAtual.is_admin ? lojaForm : lojaPadraoUsuario;
 
+    const houveRetiradaResposta = String(form.houve_retirada) === "true";
+
     const respostasUsuario = {
       loja: loja4,
       data_movimento_inicio: form.data_movimento_inicio,
       data_movimento_fim: form.data_movimento_fim || form.data_movimento_inicio,
-      houve_retirada: String(form.houve_retirada) === "true",
-      valor_retirada: Number(form.valor_retirada || 0),
-      motivo_retirada: form.motivo_retirada || "Não houve retirada",
+      houve_retirada: houveRetiradaResposta,
+      valor_retirada: houveRetiradaResposta ? Number(form.valor_retirada || 0) : 0,
+      motivo_retirada: houveRetiradaResposta
+        ? String(form.motivo_retirada || "").trim()
+        : "Não houve retirada",
       mais_comprovantes: String(form.mais_comprovantes) === "true"
     };
 
@@ -2029,6 +2075,30 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
     };
   }
 
+  if (comprovantes.length > 10) {
+  return {
+    ok: false,
+    status_fila: "PENDENTE_INTERNO",
+    mensagem:
+      "Validação anti-alucinação bloqueou o lote. A IA retornou " +
+      comprovantes.length +
+      " comprovantes, acima do limite operacional de 10 por arquivo. Nenhum item foi salvo na BASE_SMARTSLIP.",
+    resultado: resultado
+  };
+}
+
+const validacaoDuplicidadeEvidencia = smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes);
+
+if (!validacaoDuplicidadeEvidencia.ok) {
+  return {
+    ok: false,
+    status_fila: "PENDENTE_INTERNO",
+    mensagem: validacaoDuplicidadeEvidencia.mensagem + " Nenhum item foi salvo na BASE_SMARTSLIP.",
+    validacao_duplicidade_evidencia: validacaoDuplicidadeEvidencia,
+    resultado: resultado
+  };
+}
+
   let salvos = 0;
   let pendentes = 0;
   const mensagens = [];
@@ -2080,6 +2150,21 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
         ": " +
         pendenciasItem.join(" | ")
       );
+      return;
+    }
+
+    const validacaoEvidencia = smartSlipItemTemInferenciaOuBaixaEvidencia_(item);
+
+    if (validacaoEvidencia.bloquear) {
+      pendentes++;
+
+      mensagens.push(
+        "Comprovante " +
+        (item.indice_comprovante || "?") +
+        ": bloqueado por validação anti-alucinação. " +
+        validacaoEvidencia.motivo
+      );
+
       return;
     }
 
@@ -2239,6 +2324,230 @@ function smartSlipExtrairComprovantesDoResultado(resultado) {
   }
 
   return [];
+}
+
+function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
+  item = item || {};
+
+  const obs = Array.isArray(item.observacoes)
+    ? item.observacoes.join(" | ")
+    : String(item.observacoes || "");
+
+  const obsNorm = obs
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const evid = item.evidencias || {};
+
+  const valorTexto = String(evid.valor_deposito_texto || "").trim();
+  const blocoTexto = String(evid.bloco_textual_comprovante || "").trim();
+
+  const valor = Number(item.valor_deposito || 0);
+
+  const temTextoInferencia =
+    obsNorm.includes("inferid") ||
+    obsNorm.includes("parcialmente visivel") ||
+    obsNorm.includes("parcialmente visíveis") ||
+    obsNorm.includes("trechos parcialmente") ||
+    obsNorm.includes("nao esta claro") ||
+    obsNorm.includes("não está claro") ||
+    obsNorm.includes("duvida") ||
+    obsNorm.includes("dúvida");
+
+  if (temTextoInferencia) {
+    return {
+      bloquear: true,
+      motivo: "Item possui observação de inferência ou leitura parcial."
+    };
+  }
+
+  if (!valor || valor <= 0) {
+    return {
+      bloquear: true,
+      motivo: "Valor do depósito ausente ou inválido."
+    };
+  }
+
+  if (!valorTexto) {
+    return {
+      bloquear: true,
+      motivo: "Sem evidência textual do valor do depósito."
+    };
+  }
+
+  if (!blocoTexto || blocoTexto.length < 40) {
+    return {
+      bloquear: true,
+      motivo: "Sem bloco textual suficiente do comprovante."
+    };
+  }
+
+  return {
+    bloquear: false,
+    motivo: ""
+  };
+}
+
+function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
+  comprovantes = Array.isArray(comprovantes) ? comprovantes : [];
+
+  const mapaBloco = {};
+  const mapaPosicaoValor = {};
+  const duplicidades = [];
+  const repeticoesSemEvidenciaDistinta = [];
+
+  comprovantes.forEach(function(item) {
+    item = item || {};
+
+    const evid = item.evidencias || {};
+    const indice = item.indice_comprovante || "?";
+
+    const valorCentavos = smartSlipValorCentavos_(item.valor_deposito);
+    const dataDeposito = smartSlipTextoChave_(item.data_deposito || "");
+    const banco = smartSlipTextoChave_(item.banco || "");
+    const tipo = smartSlipTextoChave_(item.tipo_documento || "");
+
+    const posicao = smartSlipTextoChave_(item.posicao_visual_aproximada || "");
+    const valorTexto = smartSlipTextoChave_(evid.valor_deposito_texto || "");
+    const blocoTexto = smartSlipTextoChave_(evid.bloco_textual_comprovante || "");
+    const controleTexto = smartSlipTextoChave_(
+      evid.codigo_autenticacao_texto ||
+      evid.controle_texto ||
+      item.codigo_autenticacao ||
+      ""
+    );
+
+    /*
+      1) Mesmo valor NÃO é duplicidade.
+      A duplicidade só é considerada quando a IA usa o mesmo bloco/evidência
+      para mais de um comprovante.
+    */
+
+    if (blocoTexto && blocoTexto.length >= 40) {
+      const chaveBloco = [
+        tipo,
+        banco,
+        dataDeposito,
+        valorCentavos,
+        blocoTexto.substring(0, 320)
+      ].join("|");
+
+      if (!mapaBloco[chaveBloco]) {
+        mapaBloco[chaveBloco] = [];
+      }
+
+      mapaBloco[chaveBloco].push(indice);
+    }
+
+    /*
+      2) Se a IA informou a mesma posição visual para o mesmo valor/data/banco,
+      isso é suspeito, porque dois comprovantes reais iguais deveriam aparecer
+      em posições diferentes na foto.
+    */
+    if (posicao && valorCentavos) {
+      const chavePosicaoValor = [
+        tipo,
+        banco,
+        dataDeposito,
+        valorCentavos,
+        posicao
+      ].join("|");
+
+      if (!mapaPosicaoValor[chavePosicaoValor]) {
+        mapaPosicaoValor[chavePosicaoValor] = [];
+      }
+
+      mapaPosicaoValor[chavePosicaoValor].push(indice);
+    }
+
+    /*
+      3) Se existe valor repetido, mas a IA não entregou evidência textual mínima,
+      não é bloqueio por valor repetido; é bloqueio por falta de evidência distinta.
+      A validação individual também deve pegar isso, mas aqui reforçamos no lote.
+    */
+    if (valorCentavos && (!valorTexto || !blocoTexto || blocoTexto.length < 40)) {
+      repeticoesSemEvidenciaDistinta.push({
+        indice: indice,
+        valor: item.valor_deposito,
+        motivo: "valor informado sem evidência textual/bloco OCR suficiente"
+      });
+    }
+  });
+
+  Object.keys(mapaBloco).forEach(function(chave) {
+    if (mapaBloco[chave].length > 1) {
+      duplicidades.push({
+        tipo: "MESMO_BLOCO_TEXTUAL",
+        indices: mapaBloco[chave]
+      });
+    }
+  });
+
+  Object.keys(mapaPosicaoValor).forEach(function(chave) {
+    if (mapaPosicaoValor[chave].length > 1) {
+      duplicidades.push({
+        tipo: "MESMA_POSICAO_VISUAL_MESMO_VALOR",
+        indices: mapaPosicaoValor[chave]
+      });
+    }
+  });
+
+  if (duplicidades.length) {
+    return {
+      ok: false,
+      motivo: "DUPLICIDADE_EVIDENCIA_DOCUMENTAL",
+      mensagem:
+        "Validação anti-alucinação bloqueou o lote. A IA retornou comprovantes usando a mesma evidência documental ou a mesma posição visual para o mesmo valor. Índices envolvidos: " +
+        duplicidades.map(function(d) {
+          return d.indices.join(", ");
+        }).join(" | "),
+      duplicidades: duplicidades
+    };
+  }
+
+  return {
+    ok: true,
+    motivo: "",
+    mensagem: "",
+    repeticoes_sem_evidencia_distinta: repeticoesSemEvidenciaDistinta
+  };
+}
+
+function smartSlipValorCentavos_(valor) {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  let n = 0;
+
+  if (typeof valor === "number") {
+    n = valor;
+  } else {
+    const txt = String(valor)
+      .replace(/[R$\s]/g, "")
+      .replace(/\./g, "")
+      .replace(",", ".")
+      .trim();
+
+    n = Number(txt);
+  }
+
+  if (isNaN(n)) {
+    return 0;
+  }
+
+  return Math.round(n * 100);
+}
+
+function smartSlipTextoChave_(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/[^\w\s.,:/-]/g, "")
+    .trim();
 }
 
 function smartSlipGerarCodigoUnicoComprovante(protocolo, indiceComprovante) {
@@ -2438,10 +2747,43 @@ function smartSlipGetCompHubJson(optionsJson) {
   }
 }
 
+function smartSlipMontarMapaFilaPorProtocolo_(ss) {
+  const mapa = {};
+
+  const shFila = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!shFila || shFila.getLastRow() < 2) {
+    return mapa;
+  }
+
+  const values = shFila.getRange(2, 1, shFila.getLastRow() - 1, 18).getValues();
+
+  values.forEach(function(row) {
+    const protocolo = String(row[1] || "").trim();
+
+    if (!protocolo) {
+      return;
+    }
+
+    mapa[protocolo] = {
+      dataRegistroFila: smartSlipFormatarDataHora(row[0]),
+      emailUsuarioFila: String(row[2] || ""),
+      lojaInformadaFila: String(row[3] || ""),
+      statusFila: String(row[13] || "").trim(),
+      mensagemFila: String(row[14] || "").trim(),
+      dataProcessamentoFila: smartSlipFormatarDataHora(row[17])
+    };
+  });
+
+  return mapa;
+}
+
 function smartSlipGetCompHub(usuario, options) {
   usuario = usuario || smartSlipGetUsuarioAtual();
   options = options || {};
+
   const dias = Number(options.dias || 60);
+
   const limiteData = new Date();
   limiteData.setDate(limiteData.getDate() - dias);
   limiteData.setHours(0, 0, 0, 0);
@@ -2452,6 +2794,7 @@ function smartSlipGetCompHub(usuario, options) {
 
   const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
   const sh = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
+  const mapaFilaPorProtocolo = smartSlipMontarMapaFilaPorProtocolo_(ss);
 
   if (!sh || sh.getLastRow() < 2) {
     return {
@@ -2462,6 +2805,7 @@ function smartSlipGetCompHub(usuario, options) {
   }
 
   const values = sh.getDataRange().getValues();
+
   const headers = values[0].map(function(h) {
     return String(h || "").trim();
   });
@@ -2470,6 +2814,7 @@ function smartSlipGetCompHub(usuario, options) {
 
   for (let i = values.length - 1; i >= 1; i--) {
     const row = values[i];
+
     const dataRegistroRaw = smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"]);
     const dataRegistroObj = smartSlipConverterDataCompHub_(dataRegistroRaw);
 
@@ -2477,31 +2822,118 @@ function smartSlipGetCompHub(usuario, options) {
       continue;
     }
 
+    const protocolo = String(
+      smartSlipGetValorHeaderCompHub(row, headers, ["Protocolo"]) || ""
+    ).trim();
+
+    const filaInfo = mapaFilaPorProtocolo[protocolo] || {};
+
+    const statusBase = String(
+      smartSlipGetValorHeaderCompHub(row, headers, ["Status Processamento"]) || ""
+    ).trim();
+
+    const statusOperacional = String(
+      filaInfo.statusFila || statusBase || ""
+    ).trim();
+
     const item = {
-      dataRegistro: smartSlipFormatarDataHora(smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])),
-      dataRegistroInput: smartSlipFormatarDataInputCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])),
-      idComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["ID Comprovante"]) || ""),
-      hashComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Hash Comprovante"]) || ""),
-      protocolo: String(smartSlipGetValorHeaderCompHub(row, headers, ["Protocolo"]) || ""),
-      indiceComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Índice Comprovante", "Indice Comprovante"]) || ""),
-      loja: String(smartSlipGetValorHeaderCompHub(row, headers, ["Loja"]) || ""),
-      empresa: String(smartSlipGetValorHeaderCompHub(row, headers, ["Empresa"]) || ""),
-      tipoDocumento: String(smartSlipGetValorHeaderCompHub(row, headers, ["Tipo Documento"]) || ""),
-      dataDeposito: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Depósito", "Data Deposito"])),
-      valorDeposito: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Valor Depósito", "Valor Deposito"])),
-      banco: String(smartSlipGetValorHeaderCompHub(row, headers, ["Banco"]) || ""),
-      dataMovimento: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Movimento"])),
-      houveRetirada: String(smartSlipGetValorHeaderCompHub(row, headers, ["Houve Retirada"]) || ""),
-      valorRetirada: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Valor Retirada"])),
-      motivoRetirada: String(smartSlipGetValorHeaderCompHub(row, headers, ["Motivo Retirada"]) || ""),
-      dataGeracaoDocumento: smartSlipFormatarDataMovimentoHistorico(smartSlipGetValorHeaderCompHub(row, headers, ["Data Geração Documento", "Data Geracao Documento"])),
-      codigoAutenticacao: String(smartSlipGetValorHeaderCompHub(row, headers, ["Código Autenticação", "Codigo Autenticacao"]) || ""),
-      linkComprovante: String(smartSlipGetValorHeaderCompHub(row, headers, ["Link Comprovante"]) || ""),
-      statusProcessamento: String(smartSlipGetValorHeaderCompHub(row, headers, ["Status Processamento"]) || ""),
-      pendencias: String(smartSlipGetValorHeaderCompHub(row, headers, ["Pendências", "Pendencias"]) || ""),
-      divergencias: String(smartSlipGetValorHeaderCompHub(row, headers, ["Divergências", "Divergencias"]) || ""),
-      confiancaGeral: smartSlipNumeroCompHub(smartSlipGetValorHeaderCompHub(row, headers, ["Confiança Geral", "Confianca Geral"])),
-      jsonOriginal: String(smartSlipGetValorHeaderCompHub(row, headers, ["JSON Original"]) || "")
+      dataRegistro: smartSlipFormatarDataHora(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])
+      ),
+
+      dataRegistroInput: smartSlipFormatarDataInputCompHub(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Data Registro"])
+      ),
+
+      idComprovante: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["ID Comprovante"]) || ""
+      ),
+
+      hashComprovante: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Hash Comprovante"]) || ""
+      ),
+
+      protocolo: protocolo,
+
+      indiceComprovante: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Índice Comprovante", "Indice Comprovante"]) || ""
+      ),
+
+      loja: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Loja"]) || ""
+      ),
+
+      empresa: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Empresa"]) || ""
+      ),
+
+      tipoDocumento: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Tipo Documento"]) || ""
+      ),
+
+      dataDeposito: smartSlipFormatarDataMovimentoHistorico(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Data Depósito", "Data Deposito"])
+      ),
+
+      valorDeposito: smartSlipNumeroCompHub(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Valor Depósito", "Valor Deposito"])
+      ),
+
+      banco: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Banco"]) || ""
+      ),
+
+      dataMovimento: smartSlipFormatarDataMovimentoHistorico(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Data Movimento"])
+      ),
+
+      houveRetirada: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Houve Retirada"]) || ""
+      ),
+
+      valorRetirada: smartSlipNumeroCompHub(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Valor Retirada"])
+      ),
+
+      motivoRetirada: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Motivo Retirada"]) || ""
+      ),
+
+      dataGeracaoDocumento: smartSlipFormatarDataMovimentoHistorico(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Data Geração Documento", "Data Geracao Documento"])
+      ),
+
+      codigoAutenticacao: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Código Autenticação", "Codigo Autenticacao"]) || ""
+      ),
+
+      linkComprovante: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Link Comprovante"]) || ""
+      ),
+
+      // Status operacional vindo da SMARTSLIP_FILA.
+      // Se não encontrar protocolo na fila, usa o status da BASE_SMARTSLIP como fallback.
+      statusProcessamento: statusOperacional,
+      statusBaseProcessamento: statusBase,
+      statusFila: filaInfo.statusFila || "",
+      mensagemFila: filaInfo.mensagemFila || "",
+      dataProcessamentoFila: filaInfo.dataProcessamentoFila || "",
+
+      pendencias: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Pendências", "Pendencias"]) || ""
+      ),
+
+      divergencias: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Divergências", "Divergencias"]) || ""
+      ),
+
+      confiancaGeral: smartSlipNumeroCompHub(
+        smartSlipGetValorHeaderCompHub(row, headers, ["Confiança Geral", "Confianca Geral"])
+      ),
+
+      jsonOriginal: String(
+        smartSlipGetValorHeaderCompHub(row, headers, ["JSON Original"]) || ""
+      )
     };
 
     linhas.push(item);
