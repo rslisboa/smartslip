@@ -1772,6 +1772,107 @@ function smartSlipMontarDataMovimentoTexto(respostasUsuario) {
   return inicio || fim || "";
 }
 
+function smartSlipValidarValoresDiariosMovimento_(payload, dataInicioBR, dataFimBR) {
+  const inicio = smartSlipParseDateBR(dataInicioBR);
+  const fim = smartSlipParseDateBR(dataFimBR);
+
+  if (!inicio || !fim) {
+    throw new Error("Período de movimento inválido para validação dos valores diários.");
+  }
+
+  if (fim < inicio) {
+    throw new Error("Data movimento final menor que a data movimento inicial.");
+  }
+
+  const datasEsperadas = smartSlipGerarRangeDatasBR_(inicio, fim);
+
+  if (datasEsperadas.length > 31) {
+    throw new Error("O intervalo de movimento não pode passar de 31 dias.");
+  }
+
+  if (typeof payload === "string") {
+    try {
+      payload = JSON.parse(payload || "{}");
+    } catch (err) {
+      throw new Error("Valores diários do movimento em formato inválido.");
+    }
+  }
+
+  payload = payload || {};
+
+  const itens = Array.isArray(payload.itens)
+    ? payload.itens
+    : Array.isArray(payload)
+      ? payload
+      : [];
+
+  if (itens.length !== datasEsperadas.length) {
+    throw new Error(
+      "Quantidade de valores diários diferente do período informado. Esperado: " +
+      datasEsperadas.length +
+      " dia(s). Recebido: " +
+      itens.length +
+      "."
+    );
+  }
+
+  const mapa = {};
+  let total = 0;
+
+  itens.forEach(function(item) {
+    const data = String(item.data || "").trim();
+    const valor = Number(item.valor || 0);
+
+    if (!data) {
+      throw new Error("Existe valor diário sem data informada.");
+    }
+
+    if (isNaN(valor) || valor <= 0) {
+      throw new Error("Valor diário inválido para " + data + ". Informe valor maior que zero.");
+    }
+
+    if (valor < 0) {
+      throw new Error("Valor diário negativo não é permitido para " + data + ".");
+    }
+
+    mapa[data] = valor;
+    total += valor;
+  });
+
+  datasEsperadas.forEach(function(data) {
+    if (!mapa[data]) {
+      throw new Error("Valor diário não informado para " + data + ".");
+    }
+  });
+
+  return {
+    periodo_inicio: dataInicioBR,
+    periodo_fim: dataFimBR,
+    itens: datasEsperadas.map(function(data) {
+      return {
+        data: data,
+        valor: mapa[data]
+      };
+    }),
+    total: total
+  };
+}
+
+function smartSlipGerarRangeDatasBR_(inicio, fim) {
+  const datas = [];
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+
+  const atual = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate());
+  const limite = new Date(fim.getFullYear(), fim.getMonth(), fim.getDate());
+
+  while (atual <= limite) {
+    datas.push(Utilities.formatDate(atual, tz, "dd/MM/yyyy"));
+    atual.setDate(atual.getDate() + 1);
+  }
+
+  return datas;
+}
+
 function smartSlipTesteFilaPeriodo() {
   const sh = smartSlipGarantirCabecalhoFila();
 
@@ -1845,24 +1946,48 @@ function smartSlipEnviarComprovanteApp(form) {
       throw new Error("Data de movimento inicial não informada.");
     }
 
-    const dataMovimentoFimValidacao = form.data_movimento_fim || form.data_movimento_inicio;
-    const dataFimObj = smartSlipParseDateBR(dataMovimentoFimValidacao);
+    if (!form.data_movimento_fim) {
+      throw new Error("Data de movimento final não informada. Se for uma única data, repita a data inicial.");
+    }
+
+    const dataInicioObj = smartSlipParseDateBR(form.data_movimento_inicio);
+    const dataFimObj = smartSlipParseDateBR(form.data_movimento_fim);
+
+    if (!dataInicioObj) {
+      throw new Error("Data de movimento inicial inválida.");
+    }
 
     if (!dataFimObj) {
       throw new Error("Data de movimento final inválida.");
     }
 
+    dataInicioObj.setHours(0, 0, 0, 0);
+    dataFimObj.setHours(0, 0, 0, 0);
+
+    if (dataFimObj < dataInicioObj) {
+      throw new Error("A data movimento final não pode ser menor que a data movimento inicial.");
+    }
+
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
-    dataFimObj.setHours(0, 0, 0, 0);
 
     if (dataFimObj > hoje) {
       throw new Error("A data movimento final não pode ser maior que a data atual.");
     }
 
+    const valoresDiariosMovimento = smartSlipValidarValoresDiariosMovimento_(
+      form.valores_diarios_movimento,
+      form.data_movimento_inicio,
+      form.data_movimento_fim
+    );
+
     const houveRetiradaValidacao = String(form.houve_retirada) === "true";
     const valorRetiradaValidacao = Number(form.valor_retirada || 0);
     const motivoRetiradaValidacao = String(form.motivo_retirada || "").trim();
+
+    if (valorRetiradaValidacao < 0) {
+      throw new Error("O valor da retirada não pode ser negativo.");
+    }
 
     if (houveRetiradaValidacao && (!valorRetiradaValidacao || valorRetiradaValidacao <= 0)) {
       throw new Error("Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
@@ -1877,6 +2002,7 @@ function smartSlipEnviarComprovanteApp(form) {
     }
 
     const usuarioAtual = smartSlipGetUsuarioAtual();
+
     const lojaForm = smartSlipNormalizarLoja4(form.loja);
     const lojaPadraoUsuario = smartSlipNormalizarLoja4(usuarioAtual.loja_padrao || "");
 
@@ -1893,17 +2019,22 @@ function smartSlipEnviarComprovanteApp(form) {
     const protocolo = smartSlipGerarProtocolo();
     const loja4 = usuarioAtual.is_admin ? lojaForm : lojaPadraoUsuario;
 
+    if (!loja4) {
+      throw new Error("Loja inválida para envio.");
+    }
+
     const houveRetiradaResposta = String(form.houve_retirada) === "true";
 
     const respostasUsuario = {
       loja: loja4,
       data_movimento_inicio: form.data_movimento_inicio,
-      data_movimento_fim: form.data_movimento_fim || form.data_movimento_inicio,
+      data_movimento_fim: form.data_movimento_fim,
       houve_retirada: houveRetiradaResposta,
       valor_retirada: houveRetiradaResposta ? Number(form.valor_retirada || 0) : 0,
       motivo_retirada: houveRetiradaResposta
         ? String(form.motivo_retirada || "").trim()
         : "Não houve retirada",
+      valores_diarios_movimento: valoresDiariosMovimento,
       mais_comprovantes: String(form.mais_comprovantes) === "true"
     };
 
@@ -2044,6 +2175,7 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
 
   const loja4 = smartSlipNormalizarLoja4(respostasUsuario.loja);
   const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+  const valoresDiariosMovimento = respostasUsuario.valores_diarios_movimento || null;
 
   const infoLoja = smartSlipConsultarInfoLoja_(loja4);
 
@@ -2187,6 +2319,7 @@ if (!validacaoDuplicidadeEvidencia.ok) {
       valor_deposito: Number(item.valor_deposito || 0),
       banco: item.banco || "Nao identificado",
       data_movimento: dataMovimentoTexto,
+      valores_diarios_movimento: valoresDiariosMovimento,
       houve_retirada: aplicarRetiradaNestaLinha,
       valor_retirada: aplicarRetiradaNestaLinha ? valorRetirada : 0,
       motivo_retirada: aplicarRetiradaNestaLinha ? motivoRetirada : "Não houve retirada",
@@ -2747,6 +2880,19 @@ function smartSlipGetCompHubJson(optionsJson) {
   }
 }
 
+function smartSlipExtrairValoresDiariosCompHub_(jsonOriginal) {
+  if (!jsonOriginal) {
+    return null;
+  }
+
+  try {
+    const obj = JSON.parse(String(jsonOriginal || "{}"));
+    return obj.valores_diarios_movimento || null;
+  } catch (err) {
+    return null;
+  }
+}
+
 function smartSlipMontarMapaFilaPorProtocolo_(ss) {
   const mapa = {};
 
@@ -2835,6 +2981,12 @@ function smartSlipGetCompHub(usuario, options) {
     const statusOperacional = String(
       filaInfo.statusFila || statusBase || ""
     ).trim();
+
+    const jsonOriginalRaw = String(
+  smartSlipGetValorHeaderCompHub(row, headers, ["JSON Original"]) || ""
+);
+
+const valoresDiarios = smartSlipExtrairValoresDiariosCompHub_(jsonOriginalRaw);
 
     const item = {
       dataRegistro: smartSlipFormatarDataHora(
@@ -2931,9 +3083,8 @@ function smartSlipGetCompHub(usuario, options) {
         smartSlipGetValorHeaderCompHub(row, headers, ["Confiança Geral", "Confianca Geral"])
       ),
 
-      jsonOriginal: String(
-        smartSlipGetValorHeaderCompHub(row, headers, ["JSON Original"]) || ""
-      )
+      valoresDiarios: valoresDiarios,
+      jsonOriginal: jsonOriginalRaw
     };
 
     linhas.push(item);
@@ -3042,6 +3193,9 @@ function smartSlipGetHistorico(usuario) {
       continue;
     }
 
+    const statusFila = String(row[13] || "").trim();
+    const camposReenvio = smartSlipMontarCamposReenvioHistorico_(row);
+
     historico.push({
       data_registro: smartSlipFormatarDataHora(row[0]),
       protocolo: row[1] || "",
@@ -3050,14 +3204,142 @@ function smartSlipGetHistorico(usuario) {
       data_movimento: smartSlipFormatarDataMovimentoHistorico(row[5]),
       link_comprovante: row[11] || "",
       nome_arquivo: row[12] || "",
-      status_fila: row[13] || "",
-      mensagem: row[14] || ""
+      status_fila: statusFila,
+      mensagem: row[14] || "",
+
+      // Controle do botão REENVIAR?
+      reenviar_permitido: smartSlipStatusPermiteReenvio_(statusFila),
+
+      // Campos usados para preencher automaticamente a tela de Envio
+      campos_reenvio: camposReenvio
     });
 
     if (historico.length >= 50) break;
   }
 
   return historico;
+}
+
+function smartSlipStatusPermiteReenvio_(status) {
+  status = String(status || "").trim().toUpperCase();
+
+  return [
+    "PENDENTE_INTERNO",
+    "SALVO_PARCIAL",
+    "ERRO_PROCESSAMENTO",
+    "INELEGIVEL",
+    "DIVERGENCIA",
+    "PRECISA_COMPLEMENTO",
+    "PENDENCIA"
+  ].includes(status);
+}
+
+function smartSlipMontarCamposReenvioHistorico_(row) {
+  row = row || [];
+
+  let respostas = {};
+
+  try {
+    respostas = JSON.parse(String(row[15] || "{}"));
+  } catch (err) {
+    respostas = {};
+  }
+
+  const movimentoRaw = row[5];
+
+  const inicioRaw =
+    respostas.data_movimento_inicio ||
+    respostas.data_movimento ||
+    smartSlipExtrairInicioMovimentoHistorico_(movimentoRaw);
+
+  const fimRaw =
+    respostas.data_movimento_fim ||
+    respostas.data_movimento ||
+    smartSlipExtrairFimMovimentoHistorico_(movimentoRaw) ||
+    inicioRaw;
+
+  const houveRetirada = typeof respostas.houve_retirada === "boolean"
+    ? respostas.houve_retirada
+    : String(row[6] || "").trim().toLowerCase() === "sim";
+
+  const valorRetirada = respostas.valor_retirada !== undefined
+    ? Number(respostas.valor_retirada || 0)
+    : Number(row[7] || 0);
+
+  const motivoRetirada = respostas.motivo_retirada !== undefined
+    ? String(respostas.motivo_retirada || "").trim()
+    : String(row[8] || "").trim();
+
+  return {
+    loja: smartSlipNormalizarLoja4(respostas.loja || row[3] || ""),
+    data_movimento_inicio_input: smartSlipConverterDataParaInputHistorico_(inicioRaw),
+    data_movimento_fim_input: smartSlipConverterDataParaInputHistorico_(fimRaw),
+
+    houve_retirada: houveRetirada,
+    valor_retirada: valorRetirada,
+    motivo_retirada: houveRetirada
+      ? motivoRetirada
+      : "Não houve retirada",
+
+    // Novo: valores informados no envio original.
+    // Para envios antigos que ainda não tinham essa estrutura, ficará null.
+    valores_diarios_movimento: respostas.valores_diarios_movimento || null
+  };
+}
+
+function smartSlipExtrairInicioMovimentoHistorico_(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    return valor;
+  }
+
+  const txt = String(valor || "").trim();
+
+  if (txt.indexOf(" a ") > -1) {
+    return txt.split(" a ")[0].trim();
+  }
+
+  return txt;
+}
+
+function smartSlipExtrairFimMovimentoHistorico_(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    return valor;
+  }
+
+  const txt = String(valor || "").trim();
+
+  if (txt.indexOf(" a ") > -1) {
+    return txt.split(" a ")[1].trim();
+  }
+
+  return txt;
+}
+
+function smartSlipConverterDataParaInputHistorico_(valor) {
+  if (!valor) return "";
+
+  if (Object.prototype.toString.call(valor) === "[object Date]") {
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    return Utilities.formatDate(valor, tz, "yyyy-MM-dd");
+  }
+
+  const txt = String(valor || "").trim();
+
+  let m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) {
+    return m[3] + "-" + m[2] + "-" + m[1];
+  }
+
+  m = txt.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) {
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+
+  return "";
 }
 
 function smartSlipGetResumoStatus(usuario) {
