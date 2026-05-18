@@ -1938,12 +1938,6 @@ body.intro-lock {
     transform: none !important;
   }
 
-  #navCompHub,
-  #view-comp-hub,
-  #cfgCompHubRangeRow {
-    display: none !important;
-  }
-
   /* Cards e painéis */
   .kpi-grid,
   .row,
@@ -3145,6 +3139,266 @@ body:not(.smart-mobile) .hist-status-modal-card {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - REENVIO PELO HISTÓRICO
+   ========================================================= */
+
+.hist-reenvio-btn {
+  width: auto !important;
+  min-width: 58px !important;
+  min-height: 32px !important;
+  padding: 7px 12px !important;
+  border-radius: 999px !important;
+  background: #050807 !important;
+  color: #B5FF20 !important;
+  border: 1px solid rgba(181, 255, 32, .35) !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+}
+
+.hist-reenvio-btn:hover {
+  background: #005E27 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.hist-reenvio-nao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #ecfdf3;
+  color: #027a48;
+  border: 1px solid #abefc6;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.mobile-history-reenvio-btn {
+  width: 100% !important;
+  margin-top: 10px !important;
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  background: #B5FF20 !important;
+  color: #050807 !important;
+  border: 1px solid rgba(5, 8, 7, .18) !important;
+  font-size: 14px !important;
+  font-weight: 950 !important;
+}
+
+/* =========================================================
+   SMARTSLIP - VALORES DIÁRIOS DO MOVIMENTO
+   ========================================================= */
+
+.valores-diarios-box {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #050807;
+  border: 1px solid rgba(181, 255, 32, .30);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .14);
+}
+
+.valores-diarios-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.valores-diarios-head h2 {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 950;
+}
+
+.valores-diarios-head p {
+  margin: 0;
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.valores-diarios-head strong {
+  min-width: 120px;
+  text-align: right;
+  color: #B5FF20;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.valores-diarios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 10px;
+}
+
+.valor-dia-card {
+  min-width: 0;
+  padding: 10px;
+  border-radius: 16px;
+  background: #B5FF20;
+  border: 1px solid rgba(181,255,32,.72);
+}
+
+.valor-dia-card label {
+  margin: 0 0 7px !important;
+  color: #050807 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  text-align: center;
+}
+
+.valor-dia-card input {
+  min-height: 42px !important;
+  padding: 10px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(5,8,7,.24) !important;
+  text-align: center;
+  font-weight: 850;
+}
+
+body.smart-mobile .valores-diarios-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+body.smart-mobile .valores-diarios-head {
+  flex-direction: column !important;
+}
+
+body.smart-mobile .valores-diarios-head strong {
+  text-align: left !important;
+}
+
+/* =========================================================
+   SMARTSLIP - ABAS DO MODAL COMP HUB
+   ========================================================= */
+
+.comp-modal-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #e6eee1;
+  padding-bottom: 10px;
+}
+
+.comp-tab-btn {
+  width: auto !important;
+  min-height: 40px !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  background: #eef4eb !important;
+  color: #005E27 !important;
+  border: 1px solid #d5e3ce !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+}
+
+.comp-tab-btn.active {
+  background: #050807 !important;
+  color: #B5FF20 !important;
+  border-color: rgba(181,255,32,.38) !important;
+}
+
+.comp-tab-panel {
+  display: none;
+}
+
+.comp-tab-panel.active {
+  display: block;
+}
+
+.comp-daily-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #050807;
+  color: #ffffff;
+}
+
+.comp-daily-head h3 {
+  margin: 0 0 5px;
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.comp-daily-head p {
+  margin: 0;
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.comp-daily-head strong {
+  color: #B5FF20;
+  font-size: 20px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.comp-daily-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.comp-daily-table th {
+  background: #071E3D;
+  color: #ffffff;
+  text-align: left;
+  padding: 12px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .25px;
+}
+
+.comp-daily-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e6eee1;
+  font-weight: 750;
+}
+
+.comp-daily-table tfoot td {
+  background: #B5FF20;
+  color: #050807;
+  font-weight: 950;
+}
+
+.comp-empty-daily {
+  padding: 18px;
+  border-radius: 18px;
+  background: #f7fbf4;
+  border: 1px solid #dbe8d4;
+}
+
+.comp-empty-daily b {
+  display: block;
+  margin-bottom: 6px;
+  color: #050807;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.comp-empty-daily p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
   </style>
 </head>
 
@@ -3466,7 +3720,7 @@ body:not(.smart-mobile) .hist-status-modal-card {
               </div>
 
             <div>
-              <label>Houve retirada?</label>
+              <label>Houve retirada (cancelamento/estorno/reembolso)?</label>
               <select id="houve_retirada" onchange="toggleRetirada()">
                 <option value="false">Não</option>
                 <option value="true">Sim</option>
@@ -3482,8 +3736,24 @@ body:not(.smart-mobile) .hist-status-modal-card {
 
             <div>
               <label>Data movimento final</label>
-              <input id="data_movimento_fim" type="date" onchange="validarPeriodoMovimentoTela()">
-              <div class="hint">Se for uma única data, pode repetir ou deixar em branco.</div>
+              <input id="data_movimento_fim" type="date" onchange="onDataMovimentoFimChange()">
+              <div class="hint">Obrigatório. Se for uma única data, repita a data inicial.</div>
+            </div>
+          </div>
+
+          <div id="boxValoresDiariosMovimento" class="valores-diarios-box" style="display:none;">
+            <div class="valores-diarios-head">
+              <div>
+                <h2>Valores diários do movimento</h2>
+                <p>Informe o valor correspondente a cada data do intervalo selecionado.</p>
+              </div>
+              <strong id="valorDiarioTotal">R$ 0,00</strong>
+            </div>
+
+            <div id="valoresDiariosGrid" class="valores-diarios-grid"></div>
+
+            <div class="hint">
+              Use vírgula para centavos. Exemplo: 1448,50. Valores negativos não são permitidos.
             </div>
           </div>
 
@@ -3884,18 +4154,17 @@ body:not(.smart-mobile) .hist-status-modal-card {
     const SMARTSLIP_COMP_HUB_DIAS_PADRAO = 60;
     const SMARTSLIP_COMP_HUB_DIAS_STORAGE_PREFIX = "SMARTSLIP_COMP_HUB_DIAS_";
 
-    function isSmartSlipMobile() {
+function isSmartSlipMobile() {
   const larguraJanela = window.innerWidth || document.documentElement.clientWidth || 0;
-  const larguraTela = screen && screen.width ? screen.width : larguraJanela;
-
-  const porLargura = larguraJanela > 0 && larguraJanela <= 1024;
-  const porTela = larguraTela > 0 && larguraTela <= 1024;
-  const porToque = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-
   const ua = String(navigator.userAgent || "").toLowerCase();
-  const porUserAgent = /android|iphone|ipad|ipod|mobile/i.test(ua);
 
-  return porLargura || porTela || porToque || porUserAgent;
+  const porUserAgent = /android|iphone|ipod|mobile/i.test(ua);
+
+  // Não usar pointer: coarse aqui.
+  // Notebook/monitor touch pode ser detectado como coarse e esconder o Comp Hub no desktop.
+  const porLargura = larguraJanela > 0 && larguraJanela <= 820;
+
+  return porUserAgent || porLargura;
 }
 
 function aplicarModoMobileSmartSlip() {
@@ -4648,23 +4917,28 @@ function toggleRetirada() {
       msg.textContent = "";
     }
 
-    function limparFormulario(limparLoja) {
-      document.getElementById("arquivo").value = "";
-      atualizarUploadInfo(null);
-      document.getElementById("data_movimento_inicio").value = "";
-      document.getElementById("data_movimento_fim").value = "";
-      document.getElementById("houve_retirada").value = "false";
-      document.getElementById("valor_retirada").value = 0;
-      document.getElementById("motivo_retirada").value = "";
-      document.getElementById("mais_comprovantes").value = "false";
-      document.getElementById("boxRetirada").style.display = "none";
+function limparFormulario(limparLoja) {
+  document.getElementById("arquivo").value = "";
+  atualizarUploadInfo(null);
 
-      if (limparLoja) {
-        document.getElementById("loja").value = "";
-      }
+  document.getElementById("data_movimento_inicio").value = "";
+  document.getElementById("data_movimento_fim").value = "";
 
-      limparMensagem();
-    }
+  document.getElementById("houve_retirada").value = "false";
+  document.getElementById("valor_retirada").value = "";
+  document.getElementById("motivo_retirada").value = "";
+  document.getElementById("boxRetirada").style.display = "none";
+
+  document.getElementById("boxValoresDiariosMovimento").style.display = "none";
+  document.getElementById("valoresDiariosGrid").innerHTML = "";
+  atualizarTotalValoresDiariosMovimento();
+
+  if (limparLoja) {
+    document.getElementById("loja").value = "";
+  }
+
+  limparMensagem();
+}
 
     function validarDataInput(valor) {
       return /^\d{4}-\d{2}-\d{2}$/.test(valor);
@@ -5480,6 +5754,7 @@ function desenharTabelaHistorico(dados) {
   html += "<th>Movimento</th>";
   html += "<th>Status</th>";
   html += "<th>Arquivo</th>";
+  html += "<th>Reenviar?</th>";
   html += "</tr>";
   html += "</thead>";
   html += "<tbody>";
@@ -5494,6 +5769,7 @@ function desenharTabelaHistorico(dados) {
     html += "<td>" + escapeHtml(r.data_movimento || "") + "</td>";
     html += "<td>" + montarBotaoStatusHistorico(r) + "</td>";
     html += "<td><a target='_blank' href='" + escapeAttr(link) + "'>Abrir</a></td>";
+    html += "<td>" + montarBotaoReenvioHistorico(r) + "</td>";
     html += "</tr>";
   });
 
@@ -5533,6 +5809,7 @@ function desenharHistoricoMobile(dados) {
         "</div>" +
 
         "<a class='mobile-history-link' target='_blank' href='" + escapeAttr(link) + "'>Abrir comprovante</a>" +
+        montarBotaoReenvioHistoricoMobile(r) +
       "</div>";
   });
 
@@ -5559,6 +5836,171 @@ function montarBotaoStatusHistorico(r) {
         "<small>Detalhes</small>" +
     "</button>"
   );
+}
+
+function statusPermiteReenvioHistorico(status, registro) {
+  if (registro && registro.reenviar_permitido === false) {
+    return false;
+  }
+
+  status = String(status || "").trim().toUpperCase();
+
+  return [
+    "PENDENTE_INTERNO",
+    "SALVO_PARCIAL",
+    "ERRO_PROCESSAMENTO",
+    "INELEGIVEL",
+    "DIVERGENCIA",
+    "PRECISA_COMPLEMENTO",
+    "PENDENCIA"
+  ].includes(status);
+}
+
+function montarBotaoReenvioHistorico(r) {
+  r = r || {};
+
+  const status = String(r.status_fila || "").trim();
+  const protocolo = String(r.protocolo || "").trim();
+
+  if (!statusPermiteReenvioHistorico(status, r)) {
+    return "<span class='hist-reenvio-nao'>Não</span>";
+  }
+
+  const protocoloSeguro = encodeURIComponent(protocolo);
+
+  return (
+    "<button type='button' " +
+      "class='hist-reenvio-btn' " +
+      "onclick=\"iniciarReenvioHistorico(decodeURIComponent('" + escapeAttr(protocoloSeguro) + "'))\" " +
+      "title='Reenviar usando os dados deste envio'>" +
+        "Sim" +
+    "</button>"
+  );
+}
+
+function montarBotaoReenvioHistoricoMobile(r) {
+  r = r || {};
+
+  const status = String(r.status_fila || "").trim();
+  const protocolo = String(r.protocolo || "").trim();
+
+  if (!statusPermiteReenvioHistorico(status, r)) {
+    return "";
+  }
+
+  const protocoloSeguro = encodeURIComponent(protocolo);
+
+  return (
+    "<button type='button' " +
+      "class='mobile-history-reenvio-btn' " +
+      "onclick=\"iniciarReenvioHistorico(decodeURIComponent('" + escapeAttr(protocoloSeguro) + "'))\">" +
+        "Reenviar comprovante" +
+    "</button>"
+  );
+}
+
+function iniciarReenvioHistorico(protocolo) {
+  const registro = buscarHistoricoPorProtocolo(protocolo);
+
+  if (!registro) {
+    alert("Não foi possível localizar os dados desse envio no histórico carregado.");
+    return;
+  }
+
+  if (!statusPermiteReenvioHistorico(registro.status_fila, registro)) {
+    alert("Este envio ainda não precisa de reenvio. Aguarde o processamento ou consulte o status.");
+    return;
+  }
+
+  const btnEnvio = document.querySelector('[data-nav="comprovantes"]');
+  abrirView("comprovantes", btnEnvio);
+
+  setTimeout(function() {
+    preencherFormularioReenvioHistorico(registro);
+
+    const arquivo = document.getElementById("arquivo");
+
+    if (arquivo) {
+      arquivo.focus();
+    }
+
+    mostrarMensagem(
+      "ok",
+      "Dados do envio anterior preenchidos automaticamente.\n\nRevise os valores diários, anexe um novo comprovante e clique em Enviar comprovante."
+    );
+  }, 120);
+}
+
+function preencherFormularioReenvioHistorico(registro) {
+  registro = registro || {};
+
+  const campos = registro.campos_reenvio || {};
+
+  const loja = document.getElementById("loja");
+  const dataInicio = document.getElementById("data_movimento_inicio");
+  const dataFim = document.getElementById("data_movimento_fim");
+  const houveRetirada = document.getElementById("houve_retirada");
+  const valorRetirada = document.getElementById("valor_retirada");
+  const motivoRetirada = document.getElementById("motivo_retirada");
+  const arquivo = document.getElementById("arquivo");
+
+  if (loja) {
+    loja.value = campos.loja || registro.loja || "";
+  }
+
+  if (dataInicio) {
+    dataInicio.value = campos.data_movimento_inicio_input || "";
+  }
+
+  if (dataFim) {
+    dataFim.value =
+      campos.data_movimento_fim_input ||
+      campos.data_movimento_inicio_input ||
+      "";
+  }
+
+  if (houveRetirada) {
+    houveRetirada.value = campos.houve_retirada === true ? "true" : "false";
+  }
+
+  if (valorRetirada) {
+    valorRetirada.value = campos.houve_retirada === true
+      ? formatarValorRetiradaReenvio_(campos.valor_retirada)
+      : "";
+  }
+
+  if (motivoRetirada) {
+    motivoRetirada.value = campos.houve_retirada === true
+      ? String(campos.motivo_retirada || "").trim()
+      : "";
+  }
+
+  if (arquivo) {
+    arquivo.value = "";
+  }
+
+  atualizarUploadInfo(null);
+  toggleRetirada();
+  validarPeriodoMovimentoTela();
+
+  // Novo: gera os campos de valores diários com base nas datas preenchidas.
+  // Se o envio original já tiver valores_diarios_movimento, preenche os valores.
+  // Se não tiver, gera os campos vazios para o usuário preencher.
+  renderizarCamposValoresDiariosMovimento(campos.valores_diarios_movimento || null);
+  atualizarTotalValoresDiariosMovimento();
+}
+
+function formatarValorRetiradaReenvio_(valor) {
+  valor = Number(valor || 0);
+
+  if (!valor) {
+    return "";
+  }
+
+  return valor.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
 function buscarHistoricoPorProtocolo(protocolo) {
@@ -6555,6 +6997,12 @@ function abrirDetalheCompHubItem(item) {
 
   let html = "";
 
+  html += "<div class='comp-modal-tabs'>";
+  html += "<button type='button' id='compTabBtnDetalhes' class='comp-tab-btn active' onclick=\"abrirAbaCompModal('detalhes')\">Detalhes</button>";
+  html += "<button type='button' id='compTabBtnValores' class='comp-tab-btn' onclick=\"abrirAbaCompModal('valores')\">Valores Diários</button>";
+  html += "</div>";
+
+  html += "<div id='compTabDetalhes' class='comp-tab-panel active'>";
   html += "<div class='comp-detail-grid'>";
   html += montarItemDetalheCompHub("Data Registro", item.dataRegistro);
   html += montarItemDetalheCompHub("ID Comprovante", item.idComprovante);
@@ -6590,9 +7038,89 @@ function abrirDetalheCompHubItem(item) {
 
   html += "</div>";
   html += "<div class='comp-json-box'>" + escapeHtml(formatarJsonCompHub(item.jsonOriginal)) + "</div>";
+  html += "</div>";
+
+  html += "<div id='compTabValores' class='comp-tab-panel'>";
+  html += montarValoresDiariosCompHub(item);
+  html += "</div>";
 
   body.innerHTML = html;
   modal.classList.add("show");
+}
+
+function abrirAbaCompModal(aba) {
+  const btnDetalhes = document.getElementById("compTabBtnDetalhes");
+  const btnValores = document.getElementById("compTabBtnValores");
+  const painelDetalhes = document.getElementById("compTabDetalhes");
+  const painelValores = document.getElementById("compTabValores");
+
+  if (!btnDetalhes || !btnValores || !painelDetalhes || !painelValores) {
+    return;
+  }
+
+  const abrirValores = aba === "valores";
+
+  btnDetalhes.classList.toggle("active", !abrirValores);
+  btnValores.classList.toggle("active", abrirValores);
+  painelDetalhes.classList.toggle("active", !abrirValores);
+  painelValores.classList.toggle("active", abrirValores);
+}
+
+function montarValoresDiariosCompHub(item) {
+  const valores = normalizarValoresDiariosCompHub_(item.valoresDiarios);
+
+  if (!valores || !Array.isArray(valores.itens) || !valores.itens.length) {
+    return (
+      "<div class='comp-empty-daily'>" +
+        "<b>Sem valores diários registrados</b>" +
+        "<p>Este comprovante foi salvo antes da implantação do controle de valores diários ou não possui essa informação no JSON Original.</p>" +
+      "</div>"
+    );
+  }
+
+  let total = 0;
+
+  let html = "";
+  html += "<div class='comp-daily-head'>";
+  html += "<div><h3>Valores informados pela loja</h3><p>Distribuição diária do período de movimento informado no envio.</p></div>";
+  html += "<strong>" + formatBRL(valores.total || 0) + "</strong>";
+  html += "</div>";
+
+  html += "<table class='comp-daily-table'>";
+  html += "<thead><tr><th>Data</th><th>Valor informado</th></tr></thead>";
+  html += "<tbody>";
+
+  valores.itens.forEach(function(itemDia) {
+    const valor = Number(itemDia.valor || 0);
+    total += valor;
+
+    html += "<tr>";
+    html += "<td>" + escapeHtml(itemDia.data || "-") + "</td>";
+    html += "<td>" + formatBRL(valor) + "</td>";
+    html += "</tr>";
+  });
+
+  html += "</tbody>";
+  html += "<tfoot><tr><td>Total</td><td>" + formatBRL(total) + "</td></tr></tfoot>";
+  html += "</table>";
+
+  return html;
+}
+
+function normalizarValoresDiariosCompHub_(valores) {
+  if (!valores) {
+    return null;
+  }
+
+  if (typeof valores === "string") {
+    try {
+      valores = JSON.parse(valores || "{}");
+    } catch (err) {
+      return null;
+    }
+  }
+
+  return valores;
 }
 
 function montarItemDetalheCompHub(label, valor, htmlLivre) {
@@ -6808,6 +7336,261 @@ function onDataMovimentoInicioChange() {
   }
 
   validarPeriodoMovimentoTela();
+  renderizarCamposValoresDiariosMovimento();
+}
+
+function onDataMovimentoFimChange() {
+  validarPeriodoMovimentoTela();
+  renderizarCamposValoresDiariosMovimento();
+}
+
+function renderizarCamposValoresDiariosMovimento(valoresPreenchidos) {
+  const inicio = document.getElementById("data_movimento_inicio").value;
+  const fim = document.getElementById("data_movimento_fim").value;
+  const box = document.getElementById("boxValoresDiariosMovimento");
+  const grid = document.getElementById("valoresDiariosGrid");
+
+  if (!box || !grid) return;
+
+  if (!inicio || !fim || fim < inicio) {
+    box.style.display = "none";
+    grid.innerHTML = "";
+    atualizarTotalValoresDiariosMovimento();
+    return;
+  }
+
+  const datas = gerarRangeDatasISO_(inicio, fim);
+
+  if (datas.length > 31) {
+    box.style.display = "none";
+    grid.innerHTML = "";
+    mostrarMensagem("erro", "O intervalo de movimento não pode passar de 31 dias.");
+    return;
+  }
+
+  const mapaValores = montarMapaValoresDiarios_(valoresPreenchidos);
+
+  let html = "";
+
+  datas.forEach(function(dataIso) {
+    const dataBR = converterDataInputParaBR(dataIso);
+    const dataCurta = dataBR.substring(0, 5);
+    const valorSalvo = mapaValores[dataBR] || "";
+
+    html +=
+      "<div class='valor-dia-card'>" +
+        "<label>" + escapeHtml(dataCurta) + "</label>" +
+        "<input " +
+          "type='text' " +
+          "inputmode='decimal' " +
+          "class='valor-diario-input' " +
+          "data-data-iso='" + escapeAttr(dataIso) + "' " +
+          "data-data-br='" + escapeAttr(dataBR) + "' " +
+          "placeholder='0,00' " +
+          "value='" + escapeAttr(valorSalvo) + "' " +
+          "oninput='onValorDiarioInput(this)' " +
+          "onblur='normalizarValorDiarioInput(this)'>" +
+      "</div>";
+  });
+
+  grid.innerHTML = html;
+  box.style.display = "block";
+  atualizarTotalValoresDiariosMovimento();
+}
+
+function gerarRangeDatasISO_(inicioIso, fimIso) {
+  const datas = [];
+
+  if (!inicioIso || !fimIso || fimIso < inicioIso) {
+    return datas;
+  }
+
+  const inicio = new Date(inicioIso + "T00:00:00");
+  const fim = new Date(fimIso + "T00:00:00");
+
+  for (
+    let d = new Date(inicio.getTime());
+    d <= fim;
+    d.setDate(d.getDate() + 1)
+  ) {
+    const ano = d.getFullYear();
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const dia = String(d.getDate()).padStart(2, "0");
+
+    datas.push(ano + "-" + mes + "-" + dia);
+  }
+
+  return datas;
+}
+
+function montarMapaValoresDiarios_(valoresPreenchidos) {
+  const mapa = {};
+
+  if (!valoresPreenchidos) {
+    return mapa;
+  }
+
+  const itens = Array.isArray(valoresPreenchidos)
+    ? valoresPreenchidos
+    : Array.isArray(valoresPreenchidos.itens)
+      ? valoresPreenchidos.itens
+      : [];
+
+  itens.forEach(function(item) {
+    const data = String(item.data || "").trim();
+    const valor = Number(item.valor || 0);
+
+    if (data && valor > 0) {
+      mapa[data] = formatarNumeroInputBR_(valor);
+    }
+  });
+
+  return mapa;
+}
+
+function onValorDiarioInput(input) {
+  if (!input) return;
+
+  if (smartSlipTemSinalNegativo(input.value)) {
+    input.value = "";
+    mostrarMensagem("erro", "Valor diário não pode ser negativo.");
+  }
+
+  atualizarTotalValoresDiariosMovimento();
+}
+
+function normalizarValorDiarioInput(input) {
+  if (!input) return;
+
+  const txt = String(input.value || "").trim();
+
+  if (!txt) {
+    atualizarTotalValoresDiariosMovimento();
+    return;
+  }
+
+  if (smartSlipTemSinalNegativo(txt)) {
+    input.value = "";
+    mostrarMensagem("erro", "Valor diário não pode ser negativo.");
+    atualizarTotalValoresDiariosMovimento();
+    return;
+  }
+
+  const valor = smartSlipNumeroBR(txt);
+
+  if (!valor || valor <= 0) {
+    input.value = "";
+    mostrarMensagem("erro", "Informe um valor diário válido, maior que zero.");
+    atualizarTotalValoresDiariosMovimento();
+    return;
+  }
+
+  input.value = formatarNumeroInputBR_(valor);
+  atualizarTotalValoresDiariosMovimento();
+}
+
+function atualizarTotalValoresDiariosMovimento() {
+  const totalEl = document.getElementById("valorDiarioTotal");
+  const inputs = document.querySelectorAll(".valor-diario-input");
+
+  let total = 0;
+
+  inputs.forEach(function(input) {
+    total += smartSlipNumeroBR(input.value || 0);
+  });
+
+  if (totalEl) {
+    totalEl.textContent = formatBRL(total);
+  }
+}
+
+function coletarValoresDiariosMovimento() {
+  const inputs = document.querySelectorAll(".valor-diario-input");
+  const itens = [];
+  let total = 0;
+
+  inputs.forEach(function(input) {
+    const valor = smartSlipNumeroBR(input.value || 0);
+    const dataBR = input.getAttribute("data-data-br") || "";
+
+    itens.push({
+      data: dataBR,
+      valor: valor
+    });
+
+    total += valor;
+  });
+
+  return {
+    itens: itens,
+    total: total
+  };
+}
+
+function validarValoresDiariosMovimento() {
+  const inicio = document.getElementById("data_movimento_inicio").value;
+  const fim = document.getElementById("data_movimento_fim").value;
+
+  if (!inicio) {
+    mostrarMensagem("erro", "Informe a data de movimento inicial.");
+    return false;
+  }
+
+  if (!fim) {
+    mostrarMensagem("erro", "Informe a data de movimento final. Se for uma única data, repita a data inicial.");
+    return false;
+  }
+
+  const datas = gerarRangeDatasISO_(inicio, fim);
+
+  if (!datas.length) {
+    mostrarMensagem("erro", "Período de movimento inválido.");
+    return false;
+  }
+
+  if (datas.length > 31) {
+    mostrarMensagem("erro", "O intervalo de movimento não pode passar de 31 dias.");
+    return false;
+  }
+
+  const inputs = document.querySelectorAll(".valor-diario-input");
+
+  if (inputs.length !== datas.length) {
+    mostrarMensagem("erro", "Campos de valores diários não foram gerados corretamente. Informe novamente as datas.");
+    return false;
+  }
+
+  for (let i = 0; i < inputs.length; i++) {
+    const input = inputs[i];
+    const txt = String(input.value || "").trim();
+    const dataBR = input.getAttribute("data-data-br") || "";
+
+    if (!txt) {
+      mostrarMensagem("erro", "Informe o valor do movimento para " + dataBR + ".");
+      return false;
+    }
+
+    if (smartSlipTemSinalNegativo(txt)) {
+      mostrarMensagem("erro", "O valor do movimento para " + dataBR + " não pode ser negativo.");
+      return false;
+    }
+
+    const valor = smartSlipNumeroBR(txt);
+
+    if (!valor || valor <= 0) {
+      mostrarMensagem("erro", "Informe um valor válido, maior que zero, para " + dataBR + ".");
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function formatarNumeroInputBR_(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
 function validarPeriodoMovimentoTela() {
@@ -6991,6 +7774,14 @@ function validarRegrasEnvioSmartSlip() {
     return erro("A data movimento final não pode ser menor que a data movimento inicial.");
   }
 
+  if (!dataFimTxt) {
+  return erro("Informe a data de movimento final. Se for uma única data, repita a data inicial.");
+  }
+
+  if (!validarValoresDiariosMovimento()) {
+    return false;
+  }
+
   if (smartSlipTemSinalNegativo(valorRetiradaTxt) || valorRetirada < 0) {
     return erro("O valor da retirada não pode ser negativo.");
   }
@@ -7049,8 +7840,17 @@ function validarRegrasEnvioSmartSlip() {
         return;
       }
 
-      if (dataFim && !validarDataInput(dataFim)) {
+      if (!dataFim) {
+        mostrarMensagem("erro", "Informe a data de movimento final. Se for uma única data, repita a data inicial.");
+        return;
+      }
+
+      if (!validarDataInput(dataFim)) {
         mostrarMensagem("erro", "Data de movimento final inválida.");
+        return;
+      }
+
+      if (!validarValoresDiariosMovimento()) {
         return;
       }
 
@@ -7139,10 +7939,11 @@ function validarRegrasEnvioSmartSlip() {
           mimeType: file.type || "application/pdf",
           loja: loja,
           data_movimento_inicio: converterDataInputParaBR(dataInicio),
-          data_movimento_fim: converterDataInputParaBR(dataFim || dataInicio),
+          data_movimento_fim: converterDataInputParaBR(dataFim),
           houve_retirada: String(houveRetirada),
           valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
           motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
+          valores_diarios_movimento: coletarValoresDiariosMovimento(),
           mais_comprovantes: "false"
         };
 
@@ -7156,6 +7957,10 @@ function validarRegrasEnvioSmartSlip() {
               return;
             }
 
+            // Limpa todos os campos do formulário, mas mantém a loja padrão.
+            // Importante: precisa vir ANTES da mensagem, porque limparFormulario(false) chama limparMensagem().
+            limparFormulario(false);
+
             mostrarMensagem(
               "ok",
               "Comprovante recebido para processamento.\n\n" +
@@ -7163,11 +7968,6 @@ function validarRegrasEnvioSmartSlip() {
               "Status: " + resp.status + "\n\n" +
               "A validação será feita automaticamente."
             );
-
-            document.getElementById("arquivo").value = "";
-            atualizarUploadInfo(null);
-            document.getElementById("data_movimento_inicio").value = "";
-            document.getElementById("data_movimento_fim").value = "";
 
             carregarBootstrap();
           })
