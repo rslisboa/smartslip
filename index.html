@@ -3235,6 +3235,11 @@ body:not(.smart-mobile) .hist-status-modal-card {
   font-weight: 950;
 }
 
+.valores-diarios-box .hint {
+  color: rgba(255, 255, 255, .86) !important;
+  font-weight: 700 !important;
+}
+
 .valores-diarios-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
@@ -3399,6 +3404,598 @@ body.smart-mobile .valores-diarios-head strong {
   line-height: 1.45;
 }
 
+/* =========================================================
+   SMARTSLIP - PRÉ-VALIDAÇÃO IA DO TOTAL DOCUMENTAL
+   ========================================================= */
+
+.ia-total-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(181, 255, 32, .30);
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, .10);
+}
+
+.ia-total-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.ia-total-head b {
+  display: block;
+  color: #050807;
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .25px;
+}
+
+.ia-total-head p {
+  margin: 4px 0 0;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.ia-total-head strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #050807;
+  color: #B5FF20;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.ia-total-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ia-total-grid div {
+  padding: 10px;
+  border-radius: 14px;
+  background: #f7fbf4;
+  border: 1px solid #dbe8d4;
+}
+
+.ia-total-grid span {
+  display: block;
+  color: #667085;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.ia-total-grid strong {
+  display: block;
+  color: #050807;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.ia-total-ok {
+  border-color: #abefc6;
+  background: #ecfdf3;
+}
+
+.ia-total-warn {
+  border-color: #fedf89;
+  background: #fffaeb;
+}
+
+.ia-total-error {
+  border-color: #fecdca;
+  background: #fff1f0;
+}
+
+.ia-total-neutral {
+  border-color: rgba(181, 255, 32, .30);
+  background: #ffffff;
+}
+
+body.smart-mobile .ia-total-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* =========================================================
+   SMARTSLIP - PRÉVIA DO ARQUIVO ANEXADO DESKTOP
+   ========================================================= */
+
+.arquivo-preview-box {
+  margin-top: 14px;
+  border-radius: 22px;
+  border: 1px solid rgba(0, 94, 39, .18);
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(16, 24, 40, .10);
+  overflow: hidden;
+}
+
+.arquivo-preview-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #050807;
+  border-bottom: 1px solid rgba(181, 255, 32, .28);
+}
+
+.arquivo-preview-head strong {
+  display: block;
+  color: #B5FF20;
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.arquivo-preview-head span {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, .78);
+  font-size: 12px;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.arquivo-preview-close {
+  width: auto !important;
+  min-height: 34px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.10) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  white-space: nowrap;
+}
+
+.arquivo-preview-close:hover {
+  background: rgba(181,255,32,.20) !important;
+  color: #B5FF20 !important;
+}
+
+.arquivo-preview-body {
+  height: 420px;
+  background: #f7fbf4;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.arquivo-preview-body img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #f7fbf4;
+}
+
+.arquivo-preview-body iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #ffffff;
+}
+
+.arquivo-preview-fallback {
+  padding: 22px;
+  text-align: center;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.arquivo-preview-fallback b {
+  display: block;
+  margin-bottom: 8px;
+  color: #050807;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+/* Não mostrar prévia no celular */
+body.smart-mobile .arquivo-preview-box {
+  display: none !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .arquivo-preview-box {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - HOME | STORE SIGN-UP
+   ========================================================= */
+
+.home-chart-filter-panel {
+  margin-bottom: 18px;
+}
+
+.legend-dot.store-signup {
+  background: #40E0D0;
+  border: 1px solid rgba(0,0,0,.18);
+}
+
+/* =========================================================
+   SMARTSLIP - HOME DARK FULL WIDTH
+   Aplica somente na página Início via body.smart-home-dark
+   ========================================================= */
+
+body.smart-home-dark {
+  background: #050807 !important;
+  color: #ffffff !important;
+}
+
+body.smart-home-dark .app-shell {
+  background: #050807 !important;
+}
+
+body.smart-home-dark .main {
+  background:
+    radial-gradient(circle at top left, rgba(181,255,32,.10), transparent 26%),
+    radial-gradient(circle at top right, rgba(29,111,209,.20), transparent 34%),
+    linear-gradient(180deg, #050807 0%, #07111f 48%, #050807 100%) !important;
+  padding: 18px 18px 34px !important;
+}
+
+body.smart-home-dark #view-inicio {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.smart-home-dark #view-inicio h1 {
+  color: #ffffff !important;
+  font-size: 30px !important;
+  letter-spacing: -.6px !important;
+}
+
+body.smart-home-dark #view-inicio h2 {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-inicio .page-sub,
+body.smart-home-dark #view-inicio .chart-sub {
+  color: rgba(255,255,255,.62) !important;
+}
+
+body.smart-home-dark #view-inicio .top-pill {
+  background: rgba(181,255,32,.12) !important;
+  border: 1px solid rgba(181,255,32,.35) !important;
+  color: #B5FF20 !important;
+}
+
+/* KPIs da Home */
+body.smart-home-dark #view-inicio .kpi-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin-bottom: 18px !important;
+}
+
+body.smart-home-dark #view-inicio .kpi-card {
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 36%),
+    linear-gradient(135deg, #071E3D 0%, #0B3E78 54%, #082A5A 100%) !important;
+  border: 1px solid rgba(64,224,208,.34) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+  min-height: 92px !important;
+  padding: 18px 20px !important;
+}
+
+body.smart-home-dark #view-inicio .kpi-card span {
+  color: #B5FF20 !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  letter-spacing: .45px !important;
+}
+
+body.smart-home-dark #view-inicio .kpi-card strong {
+  color: #B5FF20 !important;
+  font-size: 28px !important;
+  font-weight: 950 !important;
+  text-shadow: 0 0 18px rgba(181,255,32,.18) !important;
+}
+
+/* Painéis da Home */
+body.smart-home-dark #view-inicio .panel,
+body.smart-home-dark #view-inicio .home-chart-panel,
+body.smart-home-dark #statusPanelInicio {
+  background:
+    radial-gradient(circle at top right, rgba(29,111,209,.12), transparent 36%),
+    linear-gradient(180deg, #101827 0%, #0B1220 100%) !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 18px 44px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+body.smart-home-dark #view-inicio .home-chart-filter-panel {
+  min-height: auto !important;
+  padding: 18px 20px !important;
+  margin-bottom: 14px !important;
+}
+
+body.smart-home-dark #view-inicio .chart-panel {
+  min-height: 330px !important;
+  padding: 20px !important;
+}
+
+body.smart-home-dark #view-inicio .chart-panel-secondary {
+  margin-top: 14px !important;
+}
+
+/* Filtros da Home */
+body.smart-home-dark #view-inicio label {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-inicio select,
+body.smart-home-dark #view-inicio input {
+  background: #071E3D !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(64,224,208,.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+body.smart-home-dark #view-inicio select:focus,
+body.smart-home-dark #view-inicio input:focus {
+  outline: 3px solid rgba(181,255,32,.22) !important;
+  border-color: #B5FF20 !important;
+}
+
+/* Legendas */
+body.smart-home-dark #view-inicio .chart-legend {
+  color: rgba(255,255,255,.72) !important;
+}
+
+body.smart-home-dark #view-inicio .legend-dot.valor {
+  background: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-inicio .legend-dot.qtd {
+  background: #40E0D0 !important;
+}
+
+body.smart-home-dark #view-inicio .legend-dot.store-signup {
+  background: #40E0D0 !important;
+}
+
+/* SVG dos gráficos da Home */
+body.smart-home-dark #view-inicio .line-chart svg {
+  background: transparent !important;
+}
+
+body.smart-home-dark #view-inicio .line-chart svg line {
+  stroke: rgba(255,255,255,.08) !important;
+}
+
+body.smart-home-dark #view-inicio .line-chart svg text {
+  fill: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-inicio .line-chart svg circle {
+  stroke: #050807 !important;
+}
+
+/* Status dos comprovantes */
+body.smart-home-dark #statusPanelInicio .status-pizza-item {
+  background: #071E3D !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-name {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-meta {
+  color: rgba(255,255,255,.68) !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-3d {
+  box-shadow:
+    inset 0 12px 18px rgba(255,255,255,.16),
+    inset 0 -12px 14px rgba(0,0,0,.30),
+    0 16px 0 rgba(0,0,0,.22) !important;
+}
+
+/* Desktop grande: ocupa a área útil inteira */
+@media (min-width: 1025px) {
+  body.smart-home-dark #view-inicio {
+    min-height: calc(100vh - 36px) !important;
+  }
+
+  body.smart-home-dark #view-inicio .line-chart svg {
+    height: 285px !important;
+  }
+
+  body.smart-home-dark #view-inicio .line-chart {
+    min-height: 285px !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - HOME | BLOCO INFERIOR DUPLO
+   Lojas com atenção + Status
+   ========================================================= */
+
+.home-bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(360px, .9fr) minmax(460px, 1.1fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.home-bottom-panel {
+  min-height: 330px !important;
+}
+
+.lojas-atencao-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.lojas-atencao-list {
+  display: grid;
+  gap: 10px;
+}
+
+.lojas-atencao-row {
+  display: grid;
+  gap: 7px;
+  padding: 11px 12px;
+  border-radius: 16px;
+  background: #071E3D;
+  border: 1px solid rgba(64,224,208,.24);
+}
+
+.lojas-atencao-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.lojas-atencao-loja {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.lojas-atencao-total {
+  color: #B5FF20;
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.lojas-atencao-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.09);
+  overflow: hidden;
+}
+
+.lojas-atencao-fill {
+  height: 100%;
+  min-width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #40E0D0, #B5FF20);
+}
+
+.lojas-atencao-detail {
+  color: rgba(255,255,255,.62);
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+/* Status dos comprovantes - gráfico maior em cima e legenda embaixo */
+.status-panel-compact .status-pizza-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 18px !important;
+  align-items: start !important;
+}
+
+.status-panel-compact .status-pizza-stage {
+  width: 100% !important;
+  height: 250px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+.status-panel-compact .status-pizza-3d {
+  width: 250px !important;
+  height: 250px !important;
+  margin: 0 auto !important;
+}
+
+.status-panel-compact .status-pizza-shadow {
+  width: 180px !important;
+  height: 34px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 10px !important;
+  transform: translateX(-50%) !important;
+}
+
+.status-panel-compact .status-pizza-legend {
+  display: grid !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.status-panel-compact .status-pizza-item {
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  grid-template-columns: 16px 1fr auto !important;
+}
+
+.status-panel-compact .status-pizza-dot {
+  width: 11px !important;
+  height: 11px !important;
+}
+
+.status-panel-compact .status-pizza-name {
+  font-size: 12px !important;
+}
+
+.status-panel-compact .status-pizza-meta {
+  font-size: 11px !important;
+}
+
+/* Tema escuro da Home */
+body.smart-home-dark #view-inicio .home-bottom-grid .panel {
+  background:
+    radial-gradient(circle at top right, rgba(29,111,209,.12), transparent 36%),
+    linear-gradient(180deg, #101827 0%, #0B1220 100%) !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+}
+
+/* Responsivo desktop menor */
+@media (max-width: 1280px) {
+  .home-bottom-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .status-panel-compact .status-pizza-grid {
+    grid-template-columns: 260px 1fr !important;
+  }
+
+  .status-panel-compact .status-pizza-stage {
+    width: 260px !important;
+    height: 220px !important;
+  }
+
+  .status-panel-compact .status-pizza-3d {
+    width: 230px !important;
+    height: 230px !important;
+  }
+}
+
   </style>
 </head>
 
@@ -3411,6 +4008,20 @@ body.smart-mobile .valores-diarios-head strong {
         <p class="session-blocker-small">Use apenas a aba mais recente.</p>
       </div>
     </div>
+
+      <div id="accessBlocker" class="session-blocker">
+        <div class="session-blocker-card">
+          <div class="session-blocker-icon">!</div>
+          <h2>Acesso não autorizado</h2>
+          <p id="accessBlockerMsg">
+            Seu usuário não está autorizado para acessar o SmartSlip.
+          </p>
+          <p class="session-blocker-small">
+            Solicite liberação ao time de Contas a Receber.
+          </p>
+        </div>
+      </div>
+
       <div id="introSmartSlip" class="intro-smartslip">
         <div class="intro-hero-brand">
           <div class="intro-hero-logo">S</div>
@@ -3456,9 +4067,9 @@ body.smart-mobile .valores-diarios-head strong {
               <b>Importante:</b> envie imagens legíveis e confira se a loja padrão está correta em Configurações.
             </div>
 
-            <button type="button" class="intro-button" onclick="fecharIntroSmartSlip()">
-              Entendi, acessar SmartSlip
-            </button>
+          <button type="button" class="intro-button" onclick="validarAcessoAntesDeEntrarSmartSlip()">
+            Entendi, acessar SmartSlip
+          </button>
           </div>
         </div>
       </div>
@@ -3583,31 +4194,57 @@ body.smart-mobile .valores-diarios-head strong {
   </div>
 </div>
 
-          <div class="panel chart-panel home-chart-panel">
+    <div class="panel home-chart-filter-panel home-chart-panel">
+      <div class="chart-head">
+        <div>
+          <h2>Filtros da visão inicial</h2>
+          <p class="chart-sub">Os filtros abaixo controlam Store Sign-up, Valor dos comprovantes e Quantidade de envios.</p>
+        </div>
+
+        <div class="chart-controls">
+          <div class="year-control">
+            <label for="modoResumo">Visão</label>
+            <select id="modoResumo" onchange="onModoResumoChange()">
+              <option value="mensal">Mensal</option>
+              <option value="diario">Diário</option>
+            </select>
+          </div>
+
+          <div class="year-control">
+            <label for="anoResumo">Ano</label>
+            <select id="anoResumo" onchange="onAnoResumoChange()"></select>
+          </div>
+
+          <div class="year-control" id="boxMesResumo" style="display:none;">
+            <label for="mesResumo">Mês</label>
+            <select id="mesResumo" onchange="onMesResumoChange()"></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel chart-panel home-chart-panel">
+      <div class="chart-head">
+        <div>
+          <h2>Store Sign-up</h2>
+          <p class="chart-sub">Quantidade de lojas distintas que enviaram comprovantes no período selecionado.</p>
+        </div>
+      </div>
+
+      <div id="chartStoreSignup" class="line-chart">
+        <p class="page-sub">Carregando Store Sign-up...</p>
+      </div>
+
+      <div class="chart-legend">
+        <span><i class="legend-dot store-signup"></i> Lojas usando o SmartSlip</span>
+      </div>
+    </div>
+
+          <div class="panel chart-panel chart-panel-secondary home-chart-panel">
             <div class="chart-head">
               <div>
                 <h2>Valor dos comprovantes</h2>
                 <p class="chart-sub">Valor total conforme a visão selecionada.</p>
-              </div>
-
-              <div class="chart-controls">
-                <div class="year-control">
-                  <label for="modoResumo">Visão</label>
-                  <select id="modoResumo" onchange="onModoResumoChange()">
-                    <option value="mensal">Mensal</option>
-                    <option value="diario">Diário</option>
-                  </select>
-                </div>
-
-                <div class="year-control">
-                  <label for="anoResumo">Ano</label>
-                  <select id="anoResumo" onchange="onAnoResumoChange()"></select>
-                </div>
-
-                <div class="year-control" id="boxMesResumo" style="display:none;">
-                  <label for="mesResumo">Mês</label>
-                  <select id="mesResumo" onchange="onMesResumoChange()"></select>
-                </div>
               </div>
             </div>
 
@@ -3637,25 +4274,40 @@ body.smart-mobile .valores-diarios-head strong {
             </div>
           </div>
 
-          <div id="statusPanelInicio" class="panel chart-panel chart-panel-secondary">
-          <div class="chart-head">
-            <div>
-              <h2>Status dos comprovantes</h2>
-              <p class="chart-sub">Distribuição percentual dos status dos comprovantes enviados.</p>
-            </div>
-          </div>
+            <div class="home-bottom-grid home-chart-panel">
+              <div id="lojasAtencaoPanelInicio" class="panel chart-panel chart-panel-secondary home-bottom-panel">
+                <div class="chart-head">
+                  <div>
+                    <h2>Lojas com atenção operacional</h2>
+                    <p class="chart-sub">Lojas com maior volume de pendências, divergências ou erros.</p>
+                  </div>
+                </div>
 
-          <div class="status-pizza-grid">
-            <div class="status-pizza-stage">
-              <div class="status-pizza-shadow"></div>
-              <div id="chartStatusPizza" class="status-pizza-3d"></div>
-            </div>
+                <div id="chartLojasAtencao" class="lojas-atencao-chart">
+                  <p class="page-sub">Carregando lojas com atenção...</p>
+                </div>
+              </div>
 
-            <div id="chartStatusLegenda" class="status-pizza-legend">
-              <p class="page-sub">Carregando status...</p>
+              <div id="statusPanelInicio" class="panel chart-panel chart-panel-secondary home-bottom-panel status-panel-compact">
+                <div class="chart-head">
+                  <div>
+                    <h2>Status dos comprovantes</h2>
+                    <p class="chart-sub">Distribuição percentual dos status dos comprovantes enviados.</p>
+                  </div>
+                </div>
+
+                <div class="status-pizza-grid">
+                  <div class="status-pizza-stage">
+                    <div class="status-pizza-shadow"></div>
+                    <div id="chartStatusPizza" class="status-pizza-3d"></div>
+                  </div>
+
+                  <div id="chartStatusLegenda" class="status-pizza-legend">
+                    <p class="page-sub">Carregando status...</p>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
       </section>
 
       <section id="view-comprovantes" class="view">
@@ -3683,8 +4335,23 @@ body.smart-mobile .valores-diarios-head strong {
               <div class="upload-sub" id="uploadSub">Clique para selecionar ou arraste o arquivo aqui. Tamanho máximo de 10MB por arquivo</div>
             </div>
 
+            <div id="arquivoPreviewBox" class="arquivo-preview-box" style="display:none;">
+            <div class="arquivo-preview-head">
+              <div>
+                <strong>Prévia do documento</strong>
+                <span id="arquivoPreviewInfo">Arquivo selecionado</span>
+              </div>
+
+              <button type="button" class="arquivo-preview-close" onclick="limparPreviewArquivoSmartSlip()">
+                Remover prévia
+              </button>
+            </div>
+
+            <div id="arquivoPreviewBody" class="arquivo-preview-body"></div>
+          </div>
+
               <div class="hint">
-                Envie uma foto/PDF legível. O sistema tentará identificar todos os comprovantes presentes no arquivo.
+                  Envie 1 arquivo por vez. Se houver vários comprovantes, envie uma única foto ou PDF contendo todos, desde que estejam visíveis, legíveis e bem separados.
               </div>
 
                 <div class="ocr-guidance-card">
@@ -3754,6 +4421,33 @@ body.smart-mobile .valores-diarios-head strong {
 
             <div class="hint">
               Use vírgula para centavos. Exemplo: 1448,50. Valores negativos não são permitidos.
+            </div>
+
+            <div id="boxValidacaoIaTotal" class="ia-total-box ia-total-neutral" style="display:none;">
+              <div class="ia-total-head">
+                <div>
+                  <b id="iaTotalTitulo">Validação IA do total</b>
+                  <p id="iaTotalMensagem">Aguardando arquivo e valores diários.</p>
+                </div>
+                <strong id="iaTotalBadge">IA</strong>
+              </div>
+
+              <div class="ia-total-grid">
+                <div>
+                  <span>Soma informada</span>
+                  <strong id="iaTotalUsuario">-</strong>
+                </div>
+
+                <div>
+                  <span>Total lido pela IA</span>
+                  <strong id="iaTotalLido">-</strong>
+                </div>
+
+                <div>
+                  <span>Diferença</span>
+                  <strong id="iaTotalDiferenca">-</strong>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -4101,7 +4795,10 @@ body.smart-mobile .valores-diarios-head strong {
       lojas: [],
       resumo_mensal: [],
       resumo_diario: [],
+      store_signup_mensal: [],
+      store_signup_diario: [],
       resumo_status: [],
+      lojas_atencao: [],
       historico: [],
       comp_hub: [],
       comp_hub_filtrado: []
@@ -4110,6 +4807,14 @@ body.smart-mobile .valores-diarios-head strong {
     let COMP_HUB_PAGE = 1;
     let COMP_HUB_PER_PAGE = 25;
     let COMP_HUB_CARREGADO = false;
+    let SMARTSLIP_PREVALIDACAO_TOTAL_IA = null;
+    let SMARTSLIP_PREVALIDACAO_TOTAL_TIMER = null;
+    let SMARTSLIP_PREVALIDACAO_TOTAL_SEQ = 0;
+    let SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = false;
+    const SMARTSLIP_COOLDOWN_ENVIO_MS = 120000;
+    const SMARTSLIP_COOLDOWN_ENVIO_KEY = "SMARTSLIP_ULTIMO_ENVIO_FINALIZADO_EM";
+    let SMARTSLIP_COOLDOWN_TIMER = null;
+    let SMARTSLIP_ARQUIVO_PREVIEW_URL = null;
 
     let COMP_HUB_SORT = {
       key: "",
@@ -4206,6 +4911,7 @@ function aplicarModoMobileSmartSlip() {
 
 window.onload = function() {
   aplicarModoMobileSmartSlip();
+  aplicarTemaHomeSmartSlip("inicio");
 
   registrarAbaAtivaSmartSlip();
   controlarIntroSmartSlip();
@@ -4223,12 +4929,15 @@ window.onload = function() {
     }
 
     document.body.classList.remove("intro-lock");
-    iniciarCargaInicialSmartSlip();
+
+    // Mobile não mostra introdução, então precisa validar acesso antes de carregar.
+    validarAcessoECarregarSmartSlipSemIntro();
     return;
   }
 
   if (!intro || !intro.classList.contains("show")) {
-    iniciarCargaInicialSmartSlip();
+    // Desktop sem intro visível também precisa validar antes da carga.
+    validarAcessoECarregarSmartSlipSemIntro();
   }
 };
 
@@ -4273,6 +4982,124 @@ function controlarIntroSmartSlip() {
 
   intro.classList.add("show");
   document.body.classList.add("intro-lock");
+}
+
+function mostrarAcessoNaoAutorizadoSmartSlip(mensagem) {
+  const blocker = document.getElementById("accessBlocker");
+  const msg = document.getElementById("accessBlockerMsg");
+
+  if (msg) {
+    msg.textContent = mensagem || "Seu usuário não está autorizado para acessar o SmartSlip.";
+  }
+
+  if (blocker) {
+    blocker.classList.add("show");
+  }
+
+  const intro = document.getElementById("introSmartSlip");
+
+  if (intro) {
+    intro.classList.remove("show");
+  }
+
+  document.body.classList.remove("intro-lock");
+
+  esconderSmartLoader();
+
+  document.querySelectorAll("button, input, select, textarea").forEach(function(el) {
+    el.disabled = true;
+  });
+}
+
+function validarAcessoAntesDeEntrarSmartSlip() {
+  const btn = document.querySelector(".intro-button");
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Validando acesso...";
+  }
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope = {};
+
+      try {
+        envelope = typeof txt === "string" ? JSON.parse(txt || "{}") : (txt || {});
+      } catch (err) {
+        envelope = {
+          ok: false,
+          erro: "Resposta inválida na validação de acesso."
+        };
+      }
+
+      if (!envelope.ok) {
+        if (envelope.codigo === "ACESSO_NAO_AUTORIZADO") {
+            mostrarAcessoNaoAutorizadoSmartSlip(
+              envelope.erro || "Seu usuário não está autorizado para acessar o SmartSlip."
+            );
+            finalizarCallback(false);
+            return;
+          }
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Entendi, acessar SmartSlip";
+        }
+
+        mostrarAcessoNaoAutorizadoSmartSlip(
+          envelope.erro || "Seu usuário não está autorizado para acessar o SmartSlip."
+        );
+
+        return;
+      }
+
+      fecharIntroSmartSlip();
+    })
+    .withFailureHandler(function(err) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Entendi, acessar SmartSlip";
+      }
+
+      mostrarAcessoNaoAutorizadoSmartSlip(
+        err && err.message
+          ? err.message
+          : "Falha ao validar acesso ao SmartSlip."
+      );
+    })
+    .smartSlipValidarAcessoSmartSlipAppJson();
+}
+
+function validarAcessoECarregarSmartSlipSemIntro() {
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope = {};
+
+      try {
+        envelope = typeof txt === "string" ? JSON.parse(txt || "{}") : (txt || {});
+      } catch (err) {
+        envelope = {
+          ok: false,
+          erro: "Resposta inválida na validação de acesso."
+        };
+      }
+
+      if (!envelope.ok) {
+        mostrarAcessoNaoAutorizadoSmartSlip(
+          envelope.erro || "Seu usuário não está autorizado para acessar o SmartSlip."
+        );
+        return;
+      }
+
+      iniciarCargaInicialSmartSlip();
+    })
+    .withFailureHandler(function(err) {
+      mostrarAcessoNaoAutorizadoSmartSlip(
+        err && err.message
+          ? err.message
+          : "Falha ao validar acesso ao SmartSlip."
+      );
+    })
+    .smartSlipValidarAcessoSmartSlipAppJson();
 }
 
 function fecharIntroSmartSlip() {
@@ -4524,9 +5351,14 @@ function carregarBootstrap(options, callback) {
 
       aplicarUsuario(resp.usuario || {});
       aplicarModoMobileSmartSlip();
-      renderResumo(resp.resumo_mensal || [], resp.resumo_diario || []);
+      renderResumo(
+        resp.resumo_mensal || [],
+        resp.resumo_diario || [],
+        resp.store_signup_mensal || [],
+        resp.store_signup_diario || []
+      );
       renderHistorico(resp.historico || []);
-      renderResumoStatus(resp.resumo_status || []);
+      renderResumoStatus(resp.resumo_status || [], resp.lojas_atencao || []);
 
       finalizarCallback(true);
     })
@@ -4827,53 +5659,65 @@ function salvarConfiguracoesUsuario() {
     .smartSlipSalvarPreferenciasUsuarioJson(loja);
 }
 
+function aplicarTemaHomeSmartSlip(nome) {
+  const ehHomeDesktop =
+    String(nome || "").toLowerCase() === "inicio" &&
+    !isSmartSlipMobile();
+
+  document.body.classList.toggle("smart-home-dark", ehHomeDesktop);
+  document.documentElement.classList.toggle("smart-home-dark", ehHomeDesktop);
+}
+
     function abrirComprovantesMobile() {
       const btn = document.querySelector('[data-nav="comprovantes"]');
       abrirView("comprovantes", btn);
     }
 
-    function abrirView(nome, btn) {
-      aplicarModoMobileSmartSlip();
+function abrirView(nome, btn) {
+  aplicarModoMobileSmartSlip();
+  aplicarTemaHomeSmartSlip(nome);
 
-      if (nome === "comp-hub" && isSmartSlipMobile()) {
-        const btnInicio = document.querySelector('[data-nav="inicio"]');
-        abrirView("inicio", btnInicio);
-        return;
-      }
+  if (nome === "comp-hub" && isSmartSlipMobile()) {
+    const btnInicio = document.querySelector('[data-nav="inicio"]');
+    abrirView("inicio", btnInicio);
+    return;
+  }
 
-      if (nome === "comp-hub") {
-      const usuario = SMARTSLIP_STATE.usuario || {};
+  if (nome === "comp-hub") {
+    const usuario = SMARTSLIP_STATE.usuario || {};
 
-      if (usuario.can_comp_hub !== true) {
-        alert("Acesso restrito. O Comp Hub está disponível apenas para Administrador ou Analista Pro.");
-        return;
-      }
+    if (usuario.can_comp_hub !== true) {
+      alert("Acesso restrito. O Comp Hub está disponível apenas para Administrador ou Analista Pro.");
+      return;
     }
-      document.querySelectorAll(".view").forEach(function(v) {
-        v.classList.remove("active");
-      });
+  }
 
-      document.querySelectorAll(".nav-item").forEach(function(b) {
-        b.classList.remove("active");
-      });
+  document.querySelectorAll(".view").forEach(function(v) {
+    v.classList.remove("active");
+  });
 
-      const view = document.getElementById("view-" + nome);
+  document.querySelectorAll(".nav-item").forEach(function(b) {
+    b.classList.remove("active");
+  });
 
-      if (view) {
-        view.classList.add("active");
-      }
+  const view = document.getElementById("view-" + nome);
 
-      if (btn) {
-        btn.classList.add("active");
-      }
-     if (nome === "inicio" || nome === "historico") {
-        carregarBootstrap({ silencioso: true });
-      }
+  if (view) {
+    view.classList.add("active");
+  }
 
-      if (nome === "comp-hub") {
-        carregarCompHub(false);
-      }
-    }
+  if (btn) {
+    btn.classList.add("active");
+  }
+
+  if (nome === "inicio" || nome === "historico") {
+    carregarBootstrap({ silencioso: true });
+  }
+
+  if (nome === "comp-hub") {
+    carregarCompHub(false);
+  }
+}
 
 function toggleRetirada() {
   const houveEl = document.getElementById("houve_retirada");
@@ -4920,6 +5764,7 @@ function toggleRetirada() {
 function limparFormulario(limparLoja) {
   document.getElementById("arquivo").value = "";
   atualizarUploadInfo(null);
+  limparPreviewArquivoSmartSlip(false);
 
   document.getElementById("data_movimento_inicio").value = "";
   document.getElementById("data_movimento_fim").value = "";
@@ -4933,11 +5778,58 @@ function limparFormulario(limparLoja) {
   document.getElementById("valoresDiariosGrid").innerHTML = "";
   atualizarTotalValoresDiariosMovimento();
 
+  resetarPreValidacaoTotalIa();
+
   if (limparLoja) {
     document.getElementById("loja").value = "";
   }
-
   limparMensagem();
+}
+
+function smartSlipGetCooldownRestanteEnvio_() {
+  const ultimo = Number(localStorage.getItem(SMARTSLIP_COOLDOWN_ENVIO_KEY) || 0);
+
+  if (!ultimo) {
+    return 0;
+  }
+
+  const restante = SMARTSLIP_COOLDOWN_ENVIO_MS - (Date.now() - ultimo);
+
+  return Math.max(0, restante);
+}
+
+function smartSlipRegistrarCooldownEnvio_() {
+  localStorage.setItem(SMARTSLIP_COOLDOWN_ENVIO_KEY, String(Date.now()));
+  smartSlipAtualizarBotaoCooldownEnvio_();
+}
+
+function smartSlipAtualizarBotaoCooldownEnvio_() {
+  const btn = document.getElementById("btn");
+
+  if (!btn) {
+    return;
+  }
+
+  clearInterval(SMARTSLIP_COOLDOWN_TIMER);
+
+  function tick() {
+    const restante = smartSlipGetCooldownRestanteEnvio_();
+
+    if (restante <= 0) {
+      clearInterval(SMARTSLIP_COOLDOWN_TIMER);
+      btn.disabled = false;
+      btn.textContent = "Enviar comprovante";
+      return;
+    }
+
+    const segundos = Math.ceil(restante / 1000);
+
+    btn.disabled = true;
+    btn.textContent = "Aguarde " + segundos + "s";
+  }
+
+  tick();
+  SMARTSLIP_COOLDOWN_TIMER = setInterval(tick, 1000);
 }
 
     function validarDataInput(valor) {
@@ -4965,15 +5857,23 @@ function limparFormulario(limparLoja) {
       });
     }
 
-    function renderResumo(resumoMensal, resumoDiario) {
-      SMARTSLIP_STATE.resumo_mensal = resumoMensal || [];
-      SMARTSLIP_STATE.resumo_diario = resumoDiario || [];
+function renderResumo(resumoMensal, resumoDiario, storeSignupMensal, storeSignupDiario) {
+  SMARTSLIP_STATE.resumo_mensal = resumoMensal || [];
+  SMARTSLIP_STATE.resumo_diario = resumoDiario || [];
+  SMARTSLIP_STATE.store_signup_mensal = storeSignupMensal || [];
+  SMARTSLIP_STATE.store_signup_diario = storeSignupDiario || [];
 
-      popularAnosResumo(SMARTSLIP_STATE.resumo_mensal, SMARTSLIP_STATE.resumo_diario);
-      popularMesesResumo();
+  popularAnosResumo(
+    SMARTSLIP_STATE.resumo_mensal,
+    SMARTSLIP_STATE.resumo_diario,
+    SMARTSLIP_STATE.store_signup_mensal,
+    SMARTSLIP_STATE.store_signup_diario
+  );
 
-      renderResumoAtual();
-    }
+  popularMesesResumo();
+
+  renderResumoAtual();
+}
 
     function getAnoAtual() {
   return new Date().getFullYear().toString();
@@ -5008,7 +5908,7 @@ function getMesResumoSelecionado() {
   return getMesAtual();
 }
 
-function extrairAnosResumo(resumoMensal, resumoDiario) {
+function extrairAnosResumo(resumoMensal, resumoDiario, storeSignupMensal, storeSignupDiario) {
   const set = {};
 
   (resumoMensal || []).forEach(function(item) {
@@ -5029,6 +5929,24 @@ function extrairAnosResumo(resumoMensal, resumoDiario) {
     }
   });
 
+  (storeSignupMensal || []).forEach(function(item) {
+    const mes = String(item.mes || "");
+    const ano = mes.substring(0, 4);
+
+    if (/^\d{4}$/.test(ano)) {
+      set[ano] = true;
+    }
+  });
+
+  (storeSignupDiario || []).forEach(function(item) {
+    const dia = String(item.dia || "");
+    const ano = dia.substring(0, 4);
+
+    if (/^\d{4}$/.test(ano)) {
+      set[ano] = true;
+    }
+  });
+
   const anos = Object.keys(set).sort();
 
   if (!anos.length) {
@@ -5038,13 +5956,18 @@ function extrairAnosResumo(resumoMensal, resumoDiario) {
   return anos;
 }
 
-function popularAnosResumo(resumoMensal, resumoDiario) {
+function popularAnosResumo(resumoMensal, resumoDiario, storeSignupMensal, storeSignupDiario) {
   const select = document.getElementById("anoResumo");
 
   if (!select) return;
 
   const valorAtual = select.value;
-  const anos = extrairAnosResumo(resumoMensal, resumoDiario);
+  const anos = extrairAnosResumo(
+  resumoMensal,
+  resumoDiario,
+  storeSignupMensal,
+  storeSignupDiario
+  );
 
   select.innerHTML = "";
 
@@ -5164,22 +6087,36 @@ function renderResumoPorMes(dados, ano) {
     };
   });
 
-  const serie = mesesBase.map(function(mes) {
+  const mapaStore = {};
+
+  (SMARTSLIP_STATE.store_signup_mensal || []).forEach(function(item) {
+    mapaStore[String(item.mes || "")] = {
+      lojas_unicas: Number(item.lojas_unicas || 0),
+      quantidade_envios: Number(item.quantidade_envios || 0)
+    };
+  });
+
+    const serie = mesesBase.map(function(mes) {
     const chave = ano + "-" + mes;
+
     const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
+    const storeItem = mapaStore[chave] || { lojas_unicas: 0, quantidade_envios: 0 };
 
     return {
       chave: chave,
       label: mes + "/" + ano.substring(2),
       quantidade: Number(item.quantidade || 0),
       valor_total: Number(item.valor_total || 0),
+      lojas_unicas: Number(storeItem.lojas_unicas || 0),
+      quantidade_envios_store: Number(storeItem.quantidade_envios || 0),
       mostrarLabel: true
     };
-  });
+      });
 
-  atualizarKpisResumo(serie);
-  desenharGraficoLinhas(serie);
-  desenharGraficoQuantidade(serie);
+    atualizarKpisResumo(serie);
+    desenharGraficoStoreSignup(serie);
+    desenharGraficoLinhas(serie);
+    desenharGraficoQuantidade(serie);
 }
 
 function renderResumoPorDia(dados, ano, mes) {
@@ -5198,27 +6135,41 @@ function renderResumoPorDia(dados, ano, mes) {
     };
   });
 
+  const mapaStore = {};
+
+  (SMARTSLIP_STATE.store_signup_diario || []).forEach(function(item) {
+    mapaStore[String(item.dia || "")] = {
+      lojas_unicas: Number(item.lojas_unicas || 0),
+      quantidade_envios: Number(item.quantidade_envios || 0)
+    };
+  });
+
   const serie = [];
 
   for (let d = 1; d <= ultimoDia; d++) {
     const dia = String(d).padStart(2, "0");
     const chave = ano + "-" + mes + "-" + dia;
+
     const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
+    const storeItem = mapaStore[chave] || { lojas_unicas: 0, quantidade_envios: 0 };
 
     serie.push({
       chave: chave,
       label: dia + "/" + mes,
       quantidade: Number(item.quantidade || 0),
       valor_total: Number(item.valor_total || 0),
+      lojas_unicas: Number(storeItem.lojas_unicas || 0),
+      quantidade_envios_store: Number(storeItem.quantidade_envios || 0),
 
       // Evita poluir o eixo X com 30/31 rótulos.
       mostrarLabel: d === 1 || d === ultimoDia || d % 2 === 1
     });
   }
 
-  atualizarKpisResumo(serie);
-  desenharGraficoLinhas(serie);
-  desenharGraficoQuantidade(serie);
+    atualizarKpisResumo(serie);
+    desenharGraficoStoreSignup(serie);
+    desenharGraficoLinhas(serie);
+    desenharGraficoQuantidade(serie);
 }
 
 function atualizarKpisResumo(serie) {
@@ -5232,6 +6183,97 @@ function atualizarKpisResumo(serie) {
 
   document.getElementById("kpiQtd").textContent = totalQtd;
   document.getElementById("kpiValor").textContent = formatBRL(totalValor);
+}
+
+function desenharGraficoStoreSignup(serie) {
+  const box = document.getElementById("chartStoreSignup");
+
+  if (!box) return;
+
+  if (isSmartSlipMobile()) {
+    desenharGraficoMobileSmartSlip(box, serie, {
+      campo: "lojas_unicas",
+      tipo: "quantidade",
+      tituloTotal: "Lojas usando",
+      tituloMaior: "Maior adesão",
+      cor: "#40E0D0",
+      corTexto: "#005E27",
+      mensagemVazio: "Não há lojas com envio no período selecionado."
+    });
+    return;
+  }
+
+  const width = 960;
+  const height = 240;
+  const padLeft = 48;
+  const padRight = 28;
+  const padTop = 28;
+  const padBottom = 42;
+
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const maxLojas = Math.max.apply(null, serie.map(function(x) {
+    return Number(x.lojas_unicas || 0);
+  })) || 1;
+
+  function x(i) {
+    if (serie.length <= 1) return padLeft;
+    return padLeft + (plotW * i / (serie.length - 1));
+  }
+
+  function yLojas(v) {
+    return padTop + plotH - ((v / maxLojas) * plotH);
+  }
+
+  const pontos = serie.map(function(item, i) {
+    return x(i) + "," + yLojas(Number(item.lojas_unicas || 0));
+  }).join(" ");
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='Gráfico Store Sign-up'>";
+
+  for (let i = 0; i <= 4; i++) {
+    const yy = padTop + (plotH * i / 4);
+    svg += "<line x1='" + padLeft + "' y1='" + yy + "' x2='" + (width - padRight) + "' y2='" + yy + "' stroke='#e6eee1' stroke-width='1'/>";
+  }
+
+  svg += "<polyline points='" + pontos + "' fill='none' stroke='#40E0D0' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/>";
+
+  serie.forEach(function(item, i) {
+    const qtdLojas = Number(item.lojas_unicas || 0);
+    const qtdEnvios = Number(item.quantidade_envios_store || 0);
+    const xx = x(i);
+    const yy = yLojas(qtdLojas);
+
+    svg += "<circle cx='" + xx + "' cy='" + yy + "' r='5' fill='#40E0D0' stroke='#050807' stroke-width='1'>";
+    svg += "<title>" + item.label + " | Lojas: " + qtdLojas + " | Envios: " + qtdEnvios + "</title>";
+    svg += "</circle>";
+
+    if (item.mostrarLabel !== false) {
+      svg += "<text x='" + xx + "' y='" + (height - 16) + "' text-anchor='middle' font-size='12' fill='#667085' font-weight='700'>" + item.label + "</text>";
+    }
+
+    if (qtdLojas > 0) {
+      svg += "<text x='" + xx + "' y='" + (yy - 12) + "' text-anchor='middle' font-size='11' fill='#005E27' font-weight='900'>" + qtdLojas + "</text>";
+    }
+  });
+
+  svg += "</svg>";
+
+  const temDados = serie.some(function(item) {
+    return Number(item.lojas_unicas || 0) > 0;
+  });
+
+  if (!temDados) {
+    box.innerHTML =
+      "<p class='page-sub'>Não há lojas com envio no período selecionado.</p>" +
+      svg;
+    return;
+  }
+
+  box.innerHTML = svg;
 }
 
 function desenharGraficoLinhas(serie) {
@@ -5524,9 +6566,71 @@ function formatarValorGraficoMobileSmartSlip(valor, tipo) {
   return formatBRL(valor);
 }
 
-function renderResumoStatus(dados) {
+function renderResumoStatus(dados, lojasAtencao) {
   SMARTSLIP_STATE.resumo_status = dados || [];
+  SMARTSLIP_STATE.lojas_atencao = lojasAtencao || [];
+
   desenharGraficoStatusPizza3D(SMARTSLIP_STATE.resumo_status);
+  desenharGraficoLojasAtencao(SMARTSLIP_STATE.lojas_atencao);
+}
+
+function desenharGraficoLojasAtencao(dados) {
+  const box = document.getElementById("chartLojasAtencao");
+
+  if (!box) {
+    return;
+  }
+
+  dados = dados || [];
+
+  if (!dados.length) {
+    box.innerHTML =
+      "<div class='lojas-atencao-row'>" +
+        "<div class='lojas-atencao-row-head'>" +
+          "<span class='lojas-atencao-loja'>Sem ocorrências críticas</span>" +
+          "<span class='lojas-atencao-total'>0</span>" +
+        "</div>" +
+        "<div class='lojas-atencao-detail'>Não há lojas com pendência, divergência ou erro no período consolidado.</div>" +
+      "</div>";
+    return;
+  }
+
+  const max = Math.max.apply(null, dados.map(function(item) {
+    return Number(item.total || 0);
+  })) || 1;
+
+  let html = "<div class='lojas-atencao-list'>";
+
+  dados.forEach(function(item) {
+    const total = Number(item.total || 0);
+    const pct = Math.max(4, Math.round((total / max) * 100));
+    const status = item.status || {};
+
+    const detalhe = Object.keys(status)
+      .sort(function(a, b) {
+        return Number(status[b] || 0) - Number(status[a] || 0);
+      })
+      .map(function(k) {
+        return k + ": " + Number(status[k] || 0);
+      })
+      .join(" · ");
+
+    html +=
+      "<div class='lojas-atencao-row'>" +
+        "<div class='lojas-atencao-row-head'>" +
+          "<span class='lojas-atencao-loja'>Loja " + escapeHtml(item.loja || "-") + "</span>" +
+          "<span class='lojas-atencao-total'>" + total + " ocorrência(s)</span>" +
+        "</div>" +
+        "<div class='lojas-atencao-track'>" +
+          "<div class='lojas-atencao-fill' style='width:" + pct + "%'></div>" +
+        "</div>" +
+        "<div class='lojas-atencao-detail'>" + escapeHtml(detalhe || "Sem detalhe de status") + "</div>" +
+      "</div>";
+  });
+
+  html += "</div>";
+
+  box.innerHTML = html;
 }
 
 function obterCorStatusPizza(status) {
@@ -7274,7 +8378,10 @@ if (!dados.length) {
 
 function onArquivoSelecionado() {
   const file = document.getElementById("arquivo").files[0];
+
   atualizarUploadInfo(file);
+  renderizarPreviewArquivoSmartSlip(file);
+  resetarPreValidacaoTotalIa();
 }
 
 function atualizarUploadInfo(file) {
@@ -7285,7 +8392,8 @@ function atualizarUploadInfo(file) {
 
   if (!file) {
     title.textContent = "Foto ou PDF do comprovante";
-    sub.textContent = "Clique para selecionar ou arraste o arquivo aqui";
+    sub.textContent = "Clique para selecionar ou arraste o arquivo aqui. Tamanho máximo de 10MB por arquivo";
+    limparPreviewArquivoSmartSlip(false);
     return;
   }
 
@@ -7293,6 +8401,89 @@ function atualizarUploadInfo(file) {
 
   title.textContent = file.name;
   sub.textContent = "Arquivo selecionado • " + mb.toFixed(2) + " MB";
+}
+
+function renderizarPreviewArquivoSmartSlip(file) {
+  const box = document.getElementById("arquivoPreviewBox");
+  const body = document.getElementById("arquivoPreviewBody");
+  const info = document.getElementById("arquivoPreviewInfo");
+
+  if (!box || !body) {
+    return;
+  }
+
+  limparPreviewArquivoSmartSlip(false);
+
+  if (!file || isSmartSlipMobile()) {
+    box.style.display = "none";
+    return;
+  }
+
+  const tipo = String(file.type || "").toLowerCase();
+  const nome = String(file.name || "arquivo selecionado");
+  const mb = file.size / 1024 / 1024;
+
+  SMARTSLIP_ARQUIVO_PREVIEW_URL = URL.createObjectURL(file);
+
+  if (info) {
+    info.textContent = nome + " • " + mb.toFixed(2) + " MB";
+  }
+
+  box.style.display = "block";
+
+  if (tipo.indexOf("image/") === 0) {
+    body.innerHTML =
+      "<img alt='Prévia do comprovante anexado' src='" +
+      escapeAttr(SMARTSLIP_ARQUIVO_PREVIEW_URL) +
+      "'>";
+
+    return;
+  }
+
+  if (tipo === "application/pdf" || nome.toLowerCase().endsWith(".pdf")) {
+    body.innerHTML =
+      "<iframe title='Prévia do PDF anexado' src='" +
+      escapeAttr(SMARTSLIP_ARQUIVO_PREVIEW_URL) +
+      "#toolbar=0&navpanes=0&scrollbar=1'></iframe>";
+
+    return;
+  }
+
+  body.innerHTML =
+    "<div class='arquivo-preview-fallback'>" +
+      "<b>Prévia indisponível</b>" +
+      "<p>Este tipo de arquivo foi selecionado, mas não possui prévia compatível no navegador.</p>" +
+    "</div>";
+}
+
+function limparPreviewArquivoSmartSlip(limparInput) {
+  const box = document.getElementById("arquivoPreviewBox");
+  const body = document.getElementById("arquivoPreviewBody");
+  const info = document.getElementById("arquivoPreviewInfo");
+  const input = document.getElementById("arquivo");
+
+  if (SMARTSLIP_ARQUIVO_PREVIEW_URL) {
+    URL.revokeObjectURL(SMARTSLIP_ARQUIVO_PREVIEW_URL);
+    SMARTSLIP_ARQUIVO_PREVIEW_URL = null;
+  }
+
+  if (body) {
+    body.innerHTML = "";
+  }
+
+  if (info) {
+    info.textContent = "Arquivo selecionado";
+  }
+
+  if (box) {
+    box.style.display = "none";
+  }
+
+  if (limparInput === true && input) {
+    input.value = "";
+    atualizarUploadInfo(null);
+    resetarPreValidacaoTotalIa();
+  }
 }
 
 function onDragOverArquivo(event) {
@@ -7318,6 +8509,10 @@ function onDropArquivo(event) {
   try {
     input.files = files;
     atualizarUploadInfo(files[0]);
+    renderizarPreviewArquivoSmartSlip(files[0]);
+    resetarPreValidacaoTotalIa();
+    resetarPreValidacaoTotalIa();
+    agendarPreValidacaoTotalIa();
   } catch (e) {
     mostrarMensagem("erro", "Não foi possível carregar o arquivo arrastado. Clique no campo para selecionar.");
   }
@@ -7502,6 +8697,9 @@ function atualizarTotalValoresDiariosMovimento() {
   if (totalEl) {
     totalEl.textContent = formatBRL(total);
   }
+
+  // Sempre que o usuário alterar valores, a validação anterior fica inválida.
+  resetarPreValidacaoTotalIa();
 }
 
 function coletarValoresDiariosMovimento() {
@@ -7525,6 +8723,252 @@ function coletarValoresDiariosMovimento() {
     itens: itens,
     total: total
   };
+}
+
+function resetarPreValidacaoTotalIa() {
+  SMARTSLIP_PREVALIDACAO_TOTAL_IA = null;
+  SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = false;
+
+  const box = document.getElementById("boxValidacaoIaTotal");
+
+  if (box) {
+    box.style.display = "none";
+    box.className = "ia-total-box ia-total-neutral";
+  }
+
+  setTextoPreValidacaoIa_("iaTotalTitulo", "Validação IA do total");
+  setTextoPreValidacaoIa_("iaTotalMensagem", "Aguardando arquivo e valores diários.");
+  setTextoPreValidacaoIa_("iaTotalBadge", "IA");
+  setTextoPreValidacaoIa_("iaTotalUsuario", "-");
+  setTextoPreValidacaoIa_("iaTotalLido", "-");
+  setTextoPreValidacaoIa_("iaTotalDiferenca", "-");
+}
+
+function setTextoPreValidacaoIa_(id, texto) {
+  const el = document.getElementById(id);
+
+  if (el) {
+    el.textContent = texto;
+  }
+}
+
+function requisitosPreValidacaoTotalIa_() {
+  const arquivo = document.getElementById("arquivo");
+  const file = arquivo && arquivo.files ? arquivo.files[0] : null;
+
+  if (!file) {
+    return {
+      ok: false,
+      motivo: "Selecione o comprovante para validar o total pela IA."
+    };
+  }
+
+  const inputs = Array.from(document.querySelectorAll(".valor-diario-input"));
+
+  if (!inputs.length) {
+    return {
+      ok: false,
+      motivo: "Informe o período de movimento para gerar os valores diários."
+    };
+  }
+
+  let total = 0;
+
+  for (let i = 0; i < inputs.length; i++) {
+    const input = inputs[i];
+    const txt = String(input.value || "").trim();
+
+    if (!txt) {
+      return {
+        ok: false,
+        motivo: "Preencha todos os valores diários para validar com a IA."
+      };
+    }
+
+    if (smartSlipTemSinalNegativo(txt)) {
+      return {
+        ok: false,
+        motivo: "Valores negativos não são permitidos."
+      };
+    }
+
+    const valor = smartSlipNumeroBR(txt);
+
+    if (!valor || valor <= 0) {
+      return {
+        ok: false,
+        motivo: "Existe valor diário inválido."
+      };
+    }
+
+    total += valor;
+  }
+
+  return {
+    ok: true,
+    file: file,
+    total: total
+  };
+}
+
+function executarPreValidacaoTotalIaParaEnvio_(arquivoBase64, mimeType) {
+  const req = requisitosPreValidacaoTotalIa_();
+  const box = document.getElementById("boxValidacaoIaTotal");
+
+  if (!box) {
+    return Promise.resolve(null);
+  }
+
+  if (!req.ok) {
+    SMARTSLIP_PREVALIDACAO_TOTAL_IA = null;
+
+    box.style.display = "block";
+    box.className = "ia-total-box ia-total-neutral";
+
+    setTextoPreValidacaoIa_("iaTotalTitulo", "Validação IA do total");
+    setTextoPreValidacaoIa_("iaTotalMensagem", req.motivo);
+    setTextoPreValidacaoIa_("iaTotalBadge", "AGUARD.");
+    setTextoPreValidacaoIa_("iaTotalUsuario", "-");
+    setTextoPreValidacaoIa_("iaTotalLido", "-");
+    setTextoPreValidacaoIa_("iaTotalDiferenca", "-");
+
+    return Promise.reject(new Error(req.motivo));
+  }
+
+  SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = true;
+
+  box.style.display = "block";
+  box.className = "ia-total-box ia-total-neutral";
+
+  setTextoPreValidacaoIa_("iaTotalTitulo", "Validação IA em andamento");
+  setTextoPreValidacaoIa_("iaTotalMensagem", "Lendo o total do comprovante antes de enviar.");
+  setTextoPreValidacaoIa_("iaTotalBadge", "LENDO");
+  setTextoPreValidacaoIa_("iaTotalUsuario", formatBRL(req.total));
+  setTextoPreValidacaoIa_("iaTotalLido", "-");
+  setTextoPreValidacaoIa_("iaTotalDiferenca", "-");
+
+  return new Promise(function(resolve) {
+    google.script.run
+      .withSuccessHandler(function(resp) {
+        SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = false;
+
+        if (!resp || !resp.ok) {
+          SMARTSLIP_PREVALIDACAO_TOTAL_IA = null;
+
+          box.className = "ia-total-box ia-total-warn";
+          setTextoPreValidacaoIa_("iaTotalTitulo", "IA não validou o total");
+          setTextoPreValidacaoIa_(
+            "iaTotalMensagem",
+            resp && resp.erro
+              ? resp.erro
+              : "Não foi possível validar o total pela IA. O envio seguirá, mas revise os valores."
+          );
+          setTextoPreValidacaoIa_("iaTotalBadge", "REVISAR");
+
+          resolve(resp || null);
+          return;
+        }
+
+        SMARTSLIP_PREVALIDACAO_TOTAL_IA = resp;
+
+        setTextoPreValidacaoIa_("iaTotalUsuario", formatBRL(resp.valor_total_usuario || 0));
+        setTextoPreValidacaoIa_("iaTotalLido", resp.valor_total_ia ? formatBRL(resp.valor_total_ia) : "-");
+        setTextoPreValidacaoIa_(
+          "iaTotalDiferenca",
+          resp.diferenca !== null && resp.diferenca !== undefined
+            ? formatBRL(resp.diferenca)
+            : "-"
+        );
+
+        if (resp.status_validacao === "OK") {
+          box.className = "ia-total-box ia-total-ok";
+          setTextoPreValidacaoIa_("iaTotalTitulo", "Total validado");
+          setTextoPreValidacaoIa_("iaTotalMensagem", resp.mensagem || "Soma informada confere com o comprovante.");
+          setTextoPreValidacaoIa_("iaTotalBadge", "OK");
+
+          resolve(resp);
+          return;
+        }
+
+        if (resp.status_validacao === "DIVERGENTE_MULTIPLO_NAO_BLOQUEANTE") {
+          box.className = "ia-total-box ia-total-warn";
+          setTextoPreValidacaoIa_("iaTotalTitulo", "Revisão recomendada");
+          setTextoPreValidacaoIa_(
+            "iaTotalMensagem",
+            "A IA encontrou diferença no total, mas o arquivo possui múltiplos comprovantes. Revise os valores diários antes de enviar."
+          );
+          setTextoPreValidacaoIa_("iaTotalBadge", "REVISAR");
+
+          resolve(resp);
+          return;
+        }
+
+        if (resp.status_validacao === "DIVERGENTE_ALTA_CONFIANCA") {
+          box.className = "ia-total-box ia-total-error";
+          setTextoPreValidacaoIa_("iaTotalTitulo", "Divergência no total");
+          setTextoPreValidacaoIa_(
+            "iaTotalMensagem",
+            "A soma informada está diferente do total lido pela IA. Revise os valores diários antes de enviar."
+          );
+          setTextoPreValidacaoIa_("iaTotalBadge", "BLOQ.");
+
+          resolve(resp);
+          return;
+        }
+
+        box.className = "ia-total-box ia-total-warn";
+        setTextoPreValidacaoIa_("iaTotalTitulo", "IA sem confiança suficiente");
+        setTextoPreValidacaoIa_(
+          "iaTotalMensagem",
+          resp.mensagem || "A IA não conseguiu validar o total com segurança. O envio seguirá, mas revise manualmente."
+        );
+        setTextoPreValidacaoIa_("iaTotalBadge", "REVISAR");
+
+        resolve(resp);
+      })
+      .withFailureHandler(function(err) {
+        SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = false;
+        SMARTSLIP_PREVALIDACAO_TOTAL_IA = null;
+
+        box.className = "ia-total-box ia-total-warn";
+        setTextoPreValidacaoIa_("iaTotalTitulo", "Falha na validação IA");
+        setTextoPreValidacaoIa_(
+          "iaTotalMensagem",
+          err && err.message
+            ? err.message
+            : "Falha técnica ao validar total pela IA. O envio seguirá, mas revise os valores."
+        );
+        setTextoPreValidacaoIa_("iaTotalBadge", "ERRO");
+
+        resolve({
+          ok: false,
+          status_validacao: "ERRO_PRE_VALIDACAO",
+          bloquear_envio: false,
+          erro: err && err.message ? err.message : String(err)
+        });
+      })
+      .smartSlipPreValidarTotalComprovanteApp({
+        arquivoBase64: arquivoBase64,
+        mimeType: mimeType || "application/pdf",
+        valor_total_usuario: req.total
+      });
+  });
+}
+
+function lerArquivoBase64PreValidacao_(file) {
+  return new Promise(function(resolve, reject) {
+    const reader = new FileReader();
+
+    reader.onerror = function() {
+      reject(new Error("Erro ao ler arquivo para pré-validação IA."));
+    };
+
+    reader.onload = function(e) {
+      resolve(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  });
 }
 
 function validarValoresDiariosMovimento() {
@@ -7806,6 +9250,19 @@ function validarRegrasEnvioSmartSlip() {
 
       const btn = document.getElementById("btn");
 
+      const cooldownRestante = smartSlipGetCooldownRestanteEnvio_();
+
+      if (cooldownRestante > 0) {
+        mostrarMensagem(
+          "erro",
+          "Aguarde " +
+          Math.ceil(cooldownRestante / 1000) +
+          " segundo(s) para enviar um novo comprovante."
+        );
+        smartSlipAtualizarBotaoCooldownEnvio_();
+        return;
+      }
+
       limparMensagem();
 
       if (!validarPeriodoMovimentoTela()) {
@@ -7854,6 +9311,26 @@ function validarRegrasEnvioSmartSlip() {
         return;
       }
 
+      if (SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO) {
+          mostrarMensagem("erro", "Aguarde a validação IA do total antes de enviar.");
+          return;
+        }
+
+        if (
+          SMARTSLIP_PREVALIDACAO_TOTAL_IA &&
+          SMARTSLIP_PREVALIDACAO_TOTAL_IA.bloquear_envio === true
+        ) {
+          mostrarMensagem(
+            "erro",
+            "A soma dos valores diários está diferente do total lido pela IA no comprovante.\n\n" +
+            "Soma informada: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.valor_total_usuario || 0) + "\n" +
+            "Total lido pela IA: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.valor_total_ia || 0) + "\n" +
+            "Diferença: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.diferenca || 0) + "\n\n" +
+            "Revise os valores diários antes de enviar."
+          );
+          return;
+        }
+
       if (dataFim && dataFim < dataInicio) {
         mostrarMensagem("erro", "A data final do movimento não pode ser menor que a data inicial.");
         return;
@@ -7896,7 +9373,7 @@ function validarRegrasEnvioSmartSlip() {
             "O envio demorou demais e foi interrompido na tela. Verifique se o arquivo é muito grande ou tente novamente."
           );
         }
-      }, 60000);
+      }, 120000);
 
       const reader = new FileReader();
 
@@ -7907,77 +9384,111 @@ function validarRegrasEnvioSmartSlip() {
       };
 
       reader.onload = function(e) {
-        btn.textContent = "Enviando...";
-        travarTelaEnvio("Enviando comprovante...");   
+  const arquivoBase64Envio = e.target.result;
 
-      const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
-      const valorRetiradaTextoEnvio = String(document.getElementById("valor_retirada").value || "").trim();
-      const valorRetiradaEnvio = smartSlipNumeroBR(valorRetiradaTextoEnvio);
-      const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
+  btn.textContent = "Validando total...";
+  travarTelaEnvio("Validando valor total do comprovante...");
 
-      const houveRetirada = houveRetiradaSelecionado;
+  const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
+  const valorRetiradaTextoEnvio = String(document.getElementById("valor_retirada").value || "").trim();
+  const valorRetiradaEnvio = smartSlipNumeroBR(valorRetiradaTextoEnvio);
+  const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
 
-      if (houveRetirada) {
-        if (!valorRetiradaTextoEnvio || valorRetiradaEnvio <= 0) {
-          clearTimeout(timeoutEnvio);
-          finalizarBotao();
-          mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+  const houveRetirada = houveRetiradaSelecionado;
+
+  if (houveRetirada) {
+    if (!valorRetiradaTextoEnvio || valorRetiradaEnvio <= 0) {
+      clearTimeout(timeoutEnvio);
+      finalizarBotao();
+      mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+      return;
+    }
+
+    if (!motivoRetiradaEnvio) {
+      clearTimeout(timeoutEnvio);
+      finalizarBotao();
+      mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+      return;
+    }
+  }
+
+  executarPreValidacaoTotalIaParaEnvio_(
+    arquivoBase64Envio,
+    file.type || "application/pdf"
+  ).then(function(preValidacaoTotalIa) {
+    if (
+      preValidacaoTotalIa &&
+      preValidacaoTotalIa.bloquear_envio === true
+    ) {
+      clearTimeout(timeoutEnvio);
+      finalizarBotao();
+
+     mostrarMensagem(
+        "erro",
+        "A soma dos valores diários está diferente do total lido pela IA no comprovante.\n\n" +
+        "Soma informada: " + formatBRL(preValidacaoTotalIa.valor_total_usuario || 0) + "\n" +
+        "Total lido pela IA: " + formatBRL(preValidacaoTotalIa.valor_total_ia || 0) + "\n" +
+        "Diferença: " + formatBRL(preValidacaoTotalIa.diferenca || 0) + "\n\n" +
+        "Revise os valores diários antes de enviar."
+      );
+
+      return;
+    }
+
+    btn.textContent = "Enviando...";
+    travarTelaEnvio("Enviando comprovante...");
+
+    const payload = {
+      arquivoBase64: arquivoBase64Envio,
+      nomeArquivo: file.name,
+      mimeType: file.type || "application/pdf",
+      loja: loja,
+      data_movimento_inicio: converterDataInputParaBR(dataInicio),
+      data_movimento_fim: converterDataInputParaBR(dataFim),
+      houve_retirada: String(houveRetirada),
+      valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
+      motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
+      valores_diarios_movimento: coletarValoresDiariosMovimento(),
+      pre_validacao_total_ia: preValidacaoTotalIa || null,
+      mais_comprovantes: "false"
+    };
+
+    google.script.run
+      .withSuccessHandler(function(resp) {
+        clearTimeout(timeoutEnvio);
+        finalizarBotao();
+
+        if (!resp || !resp.ok) {
+          mostrarMensagem("erro", resp && resp.erro ? resp.erro : "Erro ao enviar comprovante.");
           return;
         }
 
-        if (!motivoRetiradaEnvio) {
-          clearTimeout(timeoutEnvio);
-          finalizarBotao();
-          mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-          return;
-        }
-      }
+        limparFormulario(false);
+        smartSlipRegistrarCooldownEnvio_();
 
-        const payload = {
-          arquivoBase64: e.target.result,
-          nomeArquivo: file.name,
-          mimeType: file.type || "application/pdf",
-          loja: loja,
-          data_movimento_inicio: converterDataInputParaBR(dataInicio),
-          data_movimento_fim: converterDataInputParaBR(dataFim),
-          houve_retirada: String(houveRetirada),
-          valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
-          motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
-          valores_diarios_movimento: coletarValoresDiariosMovimento(),
-          mais_comprovantes: "false"
-        };
+        mostrarMensagem(
+          "ok",
+          "Comprovante recebido para processamento.\n\n" +
+          "Protocolo: " + resp.protocolo + "\n" +
+          "Status: " + resp.status + "\n\n" +
+          "A validação será feita automaticamente."
+        );
 
-        google.script.run
-          .withSuccessHandler(function(resp) {
-            clearTimeout(timeoutEnvio);
-            finalizarBotao();
+        carregarBootstrap();
+      })
+      .withFailureHandler(function(err) {
+        clearTimeout(timeoutEnvio);
+        finalizarBotao();
+        mostrarMensagem("erro", err && err.message ? err.message : String(err));
+      })
+      .smartSlipEnviarComprovanteApp(payload);
 
-            if (!resp || !resp.ok) {
-              mostrarMensagem("erro", resp && resp.erro ? resp.erro : "Erro ao enviar comprovante.");
-              return;
-            }
-
-            // Limpa todos os campos do formulário, mas mantém a loja padrão.
-            // Importante: precisa vir ANTES da mensagem, porque limparFormulario(false) chama limparMensagem().
-            limparFormulario(false);
-
-            mostrarMensagem(
-              "ok",
-              "Comprovante recebido para processamento.\n\n" +
-              "Protocolo: " + resp.protocolo + "\n" +
-              "Status: " + resp.status + "\n\n" +
-              "A validação será feita automaticamente."
-            );
-
-            carregarBootstrap();
-          })
-          .withFailureHandler(function(err) {
-            clearTimeout(timeoutEnvio);
-            finalizarBotao();
-            mostrarMensagem("erro", err && err.message ? err.message : String(err));
-          })
-          .smartSlipEnviarComprovanteApp(payload);
-      };
+  }).catch(function(err) {
+    clearTimeout(timeoutEnvio);
+    finalizarBotao();
+    mostrarMensagem("erro", err && err.message ? err.message : String(err));
+  });
+};
 
       reader.readAsDataURL(file);
     }
