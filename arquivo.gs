@@ -23,6 +23,13 @@ const SMARTSLIP_ABA_FILA = "SMARTSLIP_FILA";
 const SMARTSLIP_ABA_VEKTOR_EMAILS = "VEKTOR_EMAILS";
 const SMARTSLIP_VEKTOR_EMAILS_SPREADSHEET_ID = SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID;
 const SMARTSLIP_ABA_USUARIOS = "SMARTSLIP_USUARIOS";
+const SMARTSLIP_COOLDOWN_ENVIO_SEGUNDOS = 120;
+const SMARTSLIP_TOLERANCIA_TOTAL_IA = 5.00;
+const SMARTSLIP_DOMINIOS_CORPORATIVOS = [
+  "gruposbf.com.br", 
+  "centauro.com.br", 
+  "fisia.com.br"
+];
 
 function smartSlipGetUsuarioAtual() {
   const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
@@ -946,6 +953,238 @@ Retorne exatamente neste formato JSON:
 
   const resultado = JSON.parse(respostaTexto);
   return smartSlipAplicarRegrasComplementares_(resultado, respostasUsuario);
+}
+
+function smartSlipPreValidarTotalComprovanteApp(payload) {
+  try {
+    payload = payload || {};
+
+    smartSlipAssertUsuarioAutorizado_();
+
+    if (!payload.arquivoBase64) {
+      throw new Error("Arquivo não recebido para pré-validação.");
+    }
+
+    const valorTotalUsuario = Number(payload.valor_total_usuario || 0);
+
+    if (!valorTotalUsuario || valorTotalUsuario <= 0) {
+      throw new Error("Valor total informado pelo usuário inválido.");
+    }
+
+    const base64Arquivo = String(payload.arquivoBase64 || "").split(",").pop();
+    const mimeType = payload.mimeType || "application/pdf";
+
+    const leitura = smartSlipChamarGeminiTotalDocumental_(base64Arquivo, mimeType);
+
+    const valorTotalIa = smartSlipNumeroPreValidacaoIa_(leitura.valor_total_documental);
+    const confianca = Number(leitura.confianca || 0);
+    const evidencia = String(leitura.evidencia_textual_total || "").trim();
+
+    const okParaComparar =
+      String(leitura.status || "").toUpperCase() === "OK" &&
+      valorTotalIa > 0 &&
+      confianca >= 0.95 &&
+      evidencia.length >= 8;
+
+    const diferenca = Math.abs(valorTotalIa - valorTotalUsuario);
+    const qtdValoresConsiderados = Number(leitura.qtd_valores_considerados || 0);
+
+    if (!okParaComparar) {
+      return {
+        ok: true,
+        status_validacao: "IA_NAO_CONFIAVEL",
+        bloquear_envio: false,
+        valor_total_usuario: valorTotalUsuario,
+        valor_total_ia: valorTotalIa || null,
+        diferenca: diferenca || null,
+        confianca: confianca,
+        mensagem:
+          "A IA não conseguiu validar o total do comprovante com segurança. Revise os valores digitados antes de enviar.",
+        leitura_ia: leitura
+      };
+    }
+    
+// Para múltiplos comprovantes, a pré-leitura IA não deve bloquear.
+// Ela pode errar contagem/duplicar valor. A validação forte fica na SMARTSLIP_FILA.
+if (diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA && qtdValoresConsiderados > 1) {
+  return {
+    ok: true,
+    status_validacao: "DIVERGENTE_MULTIPLO_NAO_BLOQUEANTE",
+    bloquear_envio: false,
+    valor_total_usuario: valorTotalUsuario,
+    valor_total_ia: valorTotalIa,
+    diferenca: diferenca,
+    confianca: confianca,
+    mensagem:
+      "A IA encontrou diferença no total, mas há múltiplos comprovantes no arquivo. Revise os valores antes de enviar.",
+    leitura_ia: leitura
+  };
+}
+
+if (diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA) {
+  return {
+    ok: true,
+    status_validacao: "DIVERGENTE_ALTA_CONFIANCA",
+    bloquear_envio: true,
+    valor_total_usuario: valorTotalUsuario,
+    valor_total_ia: valorTotalIa,
+    diferenca: diferenca,
+    confianca: confianca,
+    mensagem:
+      "A soma dos valores diários informados não confere com o total lido pela IA no comprovante.",
+    leitura_ia: leitura
+  };
+}
+
+    return {
+      ok: true,
+      status_validacao: "OK",
+      bloquear_envio: false,
+      valor_total_usuario: valorTotalUsuario,
+      valor_total_ia: valorTotalIa,
+      diferenca: diferenca,
+      confianca: confianca,
+      mensagem: "Total validado pela IA. Soma informada confere com o comprovante.",
+      leitura_ia: leitura
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      status_validacao: "ERRO_PRE_VALIDACAO",
+      bloquear_envio: false,
+      erro: String(err && err.message ? err.message : err)
+    };
+  }
+}
+
+function smartSlipChamarGeminiTotalDocumental_(base64Arquivo, mimeType) {
+  const apiKey = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
+
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY não configurada nas propriedades do script.");
+  }
+
+  const model = "gemini-2.5-flash";
+
+  const url =
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    model +
+    ":generateContent?key=" +
+    encodeURIComponent(apiKey);
+
+  const prompt = `
+Você é o validador de total documental do SmartSlip.
+
+Objetivo:
+Ler SOMENTE os valores de depósito/pagamento fisicamente visíveis no comprovante anexado e retornar JSON válido.
+
+Regras críticas:
+- Não extraia loja, banco, data de movimento ou qualquer outro campo.
+- Leia somente valores monetários de comprovantes de depósito/pagamento.
+- Se houver vários comprovantes físicos no mesmo arquivo, some apenas os valores dos comprovantes claramente visíveis.
+- Se houver boleto bancário de fundo e recibo de Lotéricas/CAIXA sobreposto, considere o conjunto como um único comprovante, usando o recibo como fonte principal.
+- Não conte boleto de fundo como outro comprovante se ele estiver coberto por recibo.
+- Não invente valores.
+- Não use código de barras, autenticação, controle, telefone, terminal, agência, conta ou identificador como valor.
+- Não complete valor por suposição.
+- Se o valor estiver ilegível ou houver dúvida, retorne status = "IA_NAO_CONFIAVEL".
+- Só retorne status = "OK" se houver evidência textual clara do valor.
+- O campo evidencia_textual_total deve conter o trecho textual que sustenta o valor total lido.
+- Se houver múltiplos valores individuais, retorne cada um em valores_individuais com sua evidência.
+
+Retorne exatamente este JSON:
+
+{
+  "status": "OK | IA_NAO_CONFIAVEL",
+  "valor_total_documental": null,
+  "qtd_valores_considerados": 0,
+  "valores_individuais": [
+    {
+      "valor": null,
+      "evidencia_textual": "",
+      "posicao_visual_aproximada": ""
+    }
+  ],
+  "evidencia_textual_total": "",
+  "alerta_qualidade": "",
+  "confianca": 0
+}
+`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            inline_data: {
+              mime_type: mimeType || "application/pdf",
+              data: base64Arquivo
+            }
+          },
+          {
+            text: prompt
+          }
+        ]
+      }
+    ],
+    generationConfig: {
+      temperature: 0.05,
+      response_mime_type: "application/json"
+    }
+  };
+
+  const resp = UrlFetchApp.fetch(url, {
+    method: "post",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const statusCode = resp.getResponseCode();
+  const txt = resp.getContentText();
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error("Erro Gemini API HTTP " + statusCode + ": " + txt);
+  }
+
+  const json = JSON.parse(txt);
+
+  const respostaTexto =
+    json &&
+    json.candidates &&
+    json.candidates[0] &&
+    json.candidates[0].content &&
+    json.candidates[0].content.parts &&
+    json.candidates[0].content.parts[0] &&
+    json.candidates[0].content.parts[0].text;
+
+  if (!respostaTexto) {
+    throw new Error("Gemini não retornou texto válido na pré-validação: " + txt);
+  }
+
+  return JSON.parse(respostaTexto);
+}
+
+function smartSlipNumeroPreValidacaoIa_(valor) {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  if (typeof valor === "number") {
+    return isNaN(valor) ? 0 : valor;
+  }
+
+  const txt = String(valor)
+    .replace(/[R$\s]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .trim();
+
+  const n = Number(txt);
+
+  return isNaN(n) ? 0 : n;
 }
 
 function smartSlipAplicarRegrasComplementares_(resultado, respostasUsuario) {
@@ -1925,11 +2164,67 @@ function doGet(e) {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
+function smartSlipValidarCooldownEnvio_(emailUsuario) {
+  emailUsuario = String(emailUsuario || "").trim().toLowerCase();
+
+  if (!emailUsuario) {
+    return;
+  }
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return;
+  }
+
+  const agora = new Date();
+  const limiteMs = SMARTSLIP_COOLDOWN_ENVIO_SEGUNDOS * 1000;
+
+  const lastRow = sh.getLastRow();
+  const qtdLinhas = Math.min(lastRow - 1, 80);
+
+  // Lê só as últimas linhas para evitar pesar a planilha.
+  const startRow = Math.max(2, lastRow - qtdLinhas + 1);
+  const values = sh.getRange(startRow, 1, lastRow - startRow + 1, 18).getValues();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+
+    const dataRegistro = row[0];
+    const emailRow = String(row[2] || "").trim().toLowerCase();
+
+    if (emailRow !== emailUsuario) {
+      continue;
+    }
+
+    if (!(dataRegistro instanceof Date)) {
+      continue;
+    }
+
+    const diffMs = agora.getTime() - dataRegistro.getTime();
+
+    if (diffMs >= 0 && diffMs < limiteMs) {
+      const restante = Math.ceil((limiteMs - diffMs) / 1000);
+
+      throw new Error(
+        "Aguarde " +
+        restante +
+        " segundo(s) para enviar um novo comprovante. " +
+        "Existe um envio recente registrado para este usuário."
+      );
+    }
+
+    return;
+  }
+}
+
 function smartSlipEnviarComprovanteApp(form) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
 
   try {
+        smartSlipAssertUsuarioAutorizado_();
     if (!form) {
       throw new Error("Formulário não recebido.");
     }
@@ -1981,6 +2276,18 @@ function smartSlipEnviarComprovanteApp(form) {
       form.data_movimento_fim
     );
 
+    const preValidacaoTotalIa = smartSlipNormalizarPreValidacaoTotalIa_(
+      form.pre_validacao_total_ia,
+      valoresDiariosMovimento.total
+    );
+
+    if (preValidacaoTotalIa && preValidacaoTotalIa.bloquear_envio === true) {
+      throw new Error(
+        "A soma dos valores diários não confere com o total lido pela IA no comprovante. " +
+        "Revise os valores antes de enviar."
+      );
+    }
+
     const houveRetiradaValidacao = String(form.houve_retirada) === "true";
     const valorRetiradaValidacao = Number(form.valor_retirada || 0);
     const motivoRetiradaValidacao = String(form.motivo_retirada || "").trim();
@@ -2002,8 +2309,12 @@ function smartSlipEnviarComprovanteApp(form) {
     }
 
     const usuarioAtual = smartSlipGetUsuarioAtual();
+    const emailUsuario = String(usuarioAtual.email || Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+
+    smartSlipValidarCooldownEnvio_(emailUsuario);
 
     const lojaForm = smartSlipNormalizarLoja4(form.loja);
+
     const lojaPadraoUsuario = smartSlipNormalizarLoja4(usuarioAtual.loja_padrao || "");
 
     if (!usuarioAtual.is_admin) {
@@ -2035,6 +2346,7 @@ function smartSlipEnviarComprovanteApp(form) {
         ? String(form.motivo_retirada || "").trim()
         : "Não houve retirada",
       valores_diarios_movimento: valoresDiariosMovimento,
+      pre_validacao_total_ia: preValidacaoTotalIa,
       mais_comprovantes: String(form.mais_comprovantes) === "true"
     };
 
@@ -2047,8 +2359,6 @@ function smartSlipEnviarComprovanteApp(form) {
     );
 
     const sh = smartSlipGarantirCabecalhoFila();
-
-    const emailUsuario = Session.getActiveUser().getEmail() || "";
 
     sh.appendRow([
       new Date(),
@@ -2089,6 +2399,40 @@ function smartSlipEnviarComprovanteApp(form) {
       lock.releaseLock();
     } catch (e) {}
   }
+}
+
+function smartSlipNormalizarPreValidacaoTotalIa_(valor, totalUsuario) {
+  if (!valor) {
+    return null;
+  }
+
+  if (typeof valor === "string") {
+    try {
+      valor = JSON.parse(valor || "{}");
+    } catch (err) {
+      return null;
+    }
+  }
+
+  valor = valor || {};
+
+  const totalIa = Number(valor.valor_total_ia || 0);
+  const totalUser = Number(totalUsuario || valor.valor_total_usuario || 0);
+  const diferenca = Math.abs(totalIa - totalUser);
+
+  return {
+    status_validacao: String(valor.status_validacao || ""),
+  bloquear_envio:
+    valor.bloquear_envio === true &&
+    totalIa > 0 &&
+    totalUser > 0 &&
+    diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA,
+    valor_total_usuario: totalUser,
+    valor_total_ia: totalIa || null,
+    diferenca: diferenca || null,
+    confianca: Number(valor.confianca || 0),
+    mensagem: String(valor.mensagem || "")
+  };
 }
 
 function smartSlipGerarProtocolo() {
@@ -2759,6 +3103,9 @@ function smartSlipGetBootstrapApp() {
     let historico = [];
     let resumoDiario = [];
     let resumoStatus = [];
+    let storeSignupMensal = [];
+    let storeSignupDiario = [];
+    let lojasAtencao = [];
 
     try {
       resumoMensal = smartSlipGetResumoMensal(usuario);
@@ -2775,6 +3122,20 @@ function smartSlipGetBootstrapApp() {
     }
 
     try {
+      storeSignupMensal = smartSlipGetStoreSignupMensal(usuario);
+    } catch (errStoreMensal) {
+      Logger.log("Erro ao carregar Store Sign-up mensal: " + String(errStoreMensal && errStoreMensal.message ? errStoreMensal.message : errStoreMensal));
+      storeSignupMensal = [];
+    }
+
+    try {
+      storeSignupDiario = smartSlipGetStoreSignupDiario(usuario);
+    } catch (errStoreDiario) {
+      Logger.log("Erro ao carregar Store Sign-up diário: " + String(errStoreDiario && errStoreDiario.message ? errStoreDiario.message : errStoreDiario));
+      storeSignupDiario = [];
+    }
+
+    try {
       historico = smartSlipGetHistorico(usuario);
     } catch (errHist) {
       Logger.log("Erro ao carregar histórico: " + String(errHist && errHist.message ? errHist.message : errHist));
@@ -2788,13 +3149,23 @@ function smartSlipGetBootstrapApp() {
       resumoStatus = [];
     }
 
+    try {
+      lojasAtencao = smartSlipGetLojasAtencaoOperacional(usuario);
+    } catch (errLojasAtencao) {
+      Logger.log("Erro ao carregar lojas com atenção operacional: " + String(errLojasAtencao && errLojasAtencao.message ? errLojasAtencao.message : errLojasAtencao));
+      lojasAtencao = [];
+    }
+
     return {
       ok: true,
       usuario: usuario,
       lojas: smartSlipListarLojasInfoLimites(usuario),
       resumo_mensal: resumoMensal,
       resumo_diario: resumoDiario,
+      store_signup_mensal: storeSignupMensal,
+      store_signup_diario: storeSignupDiario,
       resumo_status: resumoStatus,
+      lojas_atencao: lojasAtencao,
       historico: historico
     };
 
@@ -2814,6 +3185,9 @@ function smartSlipGetBootstrapApp() {
       resumo_mensal: [],
       resumo_diario: [],
       resumo_status: [],
+      store_signup_mensal: [],
+      store_signup_diario: [],
+      lojas_atencao: [],
       historico: []
     };
   }
@@ -2827,6 +3201,8 @@ function smartSlipDiagnosticoBootstrap() {
 
 function smartSlipGetBootstrapAppJson() {
   try {
+    smartSlipAssertUsuarioAutorizado_();
+
     const resp = smartSlipGetBootstrapApp();
 
     return JSON.stringify({
@@ -2835,15 +3211,22 @@ function smartSlipGetBootstrapAppJson() {
     });
 
   } catch (err) {
+    const msg = String(err && err.message ? err.message : err);
+    const acessoNegado = msg.indexOf("ACESSO_NAO_AUTORIZADO") >= 0;
+
     return JSON.stringify({
       ok: false,
-      erro: String(err && err.message ? err.message : err)
+      codigo: acessoNegado ? "ACESSO_NAO_AUTORIZADO" : "ERRO_BOOTSTRAP",
+      erro: acessoNegado
+        ? msg.replace("ACESSO_NAO_AUTORIZADO:", "").trim()
+        : msg
     });
   }
 }
 
 function smartSlipGetCompHubJson(optionsJson) {
   try {
+      smartSlipAssertUsuarioAutorizado_();
     const usuario = smartSlipGetUsuarioAtual();
 
     if (!usuario.can_comp_hub) {
@@ -3383,6 +3766,67 @@ function smartSlipGetResumoStatus(usuario) {
   });
 }
 
+function smartSlipGetLojasAtencaoOperacional(usuario) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    return [];
+  }
+
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+
+  const statusCriticos = {
+    PENDENTE_INTERNO: true,
+    ERRO_PROCESSAMENTO: true,
+    DIVERGENCIA: true,
+    SALVO_PARCIAL: true,
+    INELEGIVEL: true,
+    PRECISA_COMPLEMENTO: true,
+    PENDENCIA: true
+  };
+
+  const mapa = {};
+
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i];
+
+    const emailRow = String(row[2] || "").trim().toLowerCase();
+    const loja = smartSlipNormalizarLoja4(row[3] || "");
+    const status = String(row[13] || "").trim().toUpperCase();
+
+    if (!usuario.is_admin && emailRow !== usuario.email) {
+      continue;
+    }
+
+    if (!loja || !statusCriticos[status]) {
+      continue;
+    }
+
+    if (!mapa[loja]) {
+      mapa[loja] = {
+        loja: loja,
+        total: 0,
+        status: {}
+      };
+    }
+
+    mapa[loja].total++;
+    mapa[loja].status[status] = (mapa[loja].status[status] || 0) + 1;
+  }
+
+  return Object.keys(mapa)
+    .map(function(loja) {
+      return mapa[loja];
+    })
+    .sort(function(a, b) {
+      return b.total - a.total;
+    })
+    .slice(0, 7);
+}
+
 function smartSlipFormatarDataHora(valor) {
   if (!valor) return "";
 
@@ -3619,6 +4063,132 @@ function smartSlipGetResumoDiario(usuario) {
   }
 }
 
+function smartSlipGetStoreSignupMensal(usuario) {
+  try {
+    usuario = usuario || smartSlipGetUsuarioAtual();
+
+    const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+    if (!sh || sh.getLastRow() < 2) {
+      return [];
+    }
+
+    const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+    const mapa = {};
+
+    for (let i = 0; i < values.length; i++) {
+      const row = values[i];
+
+      const dataRegistro = row[0];
+      const emailRow = String(row[2] || "").trim().toLowerCase();
+      const loja = smartSlipNormalizarLoja4(row[3] || "");
+
+      if (!usuario.is_admin && emailRow !== usuario.email) {
+        continue;
+      }
+
+      if (!loja) {
+        continue;
+      }
+
+      const mes = smartSlipMesAno(dataRegistro);
+
+      if (!mes) {
+        continue;
+      }
+
+      if (!mapa[mes]) {
+        mapa[mes] = {
+          mes: mes,
+          quantidade_envios: 0,
+          lojas_mapa: {}
+        };
+      }
+
+      mapa[mes].quantidade_envios++;
+      mapa[mes].lojas_mapa[loja] = true;
+    }
+
+    return Object.keys(mapa)
+      .sort()
+      .map(function(k) {
+        return {
+          mes: k,
+          quantidade_envios: mapa[k].quantidade_envios || 0,
+          lojas_unicas: Object.keys(mapa[k].lojas_mapa || {}).length
+        };
+      });
+
+  } catch (err) {
+    Logger.log("Erro smartSlipGetStoreSignupMensal: " + String(err && err.message ? err.message : err));
+    return [];
+  }
+}
+
+function smartSlipGetStoreSignupDiario(usuario) {
+  try {
+    usuario = usuario || smartSlipGetUsuarioAtual();
+
+    const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+    const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+    if (!sh || sh.getLastRow() < 2) {
+      return [];
+    }
+
+    const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
+    const mapa = {};
+
+    for (let i = 0; i < values.length; i++) {
+      const row = values[i];
+
+      const dataRegistro = row[0];
+      const emailRow = String(row[2] || "").trim().toLowerCase();
+      const loja = smartSlipNormalizarLoja4(row[3] || "");
+
+      if (!usuario.is_admin && emailRow !== usuario.email) {
+        continue;
+      }
+
+      if (!loja) {
+        continue;
+      }
+
+      const dia = smartSlipDiaIso(dataRegistro);
+
+      if (!dia) {
+        continue;
+      }
+
+      if (!mapa[dia]) {
+        mapa[dia] = {
+          dia: dia,
+          quantidade_envios: 0,
+          lojas_mapa: {}
+        };
+      }
+
+      mapa[dia].quantidade_envios++;
+      mapa[dia].lojas_mapa[loja] = true;
+    }
+
+    return Object.keys(mapa)
+      .sort()
+      .map(function(k) {
+        return {
+          dia: k,
+          quantidade_envios: mapa[k].quantidade_envios || 0,
+          lojas_unicas: Object.keys(mapa[k].lojas_mapa || {}).length
+        };
+      });
+
+  } catch (err) {
+    Logger.log("Erro smartSlipGetStoreSignupDiario: " + String(err && err.message ? err.message : err));
+    return [];
+  }
+}
+
 function smartSlipDiaIso(valor) {
   let d = valor;
 
@@ -3674,11 +4244,162 @@ function smartSlipGarantirAbaUsuarios() {
       "Email",
       "Loja Padrao",
       "Empresa",
-      "Data Atualizacao"
+      "Data Atualizacao",
+      "Ativo"
     ]);
+
+    return sh;
   }
 
+  const headers = sh.getRange(1, 1, 1, Math.max(5, sh.getLastColumn())).getValues()[0];
+
+  if (!String(headers[0] || "").trim()) sh.getRange(1, 1).setValue("Email");
+  if (!String(headers[1] || "").trim()) sh.getRange(1, 2).setValue("Loja Padrao");
+  if (!String(headers[2] || "").trim()) sh.getRange(1, 3).setValue("Empresa");
+  if (!String(headers[3] || "").trim()) sh.getRange(1, 4).setValue("Data Atualizacao");
+  if (!String(headers[4] || "").trim()) sh.getRange(1, 5).setValue("Ativo");
+
   return sh;
+}
+
+function smartSlipNormalizarTextoAcesso_(valor) {
+  return String(valor || "")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function smartSlipValorAtivoEhSim_(valor) {
+  const txt = smartSlipNormalizarTextoAcesso_(valor);
+
+  return [
+    "SIM",
+    "S",
+    "TRUE",
+    "1",
+    "ATIVO",
+    "YES",
+    "Y"
+  ].includes(txt);
+}
+
+function smartSlipEmailCorporativoValido_(email) {
+  email = String(email || "").trim().toLowerCase();
+
+  if (!email || email.indexOf("@") < 0) {
+    return false;
+  }
+
+  const dominio = email.split("@").pop();
+
+  return SMARTSLIP_DOMINIOS_CORPORATIVOS.indexOf(dominio) >= 0;
+}
+
+function smartSlipVerificarAcessoSmartSlip_(email) {
+  email = String(email || "").trim().toLowerCase();
+
+  if (!email) {
+    return {
+      autorizado: false,
+      email: "",
+      motivo: "Não foi possível identificar o e-mail do usuário."
+    };
+  }
+
+  if (!smartSlipEmailCorporativoValido_(email)) {
+    return {
+      autorizado: false,
+      email: email,
+      motivo: "Acesso permitido apenas para e-mail corporativo autorizado."
+    };
+  }
+
+  const sh = smartSlipGarantirAbaUsuarios();
+  const lastRow = sh.getLastRow();
+
+  if (lastRow < 2) {
+    return {
+      autorizado: false,
+      email: email,
+      motivo: "Usuário não cadastrado na whitelist SMARTSLIP_USUARIOS."
+    };
+  }
+
+  const values = sh.getRange(2, 1, lastRow - 1, 5).getValues();
+
+  for (let i = 0; i < values.length; i++) {
+    const row = values[i];
+
+    const emailRow = String(row[0] || "").trim().toLowerCase();
+
+    if (emailRow !== email) {
+      continue;
+    }
+
+    const ativo = smartSlipValorAtivoEhSim_(row[4]);
+
+    if (!ativo) {
+      return {
+        autorizado: false,
+        email: email,
+        motivo: "Usuário cadastrado, porém inativo na SMARTSLIP_USUARIOS."
+      };
+    }
+
+    return {
+      autorizado: true,
+      email: email,
+      linha: i + 2,
+      loja_padrao: String(row[1] || "").trim(),
+      empresa_padrao: String(row[2] || "").trim()
+    };
+  }
+
+  return {
+    autorizado: false,
+    email: email,
+    motivo: "Usuário não autorizado para acessar o SmartSlip."
+  };
+}
+
+function smartSlipAssertUsuarioAutorizado_() {
+  const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+  const acesso = smartSlipVerificarAcessoSmartSlip_(email);
+
+  if (!acesso.autorizado) {
+    throw new Error("ACESSO_NAO_AUTORIZADO: " + acesso.motivo);
+  }
+
+  return acesso;
+}
+
+function smartSlipValidarAcessoSmartSlipAppJson() {
+  try {
+    const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+    const acesso = smartSlipVerificarAcessoSmartSlip_(email);
+
+    if (!acesso.autorizado) {
+      return JSON.stringify({
+        ok: false,
+        codigo: "ACESSO_NAO_AUTORIZADO",
+        erro: acesso.motivo,
+        email: email
+      });
+    }
+
+    return JSON.stringify({
+      ok: true,
+      payload: acesso
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      codigo: "ERRO_VALIDACAO_ACESSO",
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
 }
 
 function smartSlipObterPreferenciasUsuario(email) {
@@ -3701,7 +4422,7 @@ function smartSlipObterPreferenciasUsuario(email) {
     };
   }
 
-  const values = sh.getRange(2, 1, lastRow - 1, 4).getValues();
+  const values = sh.getRange(2, 1, lastRow - 1, 5).getValues();
 
   for (let i = values.length - 1; i >= 0; i--) {
     const row = values[i];
@@ -3710,19 +4431,25 @@ function smartSlipObterPreferenciasUsuario(email) {
     if (emailRow === email) {
       return {
         loja_padrao: String(row[1] || "").trim(),
-        empresa_padrao: String(row[2] || "").trim()
+        empresa_padrao: String(row[2] || "").trim(),
+        ativo: smartSlipValorAtivoEhSim_(row[4])
       };
     }
   }
 
   return {
     loja_padrao: "",
-    empresa_padrao: ""
+    empresa_padrao: "",
+    ativo: false
   };
 }
 
 function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
-  const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+  const acessoSmartSlip = smartSlipAssertUsuarioAutorizado_();
+
+  const email = String(acessoSmartSlip.email || Session.getActiveUser().getEmail() || "")
+    .trim()
+    .toLowerCase();
 
   if (!email) {
     throw new Error("Não foi possível identificar o e-mail do usuário.");
@@ -3735,6 +4462,7 @@ function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
   }
 
   const usuarioAtual = smartSlipGetUsuarioAtual();
+
   const empresaPermitida = usuarioAtual.is_admin
     ? ""
     : smartSlipObterEmpresaPermitidaPorEmail(usuarioAtual.email);
@@ -3756,7 +4484,7 @@ function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
   const lastRow = sh.getLastRow();
 
   if (lastRow >= 2) {
-    const values = sh.getRange(2, 1, lastRow - 1, 4).getValues();
+    const values = sh.getRange(2, 1, lastRow - 1, 5).getValues();
 
     for (let i = 0; i < values.length; i++) {
       const rowIndex = i + 2;
@@ -3777,11 +4505,14 @@ function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
     }
   }
 
+  // Em regra, não deve chegar aqui, porque usuário autorizado já precisa existir na whitelist.
+  // Mantido como fallback controlado.
   sh.appendRow([
     email,
     loja4,
     empresa,
-    new Date()
+    new Date(),
+    "Sim"
   ]);
 
   return {
