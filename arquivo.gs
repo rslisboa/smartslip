@@ -16,6 +16,8 @@ const SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID = "1_XW0IqbYjiCPpqtwdEi1xPxDlIP2MSkM
 
 // Nova planilha SmartSlip, onde ficam BASE_SMARTSLIP e SMARTSLIP_FILA.
 const SMARTSLIP_DB_SPREADSHEET_ID = "145m9bu6mg6n4Oeh0QPDaiKZIE6MhZv0vux0W1xR9dpY";
+const SMARTSLIP_BASE_LOJAS_SPREADSHEET_ID = "1qik353SjXZ0JNLgjNt0J6bt2Dc9PzShK0zKdtc_QDvY";
+const SMARTSLIP_ABA_BASE_LOJAS = "Base";
 
 const SMARTSLIP_ABA_INFO_LIMITES = "Info_limites";
 const SMARTSLIP_ABA_DESTINO = "BASE_SMARTSLIP";
@@ -36,47 +38,72 @@ function smartSlipGetUsuarioAtual() {
 
   const primeiroNome = smartSlipExtrairPrimeiroNome(email);
 
-    let lojaPadrao = "";
-    let empresaPadrao = "";
+  let lojaPadrao = "";
+  let empresaPadrao = "";
+  let tipoDeposito = "";
+  let tipoDepositoOrigem = "";
+  let time = "";
+  let gerenteRegional = "";
+  let emailRegional = "";
 
-    let acessoUsuario = {
-      role: "Usuário",
-      is_admin: false,
-      is_analista_pro: false,
-      can_comp_hub: false
-    };
+  let acessoUsuario = {
+    role: "Usuário",
+    is_admin: false,
+    is_analista_pro: false,
+    can_comp_hub: false
+  };
 
-    try {
-      acessoUsuario = smartSlipGetAcessoUsuario(email);
-    } catch (errAcesso) {
-      Logger.log("Erro ao verificar acesso do usuário: " + String(errAcesso && errAcesso.message ? errAcesso.message : errAcesso));
-    }
+  try {
+    acessoUsuario = smartSlipGetAcessoUsuario(email);
+  } catch (errAcesso) {
+    Logger.log("Erro ao verificar acesso do usuário: " + String(errAcesso && errAcesso.message ? errAcesso.message : errAcesso));
+  }
 
   try {
     const prefs = smartSlipObterPreferenciasUsuario(email);
 
     lojaPadrao = prefs.loja_padrao || "";
     empresaPadrao = prefs.empresa_padrao || "";
+    tipoDeposito = prefs.tipo_deposito || "";
+    tipoDepositoOrigem = prefs.tipo_deposito_origem || "";
+    time = prefs.time || "";
+    gerenteRegional = prefs.gerente_regional || "";
+    emailRegional = prefs.email_regional || "";
 
-    if (!lojaPadrao) {
-      lojaPadrao = smartSlipObterUltimaLojaUsuario(email);
+    /*
+      Regra:
+      A loja padrão só pode vir da SMARTSLIP_USUARIOS,
+      gravada após o usuário selecionar e salvar em Configurações.
 
-      if (lojaPadrao) {
-        const infoLoja = smartSlipConsultarInfoLoja_(lojaPadrao);
+      Não buscar loja automaticamente por histórico/fila.
+      Isso evita que, no primeiro acesso, uma loja seja carregada sem confirmação do usuário.
+    */
 
-        if (infoLoja.ok) {
-          empresaPadrao = infoLoja.empresa;
-        }
+    if (lojaPadrao && (!tipoDeposito || !time || !gerenteRegional || !emailRegional)) {
+      const dadosBase = smartSlipConsultarDadosOperacionaisLoja_(lojaPadrao);
+
+      if (dadosBase.ok) {
+        tipoDeposito = tipoDeposito || dadosBase.tipo_deposito || "";
+        tipoDepositoOrigem = tipoDepositoOrigem || "BASE";
+        time = time || dadosBase.time || "";
+        gerenteRegional = gerenteRegional || dadosBase.gerente_regional || "";
+        emailRegional = emailRegional || dadosBase.email_regional || "";
       }
     }
 
   } catch (errLoja) {
     Logger.log("Erro ao obter loja padrão do usuário: " + String(errLoja && errLoja.message ? errLoja.message : errLoja));
+
     lojaPadrao = "";
     empresaPadrao = "";
+    tipoDeposito = "";
+    tipoDepositoOrigem = "";
+    time = "";
+    gerenteRegional = "";
+    emailRegional = "";
   }
 
-    return {
+  return {
     email: email,
     primeiro_nome: primeiroNome,
     perfil: acessoUsuario.role || "Usuário",
@@ -84,7 +111,12 @@ function smartSlipGetUsuarioAtual() {
     is_analista_pro: acessoUsuario.is_analista_pro === true,
     can_comp_hub: acessoUsuario.can_comp_hub === true,
     loja_padrao: lojaPadrao,
-    empresa_padrao: empresaPadrao
+    empresa_padrao: empresaPadrao,
+    tipo_deposito: tipoDeposito,
+    tipo_deposito_origem: tipoDepositoOrigem,
+    time: time,
+    gerente_regional: gerenteRegional,
+    email_regional: emailRegional
   };
 }
 
@@ -1353,6 +1385,131 @@ function smartSlipNormalizarLoja4(loja) {
   return digits.padStart(4, "0").slice(-4);
 }
 
+function smartSlipNormalizarTipoDeposito_(valor) {
+  const raw = String(valor || "").trim();
+
+  if (!raw) {
+    return "";
+  }
+
+  const txt = raw
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (txt.includes("CARRO")) {
+    return "Carro Forte";
+  }
+
+  if (txt.includes("BOLETO")) {
+    return "Boleto";
+  }
+
+  if (
+    txt.includes("DEP") ||
+    txt.includes("DEPOSITO") ||
+    txt.includes("BANCARIO") ||
+    txt.includes("BANC")
+  ) {
+    return "Dep. Bancário";
+  }
+
+  return "";
+}
+
+function smartSlipConsultarDadosOperacionaisLoja_(lojaInformada) {
+  const lojaDigits = String(lojaInformada || "").replace(/\D/g, "");
+
+  if (!lojaDigits) {
+    return {
+      ok: false,
+      erro: "Loja não informada para consulta operacional."
+    };
+  }
+
+  const lojaSemZeros = String(Number(lojaDigits));
+  const loja4 = lojaDigits.padStart(4, "0").slice(-4);
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_BASE_LOJAS_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_BASE_LOJAS);
+
+  if (!sh) {
+    throw new Error("Aba Base não encontrada na planilha operacional de lojas.");
+  }
+
+  const lastRow = sh.getLastRow();
+
+  if (lastRow < 4) {
+    return {
+      ok: false,
+      erro: "Aba Base sem dados abaixo do cabeçalho."
+    };
+  }
+
+  const lastColumn = Math.max(14, sh.getLastColumn());
+
+  // Cabeçalho começa na linha 3. Dados começam na linha 4.
+  const values = sh.getRange(3, 1, lastRow - 2, lastColumn).getValues();
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+
+    // Coluna C = índice 2.
+    const codigoLojaRaw = row[2];
+    const codigoDigits = String(codigoLojaRaw || "").replace(/\D/g, "");
+
+    if (!codigoDigits) {
+      continue;
+    }
+
+    const codigoSemZeros = String(Number(codigoDigits));
+    const codigo4 = codigoDigits.padStart(4, "0").slice(-4);
+
+    const bateu =
+      codigoSemZeros === lojaSemZeros ||
+      codigo4 === loja4;
+
+    if (!bateu) {
+      continue;
+    }
+
+    const tipoDepositoOriginal = String(row[13] || "").trim(); // Coluna N
+    const tipoDeposito = smartSlipNormalizarTipoDeposito_(tipoDepositoOriginal);
+
+    return {
+      ok: true,
+      loja_normalizada: codigo4,
+      tipo_deposito: tipoDeposito,
+      tipo_deposito_original: tipoDepositoOriginal,
+      time: String(row[5] || "").trim(),              // Coluna F
+      gerente_regional: String(row[6] || "").trim(), // Coluna G
+      email_regional: String(row[7] || "").trim(),   // Coluna H
+      linha_base: i + 3
+    };
+  }
+
+  return {
+    ok: false,
+    erro: "Loja não encontrada na aba Base operacional.",
+    loja_normalizada_tentativa: loja4
+  };
+}
+
+function smartSlipConsultarDadosOperacionaisLojaJson(lojaInformada) {
+  try {
+    return JSON.stringify({
+      ok: true,
+      payload: smartSlipConsultarDadosOperacionaisLoja_(lojaInformada)
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
 function smartSlipTesteSalvarCompleto() {
   const fileId = "1DtSSYlpbdpjDubLd05wue-XKgaosjcRN";
 
@@ -2334,10 +2491,26 @@ function smartSlipEnviarComprovanteApp(form) {
       throw new Error("Loja inválida para envio.");
     }
 
+    const tipoDepositoUsuario = smartSlipNormalizarTipoDeposito_(usuarioAtual.tipo_deposito || "");
+    const tipoDepositoForm = smartSlipNormalizarTipoDeposito_(form.tipo_deposito || "");
+    const tipoDepositoFinal = tipoDepositoUsuario || tipoDepositoForm;
+
+    if (!tipoDepositoFinal) {
+      throw new Error("Configure o tipo de depósito da loja na página Configurações antes de enviar comprovantes.");
+    }
+
+    if (tipoDepositoForm && tipoDepositoUsuario && tipoDepositoForm !== tipoDepositoUsuario) {
+      throw new Error("O tipo de depósito enviado não corresponde ao tipo configurado para a loja. Atualize em Configurações.");
+    }
+
     const houveRetiradaResposta = String(form.houve_retirada) === "true";
 
     const respostasUsuario = {
       loja: loja4,
+      tipo_deposito: tipoDepositoFinal,
+      time: usuarioAtual.time || "",
+      gerente_regional: usuarioAtual.gerente_regional || "",
+      email_regional: usuarioAtual.email_regional || "",
       data_movimento_inicio: form.data_movimento_inicio,
       data_movimento_fim: form.data_movimento_fim,
       houve_retirada: houveRetiradaResposta,
@@ -4239,25 +4412,32 @@ function smartSlipGarantirAbaUsuarios() {
     sh = ss.insertSheet(SMARTSLIP_ABA_USUARIOS);
   }
 
-  if (sh.getLastRow() === 0) {
-    sh.appendRow([
-      "Email",
-      "Loja Padrao",
-      "Empresa",
-      "Data Atualizacao",
-      "Ativo"
-    ]);
+  const headers = [
+    "Email",
+    "Loja Padrao",
+    "Empresa",
+    "Data Atualizacao",
+    "Ativo",
+    "Tipo Deposito",
+    "Tipo Deposito Origem",
+    "Time",
+    "Gerente Regional",
+    "Email Regional"
+  ];
 
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sh.setFrozenRows(1);
     return sh;
   }
 
-  const headers = sh.getRange(1, 1, 1, Math.max(5, sh.getLastColumn())).getValues()[0];
+  const atuais = sh.getRange(1, 1, 1, Math.max(headers.length, sh.getLastColumn())).getValues()[0];
 
-  if (!String(headers[0] || "").trim()) sh.getRange(1, 1).setValue("Email");
-  if (!String(headers[1] || "").trim()) sh.getRange(1, 2).setValue("Loja Padrao");
-  if (!String(headers[2] || "").trim()) sh.getRange(1, 3).setValue("Empresa");
-  if (!String(headers[3] || "").trim()) sh.getRange(1, 4).setValue("Data Atualizacao");
-  if (!String(headers[4] || "").trim()) sh.getRange(1, 5).setValue("Ativo");
+  headers.forEach(function(nome, idx) {
+    if (!String(atuais[idx] || "").trim()) {
+      sh.getRange(1, idx + 1).setValue(nome);
+    }
+  });
 
   return sh;
 }
@@ -4408,7 +4588,12 @@ function smartSlipObterPreferenciasUsuario(email) {
   if (!email) {
     return {
       loja_padrao: "",
-      empresa_padrao: ""
+      empresa_padrao: "",
+      tipo_deposito: "",
+      time: "",
+      gerente_regional: "",
+      email_regional: "",
+      ativo: false
     };
   }
 
@@ -4418,11 +4603,16 @@ function smartSlipObterPreferenciasUsuario(email) {
   if (lastRow < 2) {
     return {
       loja_padrao: "",
-      empresa_padrao: ""
+      empresa_padrao: "",
+      tipo_deposito: "",
+      time: "",
+      gerente_regional: "",
+      email_regional: "",
+      ativo: false
     };
   }
 
-  const values = sh.getRange(2, 1, lastRow - 1, 5).getValues();
+  const values = sh.getRange(2, 1, lastRow - 1, 10).getValues();
 
   for (let i = values.length - 1; i >= 0; i--) {
     const row = values[i];
@@ -4432,7 +4622,12 @@ function smartSlipObterPreferenciasUsuario(email) {
       return {
         loja_padrao: String(row[1] || "").trim(),
         empresa_padrao: String(row[2] || "").trim(),
-        ativo: smartSlipValorAtivoEhSim_(row[4])
+        ativo: smartSlipValorAtivoEhSim_(row[4]),
+        tipo_deposito: smartSlipNormalizarTipoDeposito_(row[5]) || String(row[5] || "").trim(),
+        tipo_deposito_origem: String(row[6] || "").trim(),
+        time: String(row[7] || "").trim(),
+        gerente_regional: String(row[8] || "").trim(),
+        email_regional: String(row[9] || "").trim()
       };
     }
   }
@@ -4440,11 +4635,15 @@ function smartSlipObterPreferenciasUsuario(email) {
   return {
     loja_padrao: "",
     empresa_padrao: "",
+    tipo_deposito: "",
+    time: "",
+    gerente_regional: "",
+    email_regional: "",
     ativo: false
   };
 }
 
-function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
+function smartSlipSalvarPreferenciasUsuario(lojaInformada, tipoDepositoInformado) {
   const acessoSmartSlip = smartSlipAssertUsuarioAutorizado_();
 
   const email = String(acessoSmartSlip.email || Session.getActiveUser().getEmail() || "")
@@ -4480,11 +4679,34 @@ function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
   const loja4 = infoLoja.loja_normalizada;
   const empresa = infoLoja.empresa;
 
+  const dadosBase = smartSlipConsultarDadosOperacionaisLoja_(loja4);
+
+  const tipoDepositoBase = dadosBase.ok
+    ? smartSlipNormalizarTipoDeposito_(dadosBase.tipo_deposito)
+    : "";
+
+  const tipoDepositoSelecionado = smartSlipNormalizarTipoDeposito_(tipoDepositoInformado);
+
+  const tipoDepositoFinal = tipoDepositoSelecionado || tipoDepositoBase;
+
+  if (!tipoDepositoFinal) {
+    throw new Error("Tipo de depósito não identificado. Selecione Boleto, Carro Forte ou Dep. Bancário.");
+  }
+
+  const origemTipoDeposito =
+    tipoDepositoBase && tipoDepositoFinal === tipoDepositoBase
+      ? "BASE"
+      : "MANUAL";
+
+  const time = dadosBase.ok ? String(dadosBase.time || "").trim() : "";
+  const gerenteRegional = dadosBase.ok ? String(dadosBase.gerente_regional || "").trim() : "";
+  const emailRegional = dadosBase.ok ? String(dadosBase.email_regional || "").trim() : "";
+
   const sh = smartSlipGarantirAbaUsuarios();
   const lastRow = sh.getLastRow();
 
   if (lastRow >= 2) {
-    const values = sh.getRange(2, 1, lastRow - 1, 5).getValues();
+    const values = sh.getRange(2, 1, lastRow - 1, 10).getValues();
 
     for (let i = 0; i < values.length; i++) {
       const rowIndex = i + 2;
@@ -4495,39 +4717,61 @@ function smartSlipSalvarPreferenciasUsuario(lojaInformada) {
         sh.getRange(rowIndex, 3).setValue(empresa);
         sh.getRange(rowIndex, 4).setValue(new Date());
 
+        // Não altera coluna E = Ativo.
+        sh.getRange(rowIndex, 6, 1, 5).setValues([[
+          tipoDepositoFinal,
+          origemTipoDeposito,
+          time,
+          gerenteRegional,
+          emailRegional
+        ]]);
+
         return {
           ok: true,
           email: email,
           loja_padrao: loja4,
-          empresa_padrao: empresa
+          empresa_padrao: empresa,
+          tipo_deposito: tipoDepositoFinal,
+          tipo_deposito_origem: origemTipoDeposito,
+          time: time,
+          gerente_regional: gerenteRegional,
+          email_regional: emailRegional
         };
       }
     }
   }
 
-  // Em regra, não deve chegar aqui, porque usuário autorizado já precisa existir na whitelist.
-  // Mantido como fallback controlado.
   sh.appendRow([
     email,
     loja4,
     empresa,
     new Date(),
-    "Sim"
+    "Sim",
+    tipoDepositoFinal,
+    origemTipoDeposito,
+    time,
+    gerenteRegional,
+    emailRegional
   ]);
 
   return {
     ok: true,
     email: email,
     loja_padrao: loja4,
-    empresa_padrao: empresa
+    empresa_padrao: empresa,
+    tipo_deposito: tipoDepositoFinal,
+    tipo_deposito_origem: origemTipoDeposito,
+    time: time,
+    gerente_regional: gerenteRegional,
+    email_regional: emailRegional
   };
 }
 
-function smartSlipSalvarPreferenciasUsuarioJson(lojaInformada) {
+function smartSlipSalvarPreferenciasUsuarioJson(lojaInformada, tipoDepositoInformado) {
   try {
     return JSON.stringify({
       ok: true,
-      payload: smartSlipSalvarPreferenciasUsuario(lojaInformada)
+      payload: smartSlipSalvarPreferenciasUsuario(lojaInformada, tipoDepositoInformado)
     });
 
   } catch (err) {
