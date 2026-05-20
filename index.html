@@ -3996,6 +3996,75 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - CONFIGURAÇÕES | TIPO DEPÓSITO E LOJA BASE
+   ========================================================= */
+
+.config-info-stack {
+  display: grid;
+  gap: 8px;
+}
+
+.config-info-card {
+  padding: 12px 13px;
+  border-radius: 15px;
+  background: #f7fbf4;
+  border: 1px solid #dbe8d4;
+}
+
+.config-info-card b {
+  display: block;
+  color: #005E27;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.config-info-card span {
+  display: block;
+  color: #050807;
+  font-size: 13px;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.cfg-save-loader {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 15px;
+  background: #050807;
+  color: #ffffff;
+  border: 1px solid rgba(181,255,32,.28);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.cfg-save-loader.show {
+  display: flex;
+}
+
+.cfg-save-spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(181,255,32,.25);
+  border-top-color: #B5FF20;
+  border-radius: 50%;
+  animation: girarSpinner .8s linear infinite;
+}
+
+.row-single {
+  grid-template-columns: 1fr !important;
+}
+
+.tipo-deposito-readonly {
+  font-weight: 850;
+  color: #050807;
+}
+
   </style>
 </head>
 
@@ -4379,21 +4448,29 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
                 </div>
               </div>
 
-            <div class="row">
-              <div>
-                <label>Número da loja</label>
-                <input id="loja" type="text" inputmode="numeric" placeholder="Configure sua loja padrão" readonly>
-                <div class="hint">A loja é definida na página Configurações.</div>
+              <div class="row">
+                <div>
+                  <label>Número da loja</label>
+                  <input id="loja" type="text" inputmode="numeric" placeholder="Configure sua loja padrão" readonly>
+                  <div class="hint">A loja é definida na página Configurações.</div>
+                </div>
+
+                <div>
+                  <label>Tipo de depósito</label>
+                  <input id="tipo_deposito_envio" class="tipo-deposito-readonly" type="text" placeholder="Configure em Configurações" readonly>
+                  <div class="hint">Para corrigir, altere em Configurações.</div>
+                </div>
               </div>
 
-            <div>
-              <label>Houve retirada (cancelamento/estorno/reembolso)?</label>
-              <select id="houve_retirada" onchange="toggleRetirada()">
-                <option value="false">Não</option>
-                <option value="true">Sim</option>
-              </select>
-            </div>
-          </div>
+              <div class="row row-single">
+                <div>
+                  <label>Houve retirada (cancelamento/estorno/reembolso)?</label>
+                  <select id="houve_retirada" onchange="toggleRetirada()">
+                    <option value="false">Não</option>
+                    <option value="true">Sim</option>
+                  </select>
+                </div>
+              </div>
 
           <div class="row">
             <div>
@@ -4755,9 +4832,44 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
               </div>
             </div>
 
+            <div class="config-row config-row-edit">
+              <b>Tipo de depósito</b>
+              <div class="config-loja-control">
+                <select id="cfgTipoDeposito">
+                  <option value="">Selecione o tipo de depósito</option>
+                  <option value="Boleto">Boleto</option>
+                  <option value="Carro Forte">Carro Forte</option>
+                  <option value="Dep. Bancário">Dep. Bancário</option>
+                </select>
+                <div id="cfgTipoDepositoHint" class="hint">
+                  O tipo é carregado da aba Base, mas pode ser ajustado caso esteja incorreto.
+                </div>
+              </div>
+            </div>
+
             <div class="config-row">
               <b>Empresa</b>
               <span id="cfgEmpresa">-</span>
+            </div>
+
+            <div class="config-row">
+              <b>Dados regionais</b>
+              <div class="config-info-stack">
+                <div class="config-info-card">
+                  <b>Time</b>
+                  <span id="cfgTime">-</span>
+                </div>
+
+                <div class="config-info-card">
+                  <b>Gerente Regional</b>
+                  <span id="cfgGerenteRegional">-</span>
+                </div>
+
+                <div class="config-info-card">
+                  <b>E-mail Regional</b>
+                  <span id="cfgEmailRegional">-</span>
+                </div>
+              </div>
             </div>
 
             <div class="config-row config-row-edit" id="cfgCompHubRangeRow">
@@ -4779,7 +4891,14 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
           </div>
 
             <div class="config-actions">
-              <button type="button" class="btn-primary" onclick="salvarConfiguracoesUsuario()">Salvar configurações</button>
+              <button id="btnSalvarConfiguracoes" type="button" class="btn-primary" onclick="salvarConfiguracoesUsuario()">
+                Salvar configurações
+              </button>
+            </div>
+
+            <div id="cfgSaveLoader" class="cfg-save-loader">
+              <div class="cfg-save-spinner"></div>
+              <span>Salvando configurações da loja...</span>
             </div>
 
             <div id="cfgMsg" class="msg"></div>
@@ -5469,63 +5588,88 @@ document.addEventListener("visibilitychange", function() {
   }
 });
 
-    function aplicarUsuario(usuario) {
-      usuario = usuario || {};
+function aplicarUsuario(usuario) {
+  usuario = usuario || {};
 
-      const primeiroNome = usuario.primeiro_nome || "usuário";
-      const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
-      const podeCompHub = usuario.can_comp_hub === true && !isSmartSlipMobile();
-      const lojaPadrao = usuario.loja_padrao || "";
+  const primeiroNome = usuario.primeiro_nome || "usuário";
+  const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
+  const podeCompHub = usuario.can_comp_hub === true && !isSmartSlipMobile();
+  const lojaPadrao = usuario.loja_padrao || "";
+  const tipoDeposito = usuario.tipo_deposito || "";
 
-      document.getElementById("primeiroNome").textContent = primeiroNome;
-      document.getElementById("userNameSide").textContent = primeiroNome;
-      document.getElementById("userRoleSide").textContent = perfil;
+  document.getElementById("primeiroNome").textContent = primeiroNome;
+  document.getElementById("userNameSide").textContent = primeiroNome;
+  document.getElementById("userRoleSide").textContent = perfil;
 
-      document.getElementById("cfgEmail").textContent = usuario.email || "-";
-      document.getElementById("cfgPerfil").textContent = perfil;
-      document.getElementById("kpiLoja").textContent = lojaPadrao || "-";
+  document.getElementById("cfgEmail").textContent = usuario.email || "-";
+  document.getElementById("cfgPerfil").textContent = perfil;
+  document.getElementById("kpiLoja").textContent = lojaPadrao || "-";
 
-      const navCompHub = document.getElementById("navCompHub");
+  const navCompHub = document.getElementById("navCompHub");
 
-      if (navCompHub) {
-        navCompHub.style.display = podeCompHub ? "block" : "none";
-      }
+  if (navCompHub) {
+    navCompHub.style.display = podeCompHub ? "block" : "none";
+  }
 
-      const viewCompHub = document.getElementById("view-comp-hub");
+  const viewCompHub = document.getElementById("view-comp-hub");
 
-      if (viewCompHub && !podeCompHub && viewCompHub.classList.contains("active")) {
-        abrirView("inicio", document.querySelector(".nav-item"));
-      }
+  if (viewCompHub && !podeCompHub && viewCompHub.classList.contains("active")) {
+    abrirView("inicio", document.querySelector(".nav-item"));
+  }
 
-      popularSelectLojasConfiguracao(SMARTSLIP_STATE.lojas || [], lojaPadrao);
-      document.getElementById("cfgEmpresa").textContent = usuario.empresa_padrao || obterEmpresaPorLoja(lojaPadrao) || "-";
+  popularSelectLojasConfiguracao(SMARTSLIP_STATE.lojas || [], lojaPadrao);
 
-      const inputLoja = document.getElementById("loja");
+  document.getElementById("cfgEmpresa").textContent =
+    usuario.empresa_padrao || obterEmpresaPorLoja(lojaPadrao) || "-";
 
-      if (inputLoja) {
-        inputLoja.value = lojaPadrao || "";
-        inputLoja.readOnly = true;
-        inputLoja.placeholder = lojaPadrao ? "" : "Configure sua loja padrão";
-      }
+  const cfgTipo = document.getElementById("cfgTipoDeposito");
 
-      document.getElementById("histSub").textContent = usuario.is_admin
-        ? "Mostrando todos os envios."
-        : "Mostrando apenas seus envios.";
+  if (cfgTipo) {
+    cfgTipo.value = tipoDeposito || "";
+  }
 
-        carregarConfigRangeCompHub();
+  smartSlipAtualizarDadosRegionaisConfig_({
+    tipo_deposito: tipoDeposito || "",
+    tipo_deposito_origem: usuario.tipo_deposito_origem || "",
+    time: usuario.time || "",
+    gerente_regional: usuario.gerente_regional || "",
+    email_regional: usuario.email_regional || ""
+  });
 
-        const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
+  const inputLoja = document.getElementById("loja");
 
-        if (boxFiltroHistLoja) {
-          boxFiltroHistLoja.style.display = usuario.is_admin && !isSmartSlipMobile() ? "block" : "none";
-        }
+  if (inputLoja) {
+    inputLoja.value = lojaPadrao || "";
+    inputLoja.readOnly = true;
+    inputLoja.placeholder = lojaPadrao ? "" : "Configure sua loja padrão";
+  }
 
-        const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
+  const inputTipoDeposito = document.getElementById("tipo_deposito_envio");
 
-        if (cfgCompHubRangeRow) {
-          cfgCompHubRangeRow.style.display = !isSmartSlipMobile() ? "" : "none";
-        }
-    }
+  if (inputTipoDeposito) {
+    inputTipoDeposito.value = tipoDeposito || "";
+    inputTipoDeposito.readOnly = true;
+    inputTipoDeposito.placeholder = tipoDeposito ? "" : "Configure em Configurações";
+  }
+
+  document.getElementById("histSub").textContent = usuario.is_admin
+    ? "Mostrando todos os envios."
+    : "Mostrando apenas seus envios.";
+
+  carregarConfigRangeCompHub();
+
+  const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
+
+  if (boxFiltroHistLoja) {
+    boxFiltroHistLoja.style.display = usuario.is_admin && !isSmartSlipMobile() ? "block" : "none";
+  }
+
+  const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
+
+  if (cfgCompHubRangeRow) {
+    cfgCompHubRangeRow.style.display = !isSmartSlipMobile() ? "" : "none";
+  }
+}
 
     function popularSelectLojasConfiguracao(lojas, lojaSelecionada) {
   const select = document.getElementById("cfgLojaSelect");
@@ -5576,11 +5720,136 @@ function obterEmpresaPorLoja(loja) {
   return "";
 }
 
+function smartSlipAtualizarDadosRegionaisConfig_(dados) {
+  dados = dados || {};
+
+  const cfgTipo = document.getElementById("cfgTipoDeposito");
+  const hint = document.getElementById("cfgTipoDepositoHint");
+
+  if (cfgTipo && dados.tipo_deposito) {
+    cfgTipo.value = dados.tipo_deposito;
+  }
+
+  if (hint) {
+    const origem = dados.tipo_deposito_origem || "";
+
+    if (origem === "MANUAL") {
+      hint.textContent = "Tipo ajustado manualmente pelo usuário.";
+    } else if (dados.tipo_deposito) {
+      hint.textContent = "Pode ser alterado caso esteja incorreto.";
+    } else {
+      hint.textContent = "Tipo não localizado. Selecione manualmente.";
+    }
+  }
+
+  const cfgTime = document.getElementById("cfgTime");
+  const cfgGerente = document.getElementById("cfgGerenteRegional");
+  const cfgEmailRegional = document.getElementById("cfgEmailRegional");
+
+  if (cfgTime) cfgTime.textContent = dados.time || "-";
+  if (cfgGerente) cfgGerente.textContent = dados.gerente_regional || "-";
+  if (cfgEmailRegional) cfgEmailRegional.textContent = dados.email_regional || "-";
+}
+
+function smartSlipSetConfigLoading_(ativo, texto) {
+  const loader = document.getElementById("cfgSaveLoader");
+  const btn = document.getElementById("btnSalvarConfiguracoes");
+
+  if (loader) {
+    loader.classList.toggle("show", ativo === true);
+
+    const span = loader.querySelector("span");
+
+    if (span && texto) {
+      span.textContent = texto;
+    }
+  }
+
+  if (btn) {
+    btn.disabled = ativo === true;
+    btn.textContent = ativo === true ? "Salvando..." : "Salvar configurações";
+  }
+}
+
+function smartSlipConsultarDadosLojaConfig_(loja) {
+  loja = String(loja || "").trim();
+
+  if (!loja) {
+    smartSlipAtualizarDadosRegionaisConfig_({});
+    return;
+  }
+
+  const hint = document.getElementById("cfgTipoDepositoHint");
+  const cfgTipo = document.getElementById("cfgTipoDeposito");
+
+  if (hint) {
+    hint.textContent = "Consultando tipo de depósito e dados regionais na aba Base...";
+  }
+
+  if (cfgTipo) {
+    cfgTipo.disabled = true;
+  }
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      if (cfgTipo) {
+        cfgTipo.disabled = false;
+      }
+
+      let envelope = {};
+
+      try {
+        envelope = JSON.parse(txt || "{}");
+      } catch (err) {
+        smartSlipAtualizarDadosRegionaisConfig_({});
+        mostrarCfgMensagem("erro", "Retorno inválido ao consultar dados operacionais da loja.");
+        return;
+      }
+
+      if (!envelope.ok) {
+        smartSlipAtualizarDadosRegionaisConfig_({});
+        mostrarCfgMensagem("erro", envelope.erro || "Erro ao consultar dados operacionais da loja.");
+        return;
+      }
+
+      const payload = envelope.payload || {};
+
+      if (!payload.ok) {
+        smartSlipAtualizarDadosRegionaisConfig_({});
+        mostrarCfgMensagem("erro", payload.erro || "Loja não encontrada na aba Base operacional.");
+        return;
+      }
+
+      smartSlipAtualizarDadosRegionaisConfig_(payload);
+    })
+    .withFailureHandler(function(err) {
+      if (cfgTipo) {
+        cfgTipo.disabled = false;
+      }
+
+      smartSlipAtualizarDadosRegionaisConfig_({});
+      mostrarCfgMensagem("erro", err && err.message ? err.message : String(err));
+    })
+    .smartSlipConsultarDadosOperacionaisLojaJson(loja);
+}
+
 function onConfigLojaChange() {
+  limparCfgMensagem();
+
   const select = document.getElementById("cfgLojaSelect");
-  const empresa = obterEmpresaPorLoja(select.value);
+  const loja = select ? select.value : "";
+  const empresa = obterEmpresaPorLoja(loja);
 
   document.getElementById("cfgEmpresa").textContent = empresa || "-";
+
+  const cfgTipo = document.getElementById("cfgTipoDeposito");
+
+  if (cfgTipo) {
+    cfgTipo.value = "";
+  }
+
+  smartSlipAtualizarDadosRegionaisConfig_({});
+  smartSlipConsultarDadosLojaConfig_(loja);
 }
 
 function mostrarCfgMensagem(tipo, texto) {
@@ -5608,13 +5877,25 @@ function salvarConfiguracoesUsuario() {
   const select = document.getElementById("cfgLojaSelect");
   const loja = select ? select.value : "";
 
+  const tipoEl = document.getElementById("cfgTipoDeposito");
+  const tipoDeposito = tipoEl ? tipoEl.value : "";
+
   if (!loja) {
     mostrarCfgMensagem("erro", "Selecione uma loja padrão.");
     return;
   }
 
+  if (!tipoDeposito) {
+    mostrarCfgMensagem("erro", "Selecione o tipo de depósito da loja.");
+    return;
+  }
+
+  smartSlipSetConfigLoading_(true, "Salvando configurações da loja...");
+
   google.script.run
     .withSuccessHandler(function(txt) {
+      smartSlipSetConfigLoading_(false);
+
       let envelope;
 
       try {
@@ -5640,9 +5921,23 @@ function salvarConfiguracoesUsuario() {
 
       SMARTSLIP_STATE.usuario.loja_padrao = payload.loja_padrao || loja;
       SMARTSLIP_STATE.usuario.empresa_padrao = empresa || "";
+      SMARTSLIP_STATE.usuario.tipo_deposito = payload.tipo_deposito || tipoDeposito;
+      SMARTSLIP_STATE.usuario.tipo_deposito_origem = payload.tipo_deposito_origem || "";
+      SMARTSLIP_STATE.usuario.time = payload.time || "";
+      SMARTSLIP_STATE.usuario.gerente_regional = payload.gerente_regional || "";
+      SMARTSLIP_STATE.usuario.email_regional = payload.email_regional || "";
 
       document.getElementById("kpiLoja").textContent = SMARTSLIP_STATE.usuario.loja_padrao || "-";
       document.getElementById("cfgEmpresa").textContent = empresa || "-";
+
+      smartSlipAtualizarDadosRegionaisConfig_({
+        tipo_deposito: SMARTSLIP_STATE.usuario.tipo_deposito,
+        tipo_deposito_origem: SMARTSLIP_STATE.usuario.tipo_deposito_origem,
+        time: SMARTSLIP_STATE.usuario.time,
+        gerente_regional: SMARTSLIP_STATE.usuario.gerente_regional,
+        email_regional: SMARTSLIP_STATE.usuario.email_regional
+      });
+
       const inputLoja = document.getElementById("loja");
 
       if (inputLoja) {
@@ -5651,12 +5946,21 @@ function salvarConfiguracoesUsuario() {
         inputLoja.placeholder = "";
       }
 
+      const inputTipoDeposito = document.getElementById("tipo_deposito_envio");
+
+      if (inputTipoDeposito) {
+        inputTipoDeposito.value = SMARTSLIP_STATE.usuario.tipo_deposito || "";
+        inputTipoDeposito.readOnly = true;
+        inputTipoDeposito.placeholder = "";
+      }
+
       carregarBootstrap({ silencioso: true });
     })
     .withFailureHandler(function(err) {
+      smartSlipSetConfigLoading_(false);
       mostrarCfgMensagem("erro", err && err.message ? err.message : String(err));
     })
-    .smartSlipSalvarPreferenciasUsuarioJson(loja);
+    .smartSlipSalvarPreferenciasUsuarioJson(loja, tipoDeposito);
 }
 
 function aplicarTemaHomeSmartSlip(nome) {
@@ -9245,6 +9549,7 @@ function validarRegrasEnvioSmartSlip() {
       const file = inputArquivo.files[0];
 
       const loja = document.getElementById("loja").value.trim();
+      const tipoDeposito = String(document.getElementById("tipo_deposito_envio").value || "").trim();
       const dataInicio = document.getElementById("data_movimento_inicio").value.trim();
       const dataFim = document.getElementById("data_movimento_fim").value.trim();
 
@@ -9286,6 +9591,11 @@ function validarRegrasEnvioSmartSlip() {
         mostrarMensagem("erro", "Configure sua loja padrão na página Configurações antes de enviar comprovantes.");
         return;
       }
+
+      if (!tipoDeposito) {
+          mostrarMensagem("erro", "Configure o tipo de depósito da loja na página Configurações antes de enviar comprovantes.");
+          return;
+        }
 
       if (!dataInicio) {
         mostrarMensagem("erro", "Informe a data de movimento inicial.");
@@ -9443,6 +9753,7 @@ function validarRegrasEnvioSmartSlip() {
       nomeArquivo: file.name,
       mimeType: file.type || "application/pdf",
       loja: loja,
+      tipo_deposito: tipoDeposito,
       data_movimento_inicio: converterDataInputParaBR(dataInicio),
       data_movimento_fim: converterDataInputParaBR(dataFim),
       houve_retirada: String(houveRetirada),
