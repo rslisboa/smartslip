@@ -32,6 +32,7 @@ const SMARTSLIP_DOMINIOS_CORPORATIVOS = [
   "centauro.com.br", 
   "fisia.com.br"
 ];
+const SMARTSLIP_ABA_CUSTOS_IA = "SMARTSLIP_CUSTOS_IA";
 
 function smartSlipGetUsuarioAtual() {
   const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
@@ -970,6 +971,14 @@ Retorne exatamente neste formato JSON:
 
   const json = JSON.parse(txt);
 
+  smartSlipRegistrarCustoIa_({
+  origem: "LEITURA_COMPLETA_COMPROVANTE",
+  modelo: model,
+  usage: json.usageMetadata || {},
+  respostasUsuario: respostasUsuario || {},
+  httpStatus: statusCode
+});
+
   const respostaTexto =
     json &&
     json.candidates &&
@@ -1006,7 +1015,14 @@ function smartSlipPreValidarTotalComprovanteApp(payload) {
     const base64Arquivo = String(payload.arquivoBase64 || "").split(",").pop();
     const mimeType = payload.mimeType || "application/pdf";
 
-    const leitura = smartSlipChamarGeminiTotalDocumental_(base64Arquivo, mimeType);
+    const leitura = smartSlipChamarGeminiTotalDocumental_(
+      base64Arquivo,
+      mimeType,
+      {
+        loja: payload.loja || "",
+        origem: "PRE_VALIDACAO_TOTAL_DOCUMENTAL"
+      }
+    );
 
     const valorTotalIa = smartSlipNumeroPreValidacaoIa_(leitura.valor_total_documental);
     const confianca = Number(leitura.confianca || 0);
@@ -1090,7 +1106,7 @@ if (diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA) {
   }
 }
 
-function smartSlipChamarGeminiTotalDocumental_(base64Arquivo, mimeType) {
+function smartSlipChamarGeminiTotalDocumental_(base64Arquivo, mimeType, contextoCusto) {
   const apiKey = PropertiesService.getScriptProperties().getProperty("GEMINI_API_KEY");
 
   if (!apiKey) {
@@ -1182,6 +1198,14 @@ Retorne exatamente este JSON:
   }
 
   const json = JSON.parse(txt);
+
+  smartSlipRegistrarCustoIa_({
+  origem: "PRE_VALIDACAO_TOTAL_DOCUMENTAL",
+  modelo: model,
+  usage: json.usageMetadata || {},
+  respostasUsuario: contextoCusto || {},
+  httpStatus: statusCode
+});
 
   const respostaTexto =
     json &&
@@ -1799,6 +1823,506 @@ function smartSlipGetScriptProperty(nome) {
   }
 
   return valor;
+}
+
+function smartSlipGetNumberScriptProperty_(nome, valorPadrao) {
+  const raw = PropertiesService
+    .getScriptProperties()
+    .getProperty(nome);
+
+  if (raw === null || raw === undefined || raw === "") {
+    return Number(valorPadrao || 0);
+  }
+
+  const n = Number(String(raw).replace(",", ".").trim());
+
+  return isNaN(n) ? Number(valorPadrao || 0) : n;
+}
+
+function smartSlipGetConfigCustoIa_() {
+  return {
+    preco_input_1m_usd: smartSlipGetNumberScriptProperty_("SMARTSLIP_IA_PRECO_INPUT_1M_USD", 0),
+    preco_output_1m_usd: smartSlipGetNumberScriptProperty_("SMARTSLIP_IA_PRECO_OUTPUT_1M_USD", 0),
+    usd_brl: smartSlipGetNumberScriptProperty_("SMARTSLIP_IA_USD_BRL", 0)
+  };
+}
+
+function smartSlipGarantirCabecalhoCustosIa_() {
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SMARTSLIP_ABA_CUSTOS_IA);
+
+  if (!sh) {
+    sh = ss.insertSheet(SMARTSLIP_ABA_CUSTOS_IA);
+  }
+
+  const headers = [
+    "Data Hora",
+    "Data",
+    "AnoMes",
+    "Origem",
+    "Modelo",
+    "Email Usuário",
+    "Loja",
+    "Protocolo",
+    "Prompt Tokens",
+    "Output Tokens",
+    "Total Tokens",
+    "Input USD",
+    "Output USD",
+    "Total USD",
+    "Cotação USD BRL",
+    "Total BRL",
+    "HTTP Status",
+    "Observação"
+  ];
+
+  if (sh.getLastRow() === 0) {
+    sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sh.setFrozenRows(1);
+    return sh;
+  }
+
+  const primeira = String(sh.getRange(1, 1).getValue() || "").trim();
+
+  if (primeira !== "Data Hora") {
+    sh.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sh.setFrozenRows(1);
+  }
+
+  return sh;
+}
+
+function smartSlipRegistrarCustoIa_(args) {
+  try {
+    args = args || {};
+
+    const usage = args.usage || {};
+    const contexto = args.respostasUsuario || args.contexto || {};
+
+    const promptTokens = Number(usage.promptTokenCount || 0);
+
+    let outputTokens = Number(
+      usage.candidatesTokenCount ||
+      usage.outputTokenCount ||
+      0
+    );
+
+    const totalTokensMetadata = Number(usage.totalTokenCount || 0);
+
+    if (!outputTokens && totalTokensMetadata > promptTokens) {
+      outputTokens = totalTokensMetadata - promptTokens;
+    }
+
+    const totalTokens = totalTokensMetadata || (promptTokens + outputTokens);
+
+    const cfg = smartSlipGetConfigCustoIa_();
+
+    const inputUsd = (promptTokens / 1000000) * cfg.preco_input_1m_usd;
+    const outputUsd = (outputTokens / 1000000) * cfg.preco_output_1m_usd;
+    const totalUsd = inputUsd + outputUsd;
+    const totalBrl = totalUsd * cfg.usd_brl;
+
+    const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+    const agora = new Date();
+
+    const dataHora = Utilities.formatDate(agora, tz, "dd/MM/yyyy HH:mm:ss");
+    const data = Utilities.formatDate(agora, tz, "yyyy-MM-dd");
+    const anoMes = Utilities.formatDate(agora, tz, "yyyy-MM");
+
+    const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
+
+    const loja = String(
+      contexto.loja ||
+      contexto.loja_padrao ||
+      args.loja ||
+      ""
+    ).trim();
+
+    const protocolo = String(
+      contexto.protocolo ||
+      args.protocolo ||
+      ""
+    ).trim();
+
+    let observacao = String(args.observacao || "").trim();
+
+    if (!usage || !Object.keys(usage).length) {
+      observacao = observacao
+        ? observacao + " | usageMetadata ausente no retorno."
+        : "usageMetadata ausente no retorno.";
+    }
+
+    if (!cfg.preco_input_1m_usd || !cfg.preco_output_1m_usd || !cfg.usd_brl) {
+      observacao = observacao
+        ? observacao + " | Configuração de preço/cotação incompleta."
+        : "Configuração de preço/cotação incompleta.";
+    }
+
+    const sh = smartSlipGarantirCabecalhoCustosIa_();
+
+    sh.appendRow([
+      dataHora,
+      data,
+      anoMes,
+      String(args.origem || ""),
+      String(args.modelo || ""),
+      email,
+      loja,
+      protocolo,
+      promptTokens,
+      outputTokens,
+      totalTokens,
+      inputUsd,
+      outputUsd,
+      totalUsd,
+      cfg.usd_brl,
+      totalBrl,
+      String(args.httpStatus || ""),
+      observacao
+    ]);
+
+  } catch (err) {
+    Logger.log("Erro ao registrar custo IA: " + String(err && err.message ? err.message : err));
+  }
+}
+
+function smartSlipPad2_(n) {
+  return String(n).padStart(2, "0");
+}
+
+function smartSlipNumeroCustosIa_(valor) {
+  if (valor === null || valor === undefined || valor === "") {
+    return 0;
+  }
+
+  if (typeof valor === "number") {
+    return isNaN(valor) ? 0 : valor;
+  }
+
+  let txt = String(valor).trim();
+
+  if (!txt) {
+    return 0;
+  }
+
+  // Remove moeda/espaço e normaliza pt-BR/en-US.
+  txt = txt
+    .replace(/[R$US$\s]/g, "")
+    .replace(/\u00A0/g, "")
+    .trim();
+
+  // Caso venha como 1.234,56
+  if (txt.indexOf(",") >= 0) {
+    txt = txt.replace(/\./g, "").replace(",", ".");
+  }
+
+  const n = Number(txt);
+
+  return isNaN(n) ? 0 : n;
+}
+
+function smartSlipNormalizarDataIsoCustos_(valorRaw, valorDisplay) {
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+
+  if (valorRaw instanceof Date && !isNaN(valorRaw.getTime())) {
+    return Utilities.formatDate(valorRaw, tz, "yyyy-MM-dd");
+  }
+
+  let txt = String(valorDisplay || valorRaw || "").trim();
+
+  if (!txt) {
+    return "";
+  }
+
+  // Já está yyyy-MM-dd
+  let m = txt.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (m) {
+    return m[1] + "-" + m[2] + "-" + m[3];
+  }
+
+  // dd/mm/yyyy
+  m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+  if (m) {
+    return m[3] + "-" + m[2] + "-" + m[1];
+  }
+
+  // dd/mm/yyyy hh:mm:ss
+  m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+/);
+
+  if (m) {
+    return m[3] + "-" + m[2] + "-" + m[1];
+  }
+
+  return txt;
+}
+
+function smartSlipNormalizarAnoMesCustos_(valorRaw, valorDisplay, dataIso) {
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+
+  if (valorRaw instanceof Date && !isNaN(valorRaw.getTime())) {
+    return Utilities.formatDate(valorRaw, tz, "yyyy-MM");
+  }
+
+  let txt = String(valorDisplay || valorRaw || "").trim();
+
+  if (txt) {
+    // yyyy-MM
+    let m = txt.match(/^(\d{4})-(\d{2})$/);
+
+    if (m) {
+      return m[1] + "-" + m[2];
+    }
+
+    // yyyy-MM-dd
+    m = txt.match(/^(\d{4})-(\d{2})-\d{2}$/);
+
+    if (m) {
+      return m[1] + "-" + m[2];
+    }
+
+    // dd/mm/yyyy
+    m = txt.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+
+    if (m) {
+      return m[3] + "-" + m[2];
+    }
+  }
+
+  if (dataIso && String(dataIso).match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return String(dataIso).substring(0, 7);
+  }
+
+  return txt;
+}
+
+function smartSlipGetCustosIa_(options) {
+  options = options || {};
+
+  const hoje = new Date();
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+
+  const anoAtual = Number(Utilities.formatDate(hoje, tz, "yyyy"));
+  const mesAtual = Number(Utilities.formatDate(hoje, tz, "MM"));
+
+  const ano = Number(options.ano || anoAtual);
+  const mes = Number(options.mes || mesAtual);
+
+  const sh = smartSlipGarantirCabecalhoCustosIa_();
+  const cfg = smartSlipGetConfigCustoIa_();
+
+  const serieMensal = [];
+  const mapaMensal = {};
+
+  for (let m = 1; m <= 12; m++) {
+    const anoMes = ano + "-" + smartSlipPad2_(m);
+
+    const item = {
+      ano_mes: anoMes,
+      label: smartSlipPad2_(m) + "/" + String(ano).slice(-2),
+      chamadas: 0,
+      prompt_tokens: 0,
+      output_tokens: 0,
+      total_tokens: 0,
+      custo_usd: 0,
+      custo_brl: 0
+    };
+
+    serieMensal.push(item);
+    mapaMensal[anoMes] = item;
+  }
+
+  const diasMes = new Date(ano, mes, 0).getDate();
+  const serieDiaria = [];
+  const mapaDiario = {};
+
+  for (let d = 1; d <= diasMes; d++) {
+    const data = ano + "-" + smartSlipPad2_(mes) + "-" + smartSlipPad2_(d);
+
+    const itemDia = {
+      data: data,
+      label: smartSlipPad2_(d),
+      chamadas: 0,
+      prompt_tokens: 0,
+      output_tokens: 0,
+      total_tokens: 0,
+      custo_usd: 0,
+      custo_brl: 0
+    };
+
+    serieDiaria.push(itemDia);
+    mapaDiario[data] = itemDia;
+  }
+
+  const kpis = {
+    chamadas: 0,
+    prompt_tokens: 0,
+    output_tokens: 0,
+    total_tokens: 0,
+    custo_usd: 0,
+    custo_brl: 0
+  };
+
+  const porOrigem = {};
+
+  if (sh.getLastRow() >= 2) {
+    const values = sh.getDataRange().getValues();
+    const displayValues = sh.getDataRange().getDisplayValues();
+
+    const headers = values[0].map(function(h) {
+      return String(h || "").trim();
+    });
+
+    const idxData = smartSlipEncontrarIndiceHeader_(headers, ["Data"]);
+    const idxAnoMes = smartSlipEncontrarIndiceHeader_(headers, ["AnoMes"]);
+    const idxOrigem = smartSlipEncontrarIndiceHeader_(headers, ["Origem"]);
+    const idxPrompt = smartSlipEncontrarIndiceHeader_(headers, ["Prompt Tokens"]);
+    const idxOutput = smartSlipEncontrarIndiceHeader_(headers, ["Output Tokens"]);
+    const idxTotal = smartSlipEncontrarIndiceHeader_(headers, ["Total Tokens"]);
+    const idxUsd = smartSlipEncontrarIndiceHeader_(headers, ["Total USD"]);
+    const idxBrl = smartSlipEncontrarIndiceHeader_(headers, ["Total BRL"]);
+
+    const indicesObrigatorios = [
+      idxData,
+      idxAnoMes,
+      idxOrigem,
+      idxPrompt,
+      idxOutput,
+      idxTotal,
+      idxUsd,
+      idxBrl
+    ];
+
+    if (indicesObrigatorios.some(function(idx) { return idx < 0; })) {
+      throw new Error(
+        "Cabeçalhos da aba SMARTSLIP_CUSTOS_IA incompletos. Verifique: Data, AnoMes, Origem, Prompt Tokens, Output Tokens, Total Tokens, Total USD e Total BRL."
+      );
+    }
+
+    for (let i = 1; i < values.length; i++) {
+      const row = values[i];
+      const rowDisplay = displayValues[i];
+
+      const data = smartSlipNormalizarDataIsoCustos_(
+        row[idxData],
+        rowDisplay[idxData]
+      );
+
+      const anoMes = smartSlipNormalizarAnoMesCustos_(
+        row[idxAnoMes],
+        rowDisplay[idxAnoMes],
+        data
+      );
+
+      const origem = String(rowDisplay[idxOrigem] || row[idxOrigem] || "Não informado").trim();
+
+      const promptTokens = smartSlipNumeroCustosIa_(row[idxPrompt]);
+      const outputTokens = smartSlipNumeroCustosIa_(row[idxOutput]);
+      const totalTokens = smartSlipNumeroCustosIa_(row[idxTotal]);
+      const totalUsd = smartSlipNumeroCustosIa_(row[idxUsd]);
+      const totalBrl = smartSlipNumeroCustosIa_(row[idxBrl]);
+
+      // Série mensal: considera todo o ano selecionado.
+      if (mapaMensal[anoMes]) {
+        mapaMensal[anoMes].chamadas += 1;
+        mapaMensal[anoMes].prompt_tokens += promptTokens;
+        mapaMensal[anoMes].output_tokens += outputTokens;
+        mapaMensal[anoMes].total_tokens += totalTokens;
+        mapaMensal[anoMes].custo_usd += totalUsd;
+        mapaMensal[anoMes].custo_brl += totalBrl;
+      }
+
+      // KPIs, série diária e origem: considera apenas mês selecionado.
+      if (mapaDiario[data]) {
+        mapaDiario[data].chamadas += 1;
+        mapaDiario[data].prompt_tokens += promptTokens;
+        mapaDiario[data].output_tokens += outputTokens;
+        mapaDiario[data].total_tokens += totalTokens;
+        mapaDiario[data].custo_usd += totalUsd;
+        mapaDiario[data].custo_brl += totalBrl;
+
+        kpis.chamadas += 1;
+        kpis.prompt_tokens += promptTokens;
+        kpis.output_tokens += outputTokens;
+        kpis.total_tokens += totalTokens;
+        kpis.custo_usd += totalUsd;
+        kpis.custo_brl += totalBrl;
+
+        if (!porOrigem[origem]) {
+          porOrigem[origem] = {
+            origem: origem,
+            chamadas: 0,
+            prompt_tokens: 0,
+            output_tokens: 0,
+            total_tokens: 0,
+            custo_usd: 0,
+            custo_brl: 0
+          };
+        }
+
+        porOrigem[origem].chamadas += 1;
+        porOrigem[origem].prompt_tokens += promptTokens;
+        porOrigem[origem].output_tokens += outputTokens;
+        porOrigem[origem].total_tokens += totalTokens;
+        porOrigem[origem].custo_usd += totalUsd;
+        porOrigem[origem].custo_brl += totalBrl;
+      }
+    }
+  }
+
+  const porOrigemLista = Object.keys(porOrigem)
+    .map(function(k) {
+      return porOrigem[k];
+    })
+    .sort(function(a, b) {
+      return Number(b.custo_brl || 0) - Number(a.custo_brl || 0);
+    });
+
+  return {
+    atualizado_em: smartSlipFormatarDataHora(new Date()),
+    ano: ano,
+    mes: mes,
+    config: cfg,
+    kpis: kpis,
+    mensal: serieMensal,
+    diario: serieDiaria,
+    por_origem: porOrigemLista
+  };
+}
+
+function smartSlipGetCustosIaJson(optionsJson) {
+  try {
+    smartSlipAssertUsuarioAutorizado_();
+
+    const usuario = smartSlipGetUsuarioAtual();
+
+    if (!usuario.is_admin) {
+      return JSON.stringify({
+        ok: false,
+        erro: "Acesso restrito. A página de Custos está disponível apenas para Administradores."
+      });
+    }
+
+    let options = {};
+
+    try {
+      options = optionsJson ? JSON.parse(optionsJson) : {};
+    } catch (e) {
+      options = {};
+    }
+
+    return JSON.stringify({
+      ok: true,
+      payload: smartSlipGetCustosIa_(options)
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
 }
 
 function smartSlipGetRootFolderComprovantes() {
