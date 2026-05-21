@@ -2162,7 +2162,9 @@ body.intro-lock {
 /* Força modo mobile via classe aplicada por JS */
 body.smart-mobile #navCompHub,
 body.smart-mobile #view-comp-hub,
-body.smart-mobile #cfgCompHubRangeRow {
+body.smart-mobile #cfgCompHubRangeRow,
+body.smart-mobile #navCustosIa,
+body.smart-mobile #view-custos {
   display: none !important;
 }
 
@@ -2481,6 +2483,13 @@ body.smart-mobile .smart-loader-brand span {
     display: grid !important;
     gap: 12px !important;
   }
+
+  @media (max-width: 1024px), (pointer: coarse) {
+  #navCustosIa,
+  #view-custos {
+    display: none !important;
+  }
+}
 }
 
 /* =========================================================
@@ -4065,6 +4074,269 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
   color: #050807;
 }
 
+/* =========================================================
+   SMARTSLIP - CUSTOS IA | ADMIN
+   Mesmo conceito visual da Home executiva
+   ========================================================= */
+
+#view-custos {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#view-custos .custos-filter-panel {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.custos-filter-actions {
+  display: grid;
+  grid-template-columns: 120px 150px auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.custos-filter-actions label {
+  display: block;
+  color: rgba(255,255,255,.68);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.custos-filter-actions select {
+  min-height: 42px;
+}
+
+.custos-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  margin-bottom: 18px;
+}
+
+.custos-chart-panel {
+  margin-bottom: 18px;
+}
+
+.custos-table-wrap {
+  overflow-x: auto;
+}
+
+.custos-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.custos-table th,
+.custos-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  font-size: 13px;
+  text-align: right;
+}
+
+.custos-table th:first-child,
+.custos-table td:first-child {
+  text-align: left;
+}
+
+.custos-table th {
+  color: #B5FF20;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.custos-table td {
+  color: rgba(255,255,255,.84);
+  font-weight: 750;
+}
+
+.custos-config-warning {
+  padding: 12px 14px;
+  border-radius: 16px;
+  margin-bottom: 14px;
+  background: rgba(245, 158, 11, .14);
+  border: 1px solid rgba(245, 158, 11, .35);
+  color: #fbbf24;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+/* Dark layout igual Home */
+body.smart-home-dark #view-custos {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-custos h1,
+body.smart-home-dark #view-custos h2 {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-custos .page-sub,
+body.smart-home-dark #view-custos .chart-sub {
+  color: rgba(255,255,255,.62) !important;
+}
+
+body.smart-home-dark #view-custos .top-pill {
+  background: rgba(181,255,32,.12) !important;
+  border: 1px solid rgba(181,255,32,.35) !important;
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-custos .panel,
+body.smart-home-dark #view-custos .home-chart-panel {
+  background:
+    radial-gradient(circle at top right, rgba(29,111,209,.12), transparent 36%),
+    linear-gradient(180deg, #101827 0%, #0B1220 100%) !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.28) !important;
+}
+
+body.smart-home-dark #view-custos .kpi-card {
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 36%),
+    linear-gradient(135deg, #071E3D 0%, #0B3E78 54%, #082A5A 100%) !important;
+  border: 1px solid rgba(64,224,208,.34) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+body.smart-home-dark #view-custos .kpi-card span {
+  color: #B5FF20 !important;
+  font-size: 11px !important;
+  font-weight: 950 !important;
+  letter-spacing: .45px !important;
+}
+
+body.smart-home-dark #view-custos .kpi-card strong {
+  color: #B5FF20 !important;
+  font-size: 27px !important;
+  font-weight: 950 !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  #view-custos .custos-filter-panel {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .custos-filter-actions {
+    grid-template-columns: 1fr !important;
+  }
+
+  .custos-kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - CUSTOS IA | AJUSTE VISUAL DOS GRÁFICOS
+   Mesmo padrão visual da Home
+   ========================================================= */
+
+body.smart-home-dark #view-custos {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+body.smart-home-dark #view-custos .custos-filter-panel {
+  min-height: auto !important;
+  padding: 18px 20px !important;
+  margin-bottom: 14px !important;
+}
+
+body.smart-home-dark #view-custos .custos-chart-panel {
+  min-height: 330px !important;
+  padding: 20px !important;
+  margin-bottom: 14px !important;
+}
+
+body.smart-home-dark #view-custos label,
+body.smart-home-dark #view-custos .custos-filter-actions label {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-custos select,
+body.smart-home-dark #view-custos input {
+  background: #071E3D !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(64,224,208,.28) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+body.smart-home-dark #view-custos select:focus,
+body.smart-home-dark #view-custos input:focus {
+  outline: 3px solid rgba(181,255,32,.22) !important;
+  border-color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-custos .chart-legend {
+  color: rgba(255,255,255,.72) !important;
+}
+
+body.smart-home-dark #view-custos .legend-dot.valor {
+  background: #B5FF20 !important;
+  border: 1px solid rgba(0,0,0,.18) !important;
+}
+
+body.smart-home-dark #view-custos .line-chart svg {
+  background: transparent !important;
+}
+
+body.smart-home-dark #view-custos .line-chart svg line {
+  stroke: rgba(255,255,255,.08) !important;
+}
+
+body.smart-home-dark #view-custos .line-chart svg text {
+  fill: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-custos .line-chart svg circle {
+  fill: #B5FF20 !important;
+  stroke: #050807 !important;
+}
+
+body.smart-home-dark #view-custos .line-chart svg polyline {
+  stroke: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-custos .custos-table {
+  background: transparent !important;
+}
+
+body.smart-home-dark #view-custos .custos-table th {
+  color: #B5FF20 !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+body.smart-home-dark #view-custos .custos-table td {
+  color: rgba(255,255,255,.84) !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+@media (min-width: 1025px) {
+  body.smart-home-dark #view-custos .line-chart svg {
+    height: 285px !important;
+  }
+
+  body.smart-home-dark #view-custos .line-chart {
+    min-height: 285px !important;
+  }
+}
+
   </style>
 </head>
 
@@ -4191,6 +4463,11 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
           <button data-nav="comp-hub" id="navCompHub" class="nav-item" type="button" style="display:none;" onclick="abrirView('comp-hub', this)">
             <span class="nav-ico">▦</span>
             <span class="nav-label">Comp Hub</span>
+          </button>
+
+          <button id="navCustosIa" data-nav="custos" class="nav-item" type="button" onclick="abrirView('custos', this)">
+            <span class="nav-ico">◆</span>
+            <span class="nav-label">Custos</span>
           </button>
 
           <button data-nav="configuracoes" class="nav-item" type="button" onclick="abrirView('configuracoes', this)">
@@ -4805,6 +5082,117 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
   </div>
 </section>
 
+      <section id="view-custos" class="view">
+  <div class="top-pill">Administração</div>
+
+  <h1>Custos de IA</h1>
+  <p class="page-sub">
+    Monitoramento administrativo de tokens, chamadas e custo estimado do uso de IA no SmartSlip.
+  </p>
+
+  <div class="panel custos-filter-panel">
+    <div>
+      <h2>Filtros da visão de custos</h2>
+      <p class="chart-sub">
+        Os filtros controlam o gráfico diário e os indicadores do mês selecionado.
+      </p>
+    </div>
+
+    <div class="custos-filter-actions">
+      <div>
+        <label>Ano</label>
+        <select id="custosAno"></select>
+      </div>
+
+      <div>
+        <label>Mês</label>
+        <select id="custosMes"></select>
+      </div>
+
+      <button type="button" class="btn-secondary" onclick="carregarCustosIa(true)">
+        Atualizar
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid custos-kpi-grid">
+    <div class="kpi-card">
+      <span>Custo mês - BRL</span>
+      <strong id="custosKpiBrl">R$ 0,00</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Custo mês - USD</span>
+      <strong id="custosKpiUsd">US$ 0.00</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Total tokens</span>
+      <strong id="custosKpiTokens">0</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Chamadas IA</span>
+      <strong id="custosKpiChamadas">0</strong>
+    </div>
+  </div>
+
+  <div class="panel home-chart-panel custos-chart-panel">
+    <div class="chart-head">
+      <div>
+        <h2>Custo por mês</h2>
+        <p class="chart-sub">
+          Evolução mensal do custo estimado em reais.
+        </p>
+      </div>
+    </div>
+
+    <div id="chartCustosMensal" class="line-chart">
+      <p class="page-sub">Carregando custos mensais...</p>
+    </div>
+
+    <div class="chart-legend">
+      <span><i class="legend-dot valor"></i> Custo em BRL</span>
+    </div>
+  </div>
+
+  <div class="panel home-chart-panel custos-chart-panel">
+    <div class="chart-head">
+      <div>
+        <h2>Custo diário</h2>
+        <p class="chart-sub">
+          Evolução diária do custo estimado no mês selecionado.
+        </p>
+      </div>
+    </div>
+
+    <div id="chartCustosDiario" class="line-chart">
+      <p class="page-sub">Carregando custos diários...</p>
+    </div>
+
+    <div class="chart-legend">
+      <span><i class="legend-dot valor"></i> Custo em BRL</span>
+    </div>
+  </div>
+
+  <div class="panel custos-table-panel">
+    <div class="chart-head">
+      <div>
+        <h2>Consumo por origem</h2>
+        <p class="chart-sub">
+          Separação entre pré-validação e leitura completa do comprovante.
+        </p>
+      </div>
+
+      <div id="custosAtualizado" class="chart-sub">-</div>
+    </div>
+
+    <div id="custosTabelaOrigem" class="custos-table-wrap">
+      <p class="page-sub">Carregando composição de custos...</p>
+    </div>
+  </div>
+</section>
+
       <section id="view-configuracoes" class="view">
         <div class="top-pill">Configurações</div>
         <h1>Preferências</h1>
@@ -4920,7 +5308,9 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
       lojas_atencao: [],
       historico: [],
       comp_hub: [],
-      comp_hub_filtrado: []
+      comp_hub_filtrado: [],
+      custos_ia: null,
+      custos_ia_filtros_iniciados: false
     };
 
     let COMP_HUB_PAGE = 1;
@@ -5276,34 +5666,58 @@ function iniciarCargaInicialSmartSlip() {
 
   setSmartLoader(10, "Preparando sessão...");
 
+  function finalizarCargaInicialSmartSlip_() {
+    setSmartLoader(100, "Pronto.");
+    setTimeout(esconderSmartLoader, 350);
+  }
+
+  function carregarCompHubOuFinalizar_(carregarCompHubDesktop) {
+    if (carregarCompHubDesktop) {
+      setSmartLoader(75, "Carregando Comp Hub no range configurado...");
+
+      carregarCompHubComCallback(function() {
+        setSmartLoader(92, "Aplicando preferências...");
+
+        setTimeout(function() {
+          finalizarCargaInicialSmartSlip_();
+        }, 250);
+      });
+
+      return;
+    }
+
+    setSmartLoader(85, "Aplicando preferências...");
+
+    setTimeout(function() {
+      finalizarCargaInicialSmartSlip_();
+    }, 250);
+  }
+
   setTimeout(function() {
     setSmartLoader(30, "Carregando visão geral...");
 
     carregarBootstrapComCallback(function() {
       const usuario = SMARTSLIP_STATE.usuario || {};
-      const carregarCompHubDesktop = usuario.can_comp_hub === true && !isSmartSlipMobile();
 
-      if (carregarCompHubDesktop) {
-        setSmartLoader(60, "Carregando Comp Hub no range configurado...");
+      const carregarCustosDesktop =
+        usuario.is_admin === true &&
+        !isSmartSlipMobile();
 
-        carregarCompHubComCallback(function() {
-          setSmartLoader(90, "Aplicando preferências...");
+      const carregarCompHubDesktop =
+        usuario.can_comp_hub === true &&
+        !isSmartSlipMobile();
 
-          setTimeout(function() {
-            setSmartLoader(100, "Pronto.");
-            setTimeout(esconderSmartLoader, 350);
-          }, 250);
+      if (carregarCustosDesktop) {
+        setSmartLoader(55, "Loading costs...");
+
+        carregarCustosIa(false, function() {
+          carregarCompHubOuFinalizar_(carregarCompHubDesktop);
         });
 
         return;
       }
 
-      setSmartLoader(75, "Preparando visão mobile...");
-
-      setTimeout(function() {
-        setSmartLoader(100, "Pronto.");
-        setTimeout(esconderSmartLoader, 350);
-      }, 250);
+      carregarCompHubOuFinalizar_(carregarCompHubDesktop);
     });
   }, 200);
 }
@@ -5459,14 +5873,28 @@ function carregarBootstrap(options, callback) {
       const compHubFiltradoAnterior = SMARTSLIP_STATE.comp_hub_filtrado || [];
       const compHubCarregadoAnterior = COMP_HUB_CARREGADO;
 
+      const custosIaAnterior = SMARTSLIP_STATE.custos_ia || null;
+      const custosIaCarregadoAnterior = SMARTSLIP_STATE.custos_ia_carregado === true;
+      const custosIaAnoAnterior = SMARTSLIP_STATE.custos_ia_ano || null;
+      const custosIaMesAnterior = SMARTSLIP_STATE.custos_ia_mes || null;
+      const custosIaFiltrosIniciadosAnterior = SMARTSLIP_STATE.custos_ia_filtros_iniciados === true;
+
       SMARTSLIP_STATE = resp;
       SMARTSLIP_STATE.lojas = resp.lojas || [];
 
       // Preserva dados já carregados do Comp Hub.
-      // O bootstrap não retorna comp_hub, então não pode apagar esse estado.
       SMARTSLIP_STATE.comp_hub = compHubAnterior;
       SMARTSLIP_STATE.comp_hub_filtrado = compHubFiltradoAnterior;
       COMP_HUB_CARREGADO = compHubCarregadoAnterior;
+
+      // Preserva dados já carregados da página Custos.
+      // O bootstrap não retorna custos_ia, então não pode apagar esse estado.
+      SMARTSLIP_STATE.custos_ia = custosIaAnterior;
+      SMARTSLIP_STATE.custos_ia_carregado = custosIaCarregadoAnterior;
+      SMARTSLIP_STATE.custos_ia_ano = custosIaAnoAnterior;
+      SMARTSLIP_STATE.custos_ia_mes = custosIaMesAnterior;
+      SMARTSLIP_STATE.custos_ia_filtros_iniciados = custosIaFiltrosIniciadosAnterior;
+      SMARTSLIP_STATE.custos_ia_carregando = false;
 
       aplicarUsuario(resp.usuario || {});
       aplicarModoMobileSmartSlip();
@@ -5590,6 +6018,7 @@ document.addEventListener("visibilitychange", function() {
 
 function aplicarUsuario(usuario) {
   usuario = usuario || {};
+  SMARTSLIP_STATE.usuario = usuario || {};
 
   const primeiroNome = usuario.primeiro_nome || "usuário";
   const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
@@ -5610,6 +6039,19 @@ function aplicarUsuario(usuario) {
   if (navCompHub) {
     navCompHub.style.display = podeCompHub ? "block" : "none";
   }
+
+  const navCustosIa = document.getElementById("navCustosIa");
+const podeVerCustosIa = usuario.is_admin === true && !isSmartSlipMobile();
+
+if (navCustosIa) {
+  navCustosIa.style.display = podeVerCustosIa ? "block" : "none";
+}
+
+const viewCustos = document.getElementById("view-custos");
+
+if (viewCustos && !podeVerCustosIa && viewCustos.classList.contains("active")) {
+  abrirView("inicio", document.querySelector("[data-nav='inicio']"));
+}
 
   const viewCompHub = document.getElementById("view-comp-hub");
 
@@ -5964,12 +6406,14 @@ function salvarConfiguracoesUsuario() {
 }
 
 function aplicarTemaHomeSmartSlip(nome) {
-  const ehHomeDesktop =
-    String(nome || "").toLowerCase() === "inicio" &&
+  const tela = String(nome || "").toLowerCase();
+
+  const deveUsarTemaEscuro =
+    (tela === "inicio" || tela === "custos") &&
     !isSmartSlipMobile();
 
-  document.body.classList.toggle("smart-home-dark", ehHomeDesktop);
-  document.documentElement.classList.toggle("smart-home-dark", ehHomeDesktop);
+  document.body.classList.toggle("smart-home-dark", deveUsarTemaEscuro);
+  document.documentElement.classList.toggle("smart-home-dark", deveUsarTemaEscuro);
 }
 
     function abrirComprovantesMobile() {
@@ -5977,7 +6421,342 @@ function aplicarTemaHomeSmartSlip(nome) {
       abrirView("comprovantes", btn);
     }
 
+    function formatUSD(valor) {
+  const n = Number(valor || 0);
+
+  return "US$ " + n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4
+  });
+}
+
+function formatIntSmartSlip(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR");
+}
+
+function inicializarFiltrosCustosIa() {
+  if (SMARTSLIP_STATE.custos_ia_filtros_iniciados) {
+    return;
+  }
+
+  const anoEl = document.getElementById("custosAno");
+  const mesEl = document.getElementById("custosMes");
+
+  if (!anoEl || !mesEl) {
+    return;
+  }
+
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth() + 1;
+
+  let htmlAno = "";
+
+  for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+    htmlAno +=
+      "<option value='" + ano + "'" + (ano === anoAtual ? " selected" : "") + ">" +
+        ano +
+      "</option>";
+  }
+
+  const meses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+
+  let htmlMes = "";
+
+  meses.forEach(function(nome, idx) {
+    const mes = idx + 1;
+
+    htmlMes +=
+      "<option value='" + mes + "'" + (mes === mesAtual ? " selected" : "") + ">" +
+        nome +
+      "</option>";
+  });
+
+  anoEl.innerHTML = htmlAno;
+  mesEl.innerHTML = htmlMes;
+
+  SMARTSLIP_STATE.custos_ia_filtros_iniciados = true;
+}
+
+function carregarCustosIa(forcar, callback) {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  function finalizarCallback(ok) {
+    if (typeof callback === "function") {
+      callback(ok === true);
+    }
+  }
+
+  if (usuario.is_admin !== true) {
+    finalizarCallback(true);
+    return;
+  }
+
+  inicializarFiltrosCustosIa();
+
+  const anoEl = document.getElementById("custosAno");
+  const mesEl = document.getElementById("custosMes");
+
+  const ano = Number(anoEl && anoEl.value ? anoEl.value : new Date().getFullYear());
+  const mes = Number(mesEl && mesEl.value ? mesEl.value : (new Date().getMonth() + 1));
+
+  const mesmoPeriodo =
+    Number(SMARTSLIP_STATE.custos_ia_ano || 0) === ano &&
+    Number(SMARTSLIP_STATE.custos_ia_mes || 0) === mes;
+
+  if (
+    forcar !== true &&
+    SMARTSLIP_STATE.custos_ia_carregado === true &&
+    SMARTSLIP_STATE.custos_ia &&
+    mesmoPeriodo
+  ) {
+    renderCustosIa(SMARTSLIP_STATE.custos_ia);
+    finalizarCallback(true);
+    return;
+  }
+
+  if (SMARTSLIP_STATE.custos_ia_carregando === true) {
+    finalizarCallback(false);
+    return;
+  }
+
+  SMARTSLIP_STATE.custos_ia_carregando = true;
+
+  const chartMensal = document.getElementById("chartCustosMensal");
+  const chartDiario = document.getElementById("chartCustosDiario");
+  const tabela = document.getElementById("custosTabelaOrigem");
+
+  const viewAtiva = document.querySelector(".view.active");
+  const estaNaTelaCustos = viewAtiva && viewAtiva.id === "view-custos";
+
+  // Só mostra loading visual se o usuário já estiver na tela de Custos
+  // ou se for atualização manual.
+  if (estaNaTelaCustos || forcar === true) {
+    if (chartMensal) chartMensal.innerHTML = "<p class='page-sub'>Carregando custos mensais...</p>";
+    if (chartDiario) chartDiario.innerHTML = "<p class='page-sub'>Carregando custos diários...</p>";
+    if (tabela) tabela.innerHTML = "<p class='page-sub'>Carregando composição de custos...</p>";
+  }
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope = {};
+
+      SMARTSLIP_STATE.custos_ia_carregando = false;
+
+      try {
+        envelope = JSON.parse(txt || "{}");
+      } catch (err) {
+        renderErroCustosIa("Retorno inválido do backend de custos.");
+        finalizarCallback(false);
+        return;
+      }
+
+      if (!envelope.ok) {
+        renderErroCustosIa(envelope.erro || "Erro ao carregar custos.");
+        finalizarCallback(false);
+        return;
+      }
+
+      SMARTSLIP_STATE.custos_ia = envelope.payload || {};
+      SMARTSLIP_STATE.custos_ia_carregado = true;
+      SMARTSLIP_STATE.custos_ia_ano = ano;
+      SMARTSLIP_STATE.custos_ia_mes = mes;
+
+      renderCustosIa(SMARTSLIP_STATE.custos_ia);
+      finalizarCallback(true);
+    })
+    .withFailureHandler(function(err) {
+      SMARTSLIP_STATE.custos_ia_carregando = false;
+
+      renderErroCustosIa(err && err.message ? err.message : String(err));
+      finalizarCallback(false);
+    })
+    .smartSlipGetCustosIaJson(JSON.stringify({
+      ano: ano,
+      mes: mes
+    }));
+}
+
+function renderErroCustosIa(msg) {
+  const chartMensal = document.getElementById("chartCustosMensal");
+  const chartDiario = document.getElementById("chartCustosDiario");
+  const tabela = document.getElementById("custosTabelaOrigem");
+
+  const html = "<p class='page-sub'>Erro ao carregar custos: " + escapeHtml(msg || "") + "</p>";
+
+  if (chartMensal) chartMensal.innerHTML = html;
+  if (chartDiario) chartDiario.innerHTML = "";
+  if (tabela) tabela.innerHTML = "";
+}
+
+function renderCustosIa(payload) {
+  payload = payload || {};
+
+  const kpis = payload.kpis || {};
+  const cfg = payload.config || {};
+
+  document.getElementById("custosKpiBrl").textContent = formatBRL(kpis.custo_brl || 0);
+  document.getElementById("custosKpiUsd").textContent = formatUSD(kpis.custo_usd || 0);
+  document.getElementById("custosKpiTokens").textContent = formatIntSmartSlip(kpis.total_tokens || 0);
+  document.getElementById("custosKpiChamadas").textContent = formatIntSmartSlip(kpis.chamadas || 0);
+
+  const atualizado = document.getElementById("custosAtualizado");
+
+  if (atualizado) {
+    atualizado.textContent = "Atualizado em " + (payload.atualizado_em || "-");
+  }
+
+  desenharGraficoCustoIa("chartCustosMensal", payload.mensal || [], "custo_brl", "Custo mensal");
+  desenharGraficoCustoIa("chartCustosDiario", payload.diario || [], "custo_brl", "Custo diário");
+
+  renderTabelaOrigemCustosIa(payload.por_origem || [], cfg);
+}
+
+function desenharGraficoCustoIa(idElemento, serie, campo, ariaLabel) {
+  const box = document.getElementById(idElemento);
+
+  if (!box) return;
+
+  serie = Array.isArray(serie) ? serie : [];
+
+  if (!serie.length) {
+    box.innerHTML = "<p class='page-sub'>Sem dados para o período selecionado.</p>";
+    return;
+  }
+
+  const width = 960;
+  const height = 260;
+  const padLeft = 58;
+  const padRight = 28;
+  const padTop = 34;
+  const padBottom = 42;
+
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const maxValor = Math.max.apply(null, serie.map(function(x) {
+    return Number(x[campo] || 0);
+  })) || 1;
+
+  function x(i) {
+    if (serie.length <= 1) return padLeft;
+    return padLeft + (plotW * i / (serie.length - 1));
+  }
+
+  function y(v) {
+    return padTop + plotH - ((Number(v || 0) / maxValor) * plotH);
+  }
+
+  const pontos = serie.map(function(item, i) {
+    return x(i) + "," + y(item[campo]);
+  }).join(" ");
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='" + escapeAttr(ariaLabel || "Gráfico de custo IA") + "'>";
+
+  for (let i = 0; i <= 4; i++) {
+    const yy = padTop + (plotH * i / 4);
+    svg += "<line x1='" + padLeft + "' y1='" + yy + "' x2='" + (width - padRight) + "' y2='" + yy + "' stroke='rgba(255,255,255,.10)' stroke-width='1'/>";
+  }
+
+  svg += "<polyline points='" + pontos + "' fill='none' stroke='#B5FF20' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/>";
+
+  serie.forEach(function(item, i) {
+    const valor = Number(item[campo] || 0);
+    const xx = x(i);
+    const yy = y(valor);
+
+    svg += "<circle cx='" + xx + "' cy='" + yy + "' r='5' fill='#B5FF20' stroke='#050807' stroke-width='1'>";
+    svg += "<title>" + escapeHtml(item.label || "") + " | " + formatBRL(valor) + "</title>";
+    svg += "</circle>";
+
+    svg += "<text x='" + xx + "' y='" + (height - 16) + "' text-anchor='middle' font-size='12' fill='rgba(255,255,255,.72)' font-weight='800'>" + escapeHtml(item.label || "") + "</text>";
+
+    if (valor > 0) {
+      svg += "<text x='" + xx + "' y='" + (yy - 12) + "' text-anchor='middle' font-size='11' fill='#B5FF20' font-weight='950'>" + formatBRL(valor) + "</text>";
+    }
+  });
+
+  svg += "</svg>";
+
+  const temDados = serie.some(function(item) {
+    return Number(item[campo] || 0) > 0;
+  });
+
+  if (!temDados) {
+    box.innerHTML =
+      "<p class='page-sub'>Não há custo registrado para o período selecionado.</p>" +
+      svg;
+    return;
+  }
+
+  box.innerHTML = svg;
+}
+
+function renderTabelaOrigemCustosIa(lista, cfg) {
+  const box = document.getElementById("custosTabelaOrigem");
+
+  if (!box) return;
+
+  lista = Array.isArray(lista) ? lista : [];
+
+  let aviso = "";
+
+  if (!cfg || !cfg.preco_input_1m_usd || !cfg.preco_output_1m_usd || !cfg.usd_brl) {
+    aviso =
+      "<div class='custos-config-warning'>" +
+        "Configuração de preço ou cotação incompleta. Revise as propriedades SMARTSLIP_IA_PRECO_INPUT_1M_USD, SMARTSLIP_IA_PRECO_OUTPUT_1M_USD e SMARTSLIP_IA_USD_BRL." +
+      "</div>";
+  }
+
+  if (!lista.length) {
+    box.innerHTML = aviso + "<p class='page-sub'>Sem consumo registrado no mês selecionado.</p>";
+    return;
+  }
+
+  let html = aviso;
+
+  html += "<table class='custos-table'>";
+  html += "<thead>";
+  html += "<tr>";
+  html += "<th>Origem</th>";
+  html += "<th>Chamadas</th>";
+  html += "<th>Prompt tokens</th>";
+  html += "<th>Output tokens</th>";
+  html += "<th>Total tokens</th>";
+  html += "<th>USD</th>";
+  html += "<th>BRL</th>";
+  html += "</tr>";
+  html += "</thead>";
+  html += "<tbody>";
+
+  lista.forEach(function(item) {
+    html += "<tr>";
+    html += "<td>" + escapeHtml(item.origem || "-") + "</td>";
+    html += "<td>" + formatIntSmartSlip(item.chamadas || 0) + "</td>";
+    html += "<td>" + formatIntSmartSlip(item.prompt_tokens || 0) + "</td>";
+    html += "<td>" + formatIntSmartSlip(item.output_tokens || 0) + "</td>";
+    html += "<td>" + formatIntSmartSlip(item.total_tokens || 0) + "</td>";
+    html += "<td>" + formatUSD(item.custo_usd || 0) + "</td>";
+    html += "<td>" + formatBRL(item.custo_brl || 0) + "</td>";
+    html += "</tr>";
+  });
+
+  html += "</tbody>";
+  html += "</table>";
+
+  box.innerHTML = html;
+}
+
 function abrirView(nome, btn) {
+  if (String(nome || "").toLowerCase() === "custos" && isSmartSlipMobile()) {
+  abrirView("inicio", document.querySelector("[data-nav='inicio']"));
+  return;
+    }
   aplicarModoMobileSmartSlip();
   aplicarTemaHomeSmartSlip(nome);
 
@@ -6021,6 +6800,15 @@ function abrirView(nome, btn) {
   if (nome === "comp-hub") {
     carregarCompHub(false);
   }
+
+  if (nome === "custos") {
+    if (SMARTSLIP_STATE.custos_ia_carregado === true && SMARTSLIP_STATE.custos_ia) {
+      renderCustosIa(SMARTSLIP_STATE.custos_ia);
+    } else {
+      carregarCustosIa(false);
+    }
+  }
+
 }
 
 function toggleRetirada() {
