@@ -1086,15 +1086,29 @@ body.intro-lock {
 }
 
 .smart-loader-brand strong {
-  display: block;
-  font-size: 22px;
-  font-weight: 900;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #050807 !important;
+  font-size: 22px !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -.25px !important;
 }
 
 .smart-loader-brand span {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+
+.smart-loader-card .brand-mark {
+  flex: 0 0 44px !important;
+}
+
+.smart-loader-brand > div:last-child {
+  display: grid !important;
+  gap: 3px !important;
 }
 
 .smart-loader-progress {
@@ -3639,6 +3653,12 @@ body.smart-mobile .arquivo-preview-box {
   border: 1px solid rgba(0,0,0,.18);
 }
 
+.legend-dot.adocao-area {
+  background: #40E0D0;
+  border: 1px solid rgba(181,255,32,.55);
+  box-shadow: 0 0 12px rgba(64,224,208,.28);
+}
+
 /* =========================================================
    SMARTSLIP - HOME DARK FULL WIDTH
    Aplica somente na página Início via body.smart-home-dark
@@ -4011,31 +4031,50 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
 
 .config-info-stack {
   display: grid;
-  gap: 8px;
+  gap: 7px;
+  width: 100%;
+  max-width: 360px;
 }
 
 .config-info-card {
-  padding: 12px 13px;
-  border-radius: 15px;
-  background: #f7fbf4;
-  border: 1px solid #dbe8d4;
+  min-height: 42px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #050807;
+  border: 1px solid rgba(181, 255, 32, .28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 8px 18px rgba(0,0,0,.10);
 }
 
 .config-info-card b {
   display: block;
-  color: #005E27;
-  font-size: 11px;
+  color: #B5FF20 !important;
+  font-size: 9px;
+  line-height: 1.15;
   font-weight: 950;
   text-transform: uppercase;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
+  letter-spacing: .25px;
 }
 
 .config-info-card span {
   display: block;
-  color: #050807;
-  font-size: 13px;
-  font-weight: 800;
+  color: #ffffff !important;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 850;
   word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .config-info-stack {
+    max-width: none;
+  }
+
+  .config-info-card {
+    min-height: 44px;
+  }
 }
 
 .cfg-save-loader {
@@ -4337,6 +4376,253 @@ body.smart-home-dark #view-custos .custos-table td {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - HOME | ESCOPO REGIONAL E ADOÇÃO POR LOJA
+   ========================================================= */
+
+.home-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+body.smart-home-dark #view-inicio .home-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.kpi-lojas-utilizando-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.kpi-lojas-utilizando-wrap strong {
+  margin-top: 0 !important;
+}
+
+.kpi-lojas-utilizando-pct {
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  color: #D9FF8A !important;
+  opacity: .98;
+  text-shadow: 0 0 14px rgba(181, 255, 32, .18);
+}
+
+body.smart-home-dark #view-inicio .kpi-lojas-utilizando-pct {
+  color: #D9FF8A !important;
+  font-size: 18px !important;
+}
+
+.adocao-lojas-chart {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+}
+
+.adocao-lojas-chart svg {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  height: 330px;
+}
+
+.adocao-loja-point {
+  cursor: pointer;
+  transition: opacity .16s ease, transform .16s ease;
+}
+
+.adocao-loja-point:hover {
+  opacity: .88;
+}
+
+.adocao-empty-card {
+  padding: 18px;
+  border-radius: 18px;
+  background: #071E3D;
+  border: 1px solid rgba(64,224,208,.22);
+  color: rgba(255,255,255,.78);
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+body.smart-home-dark #view-inicio .adocao-lojas-chart text {
+  fill: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-inicio .adocao-lojas-chart .adocao-axis-text {
+  fill: rgba(255,255,255,.90) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .15px !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .home-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  #boxLojaResumo {
+    display: none !important;
+  }
+
+  #adocaoLojasPanelInicio {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - STATUS DOS COMPROVANTES | DONUT COM RÓTULOS
+   Página Início
+   ========================================================= */
+
+body.smart-home-dark #statusPanelInicio .status-pizza-stage {
+  min-height: 370px !important;
+  height: 370px !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-3d {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 820px !important;
+  height: 350px !important;
+  margin: 0 auto !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  transform: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-3d svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+body.smart-home-dark #statusPanelInicio .status-pizza-shadow {
+  width: 230px !important;
+  height: 42px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 28px !important;
+  transform: translateX(-50%) !important;
+  background: rgba(0, 0, 0, .36) !important;
+  filter: blur(16px) !important;
+}
+
+.status-donut-slice {
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .22));
+}
+
+.status-donut-hole {
+  fill: #0B1220;
+  stroke: rgba(255, 255, 255, .10);
+  stroke-width: 1.2;
+}
+
+.status-donut-label-line {
+  stroke: rgba(255, 255, 255, .78);
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.status-donut-label-dot {
+  fill: #ffffff;
+  opacity: .95;
+}
+
+.status-donut-label-text {
+  fill: #ffffff;
+  font-size: 12px;
+  font-weight: 950;
+  dominant-baseline: middle;
+}
+
+.status-donut-center-label {
+  fill: rgba(255, 255, 255, .72);
+  font-size: 10px;
+  font-weight: 850;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.status-donut-center-value {
+  fill: #B5FF20;
+  font-size: 18px;
+  font-weight: 950;
+  text-anchor: middle;
+}
+
+/* =========================================================
+   SMARTSLIP - MOBILE | KPIs da Home no mesmo padrão desktop
+   ========================================================= */
+
+body.smart-mobile #view-inicio .home-kpi-grid,
+body.smart-mobile #view-inicio .kpi-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+  margin-bottom: 22px !important;
+}
+
+body.smart-mobile #view-inicio .kpi-card {
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 36%),
+    linear-gradient(135deg, #071E3D 0%, #0B3E78 54%, #082A5A 100%) !important;
+  border: 1px solid rgba(64,224,208,.34) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+  min-height: 116px !important;
+  padding: 22px 20px !important;
+}
+
+body.smart-mobile #view-inicio .kpi-card span {
+  color: #B5FF20 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  letter-spacing: .45px !important;
+  text-transform: uppercase !important;
+}
+
+body.smart-mobile #view-inicio .kpi-card strong {
+  color: #B5FF20 !important;
+  font-size: 34px !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  letter-spacing: -.8px !important;
+  text-shadow: 0 0 18px rgba(181,255,32,.18) !important;
+}
+
+body.smart-mobile #view-inicio .kpi-lojas-utilizando-wrap {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  margin-top: 10px !important;
+}
+
+body.smart-mobile #view-inicio .kpi-lojas-utilizando-wrap strong {
+  margin-top: 0 !important;
+}
+
+body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
+  color: #B5FF20 !important;
+  font-size: 26px !important;
+  font-weight: 950 !important;
+  text-shadow: 0 0 18px rgba(181,255,32,.18) !important;
+}
+
   </style>
 </head>
 
@@ -4494,22 +4780,31 @@ body.smart-home-dark #view-custos .custos-table td {
         </button>
       </div>
 
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <span>Comprovantes</span>
-            <strong id="kpiQtd">0</strong>
-          </div>
+          <div class="kpi-grid home-kpi-grid">
+            <div class="kpi-card">
+              <span>Comprovantes</span>
+              <strong id="kpiQtd">0</strong>
+            </div>
 
-          <div class="kpi-card">
-            <span>Valor total</span>
-            <strong id="kpiValor">R$ 0,00</strong>
-          </div>
+            <div class="kpi-card">
+              <span>Valor total</span>
+              <strong id="kpiValor">R$ 0,00</strong>
+            </div>
 
-          <div class="kpi-card">
-            <span>Loja padrão</span>
-            <strong id="kpiLoja">-</strong>
+            <div id="kpiLojaCard" class="kpi-card">
+              <span>Loja padrão</span>
+              <strong id="kpiLoja">-</strong>
+            </div>
+
+            <div id="kpiLojasUtilizandoCard" class="kpi-card" style="display:none;">
+              <span>Lojas utilizando</span>
+
+              <div class="kpi-lojas-utilizando-wrap">
+                <strong id="kpiLojasUtilizando">0/0</strong>
+                <strong id="kpiLojasUtilizandoPct" class="kpi-lojas-utilizando-pct">0,0%</strong>
+              </div>
+            </div>
           </div>
-        </div>
 
         <div class="mobile-smartslip-info">
   <div class="mobile-smartslip-info-head">
@@ -4548,6 +4843,12 @@ body.smart-home-dark #view-custos .custos-table td {
         </div>
 
         <div class="chart-controls">
+          <div class="year-control" id="boxLojaResumo" style="display:none;">
+            <label for="lojaResumo">Loja</label>
+            <select id="lojaResumo" onchange="onLojaResumoChange()">
+              <option value="">Todas</option>
+            </select>
+          </div>
           <div class="year-control">
             <label for="modoResumo">Visão</label>
             <select id="modoResumo" onchange="onModoResumoChange()">
@@ -4585,6 +4886,25 @@ body.smart-home-dark #view-custos .custos-table td {
         <span><i class="legend-dot store-signup"></i> Lojas usando o SmartSlip</span>
       </div>
     </div>
+
+    <div id="adocaoLojasPanelInicio" class="panel chart-panel chart-panel-secondary home-chart-panel">
+        <div class="chart-head">
+          <div>
+            <h2>Adoção por loja</h2>
+            <p class="chart-sub">
+              Mostra quais lojas do escopo vêm utilizando o SmartSlip e quais ainda não possuem envio registrado.
+            </p>
+          </div>
+        </div>
+
+        <div id="chartAdocaoLojas" class="adocao-lojas-chart">
+          <p class="page-sub">Carregando adoção por loja...</p>
+        </div>
+
+        <div class="chart-legend">
+          <span><i class="legend-dot adocao-area"></i> Área de adoção por loja</span>
+        </div>
+      </div>
 
           <div class="panel chart-panel chart-panel-secondary home-chart-panel">
             <div class="chart-head">
@@ -4963,7 +5283,9 @@ body.smart-home-dark #view-custos .custos-table td {
         <p class="chart-sub">Filtre por data, loja, empresa, banco, tipo, status ou identificadores.</p>
       </div>
 
-      <button type="button" class="btn-secondary" onclick="limparFiltrosCompHub()">Limpar filtros</button>
+      <button type="button" class="btn-secondary" onclick="limparFiltrosCompHub()">
+        Limpar filtros
+      </button>
     </div>
 
     <div class="comp-filter-grid">
@@ -5304,6 +5626,13 @@ body.smart-home-dark #view-custos .custos-table td {
       resumo_diario: [],
       store_signup_mensal: [],
       store_signup_diario: [],
+      adocao_lojas: {
+        total_lojas_escopo: 0,
+        lojas_utilizando: 0,
+        lojas_sem_uso: 0,
+        rows: []
+      },
+      loja_resumo_filtro: "",
       resumo_status: [],
       lojas_atencao: [],
       historico: [],
@@ -5867,47 +6196,83 @@ function carregarBootstrap(options, callback) {
 
       const resp = envelope.payload || {};
 
-      console.log("BOOTSTRAP PARSED:", resp);
+try {
+  console.log("BOOTSTRAP PARSED:", resp);
 
-      const compHubAnterior = SMARTSLIP_STATE.comp_hub || [];
-      const compHubFiltradoAnterior = SMARTSLIP_STATE.comp_hub_filtrado || [];
-      const compHubCarregadoAnterior = COMP_HUB_CARREGADO;
+  const compHubAnterior = SMARTSLIP_STATE.comp_hub || [];
+  const compHubFiltradoAnterior = SMARTSLIP_STATE.comp_hub_filtrado || [];
+  const compHubCarregadoAnterior = COMP_HUB_CARREGADO;
 
-      const custosIaAnterior = SMARTSLIP_STATE.custos_ia || null;
-      const custosIaCarregadoAnterior = SMARTSLIP_STATE.custos_ia_carregado === true;
-      const custosIaAnoAnterior = SMARTSLIP_STATE.custos_ia_ano || null;
-      const custosIaMesAnterior = SMARTSLIP_STATE.custos_ia_mes || null;
-      const custosIaFiltrosIniciadosAnterior = SMARTSLIP_STATE.custos_ia_filtros_iniciados === true;
+  const custosIaAnterior = SMARTSLIP_STATE.custos_ia || null;
+  const custosIaCarregadoAnterior = SMARTSLIP_STATE.custos_ia_carregado === true;
+  const custosIaAnoAnterior = SMARTSLIP_STATE.custos_ia_ano || null;
+  const custosIaMesAnterior = SMARTSLIP_STATE.custos_ia_mes || null;
+  const custosIaFiltrosIniciadosAnterior = SMARTSLIP_STATE.custos_ia_filtros_iniciados === true;
 
-      SMARTSLIP_STATE = resp;
-      SMARTSLIP_STATE.lojas = resp.lojas || [];
+  SMARTSLIP_STATE = resp || {};
+  SMARTSLIP_STATE.lojas = resp.lojas || [];
 
-      // Preserva dados já carregados do Comp Hub.
-      SMARTSLIP_STATE.comp_hub = compHubAnterior;
-      SMARTSLIP_STATE.comp_hub_filtrado = compHubFiltradoAnterior;
-      COMP_HUB_CARREGADO = compHubCarregadoAnterior;
+  SMARTSLIP_STATE.adocao_lojas = resp.adocao_lojas || {
+    total_lojas_escopo: 0,
+    lojas_utilizando: 0,
+    lojas_sem_uso: 0,
+    rows: []
+  };
 
-      // Preserva dados já carregados da página Custos.
-      // O bootstrap não retorna custos_ia, então não pode apagar esse estado.
-      SMARTSLIP_STATE.custos_ia = custosIaAnterior;
-      SMARTSLIP_STATE.custos_ia_carregado = custosIaCarregadoAnterior;
-      SMARTSLIP_STATE.custos_ia_ano = custosIaAnoAnterior;
-      SMARTSLIP_STATE.custos_ia_mes = custosIaMesAnterior;
-      SMARTSLIP_STATE.custos_ia_filtros_iniciados = custosIaFiltrosIniciadosAnterior;
-      SMARTSLIP_STATE.custos_ia_carregando = false;
+  // Preserva dados já carregados do Comp Hub.
+  SMARTSLIP_STATE.comp_hub = compHubAnterior;
+  SMARTSLIP_STATE.comp_hub_filtrado = compHubFiltradoAnterior;
+  COMP_HUB_CARREGADO = compHubCarregadoAnterior;
 
-      aplicarUsuario(resp.usuario || {});
-      aplicarModoMobileSmartSlip();
-      renderResumo(
-        resp.resumo_mensal || [],
-        resp.resumo_diario || [],
-        resp.store_signup_mensal || [],
-        resp.store_signup_diario || []
-      );
-      renderHistorico(resp.historico || []);
-      renderResumoStatus(resp.resumo_status || [], resp.lojas_atencao || []);
+  // Preserva dados já carregados da página Custos.
+  SMARTSLIP_STATE.custos_ia = custosIaAnterior;
+  SMARTSLIP_STATE.custos_ia_carregado = custosIaCarregadoAnterior;
+  SMARTSLIP_STATE.custos_ia_ano = custosIaAnoAnterior;
+  SMARTSLIP_STATE.custos_ia_mes = custosIaMesAnterior;
+  SMARTSLIP_STATE.custos_ia_filtros_iniciados = custosIaFiltrosIniciadosAnterior;
+  SMARTSLIP_STATE.custos_ia_carregando = false;
 
-      finalizarCallback(true);
+  aplicarUsuario(resp.usuario || {});
+  aplicarModoMobileSmartSlip();
+
+  renderResumo(
+    resp.resumo_mensal || [],
+    resp.resumo_diario || [],
+    resp.store_signup_mensal || [],
+    resp.store_signup_diario || []
+  );
+
+  renderHistorico(resp.historico || []);
+  renderResumoStatus(resp.resumo_status || [], resp.lojas_atencao || []);
+
+  finalizarCallback(true);
+
+} catch (renderErr) {
+  const msg = renderErr && renderErr.message
+    ? renderErr.message
+    : String(renderErr);
+
+  console.error("ERRO AO MONTAR TELA SMARTSLIP:", renderErr);
+
+  setSmartLoader(100, "Erro ao montar a tela.");
+
+  if (chart) {
+    chart.innerHTML =
+      "<p class='page-sub'>Erro ao montar a visão inicial. Detalhe: " +
+      escapeHtml(msg) +
+      "</p>";
+  }
+
+  if (hist) {
+    hist.innerHTML =
+      "<p class='page-sub'>Erro ao montar histórico. Detalhe: " +
+      escapeHtml(msg) +
+      "</p>";
+  }
+
+  setTimeout(esconderSmartLoader, 800);
+  finalizarCallback(false);
+}
     })
     .withFailureHandler(function(err) {
       const msg = err && err.message ? err.message : String(err);
@@ -6022,7 +6387,10 @@ function aplicarUsuario(usuario) {
 
   const primeiroNome = usuario.primeiro_nome || "usuário";
   const perfil = usuario.perfil || (usuario.is_admin ? "Administrador" : "Usuário");
-  const podeCompHub = usuario.can_comp_hub === true && !isSmartSlipMobile();
+  const podeCompHub =
+  usuario.can_comp_hub === true &&
+  usuario.is_regional !== true &&
+  !isSmartSlipMobile();
   const lojaPadrao = usuario.loja_padrao || "";
   const tipoDeposito = usuario.tipo_deposito || "";
 
@@ -6033,6 +6401,22 @@ function aplicarUsuario(usuario) {
   document.getElementById("cfgEmail").textContent = usuario.email || "-";
   document.getElementById("cfgPerfil").textContent = perfil;
   document.getElementById("kpiLoja").textContent = lojaPadrao || "-";
+
+  const kpiLojaCard = document.getElementById("kpiLojaCard");
+  const kpiLojasUtilizandoCard = document.getElementById("kpiLojasUtilizandoCard");
+
+  const perfilGestao =
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true ||
+    usuario.is_regional === true;
+
+  if (kpiLojaCard) {
+    kpiLojaCard.style.display = usuario.is_regional === true ? "none" : "block";
+  }
+
+  if (kpiLojasUtilizandoCard) {
+    kpiLojasUtilizandoCard.style.display = perfilGestao ? "block" : "none";
+  }
 
   const navCompHub = document.getElementById("navCompHub");
 
@@ -6094,8 +6478,10 @@ if (viewCustos && !podeVerCustosIa && viewCustos.classList.contains("active")) {
     inputTipoDeposito.placeholder = tipoDeposito ? "" : "Configure em Configurações";
   }
 
-  document.getElementById("histSub").textContent = usuario.is_admin
-    ? "Mostrando todos os envios."
+document.getElementById("histSub").textContent = usuario.is_admin || usuario.is_analista_pro
+  ? "Mostrando todos os envios."
+  : usuario.is_regional
+    ? "Mostrando apenas as lojas da sua regional."
     : "Mostrando apenas seus envios.";
 
   carregarConfigRangeCompHub();
@@ -6103,7 +6489,14 @@ if (viewCustos && !podeVerCustosIa && viewCustos.classList.contains("active")) {
   const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
 
   if (boxFiltroHistLoja) {
-    boxFiltroHistLoja.style.display = usuario.is_admin && !isSmartSlipMobile() ? "block" : "none";
+    boxFiltroHistLoja.style.display =
+  (
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true ||
+    usuario.is_regional === true
+  ) && !isSmartSlipMobile()
+    ? "block"
+    : "none";
   }
 
   const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
@@ -6949,6 +7342,99 @@ function smartSlipAtualizarBotaoCooldownEnvio_() {
       });
     }
 
+    function normalizarLojaFrontSmartSlip_(loja) {
+  const digits = String(loja || "").replace(/\D/g, "");
+
+  if (!digits) {
+    return "";
+  }
+
+  return digits.padStart(4, "0").slice(-4);
+}
+
+function getLojaResumoSelecionada() {
+  const el = document.getElementById("lojaResumo");
+
+  if (!el) {
+    return "";
+  }
+
+  return normalizarLojaFrontSmartSlip_(el.value || "");
+}
+
+function itemPassaFiltroLojaResumo_(item) {
+  const lojaFiltro = getLojaResumoSelecionada();
+
+  if (!lojaFiltro) {
+    return true;
+  }
+
+  return normalizarLojaFrontSmartSlip_(item && item.loja) === lojaFiltro;
+}
+
+function popularFiltroLojasResumo() {
+  const select = document.getElementById("lojaResumo");
+  const box = document.getElementById("boxLojaResumo");
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  if (!select || !box) {
+    return;
+  }
+
+  const podeFiltrar =
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true ||
+    usuario.is_regional === true;
+
+  if (!podeFiltrar || isSmartSlipMobile()) {
+    box.style.display = "none";
+    select.value = "";
+    SMARTSLIP_STATE.loja_resumo_filtro = "";
+    return;
+  }
+
+  box.style.display = "block";
+
+  const valorAtual = SMARTSLIP_STATE.loja_resumo_filtro || select.value || "";
+  const lojas = SMARTSLIP_STATE.lojas || [];
+
+  select.innerHTML = "<option value=''>Todas</option>";
+
+  lojas.forEach(function(item) {
+    const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+    if (!loja) {
+      return;
+    }
+
+    const opt = document.createElement("option");
+    opt.value = loja;
+    opt.textContent = loja + (item.time ? " - " + item.time : "");
+    select.appendChild(opt);
+  });
+
+  if (valorAtual) {
+    select.value = normalizarLojaFrontSmartSlip_(valorAtual);
+  }
+}
+
+function onLojaResumoChange() {
+  SMARTSLIP_STATE.loja_resumo_filtro = getLojaResumoSelecionada();
+  renderResumoAtual();
+  desenharGraficoAdocaoLojasSmartSlip(SMARTSLIP_STATE.adocao_lojas || {});
+}
+
+function setLojaResumoFiltro(loja) {
+  const select = document.getElementById("lojaResumo");
+
+  if (!select) {
+    return;
+  }
+
+  select.value = normalizarLojaFrontSmartSlip_(loja);
+  onLojaResumoChange();
+}
+
 function renderResumo(resumoMensal, resumoDiario, storeSignupMensal, storeSignupDiario) {
   SMARTSLIP_STATE.resumo_mensal = resumoMensal || [];
   SMARTSLIP_STATE.resumo_diario = resumoDiario || [];
@@ -6963,6 +7449,19 @@ function renderResumo(resumoMensal, resumoDiario, storeSignupMensal, storeSignup
   );
 
   popularMesesResumo();
+
+  if (typeof popularFiltroLojasResumo === "function") {
+    popularFiltroLojasResumo();
+  }
+
+  if (typeof desenharGraficoAdocaoLojasSmartSlip === "function") {
+    desenharGraficoAdocaoLojasSmartSlip(SMARTSLIP_STATE.adocao_lojas || {
+      total_lojas_escopo: 0,
+      lojas_utilizando: 0,
+      lojas_sem_uso: 0,
+      rows: []
+    });
+  }
 
   renderResumoAtual();
 }
@@ -7165,50 +7664,77 @@ function renderResumoPorMes(dados, ano) {
   dados = dados || [];
   ano = String(ano || getAnoAtual());
 
-  const mesesBase = [
-    "01", "02", "03", "04", "05", "06",
-    "07", "08", "09", "10", "11", "12"
-  ];
-
   const mapa = {};
-
-  dados.forEach(function(item) {
-    mapa[String(item.mes || "")] = {
-      quantidade: Number(item.quantidade || 0),
-      valor_total: Number(item.valor_total || 0)
-    };
-  });
-
   const mapaStore = {};
 
-  (SMARTSLIP_STATE.store_signup_mensal || []).forEach(function(item) {
-    mapaStore[String(item.mes || "")] = {
-      lojas_unicas: Number(item.lojas_unicas || 0),
-      quantidade_envios: Number(item.quantidade_envios || 0)
-    };
-  });
+  dados
+    .filter(itemPassaFiltroLojaResumo_)
+    .forEach(function(item) {
+      const mes = String(item.mes || "");
 
-    const serie = mesesBase.map(function(mes) {
+      if (!mes || mes.substring(0, 4) !== ano) {
+        return;
+      }
+
+      if (!mapa[mes]) {
+        mapa[mes] = {
+          quantidade: 0,
+          valor_total: 0
+        };
+      }
+
+      mapa[mes].quantidade += Number(item.quantidade || 0);
+      mapa[mes].valor_total += Number(item.valor_total || 0);
+    });
+
+  (SMARTSLIP_STATE.store_signup_mensal || [])
+    .filter(itemPassaFiltroLojaResumo_)
+    .forEach(function(item) {
+      const mes = String(item.mes || "");
+
+      if (!mes || mes.substring(0, 4) !== ano) {
+        return;
+      }
+
+      if (!mapaStore[mes]) {
+        mapaStore[mes] = {
+          lojas_mapa: {},
+          quantidade_envios: 0
+        };
+      }
+
+      const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+      if (loja) {
+        mapaStore[mes].lojas_mapa[loja] = true;
+      }
+
+      mapaStore[mes].quantidade_envios += Number(item.quantidade_envios || 0);
+    });
+
+  const serie = [];
+
+  for (let m = 1; m <= 12; m++) {
+    const mes = String(m).padStart(2, "0");
     const chave = ano + "-" + mes;
-
     const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
-    const storeItem = mapaStore[chave] || { lojas_unicas: 0, quantidade_envios: 0 };
+    const storeItem = mapaStore[chave] || { lojas_mapa: {}, quantidade_envios: 0 };
 
-    return {
+    serie.push({
       chave: chave,
       label: mes + "/" + ano.substring(2),
       quantidade: Number(item.quantidade || 0),
       valor_total: Number(item.valor_total || 0),
-      lojas_unicas: Number(storeItem.lojas_unicas || 0),
+      lojas_unicas: Object.keys(storeItem.lojas_mapa || {}).length,
       quantidade_envios_store: Number(storeItem.quantidade_envios || 0),
       mostrarLabel: true
-    };
-      });
+    });
+  }
 
-    atualizarKpisResumo(serie);
-    desenharGraficoStoreSignup(serie);
-    desenharGraficoLinhas(serie);
-    desenharGraficoQuantidade(serie);
+  atualizarKpisResumo(serie);
+  desenharGraficoStoreSignup(serie);
+  desenharGraficoLinhas(serie);
+  desenharGraficoQuantidade(serie);
 }
 
 function renderResumoPorDia(dados, ano, mes) {
@@ -7219,22 +7745,52 @@ function renderResumoPorDia(dados, ano, mes) {
   const ultimoDia = new Date(Number(ano), Number(mes), 0).getDate();
 
   const mapa = {};
-
-  dados.forEach(function(item) {
-    mapa[String(item.dia || "")] = {
-      quantidade: Number(item.quantidade || 0),
-      valor_total: Number(item.valor_total || 0)
-    };
-  });
-
   const mapaStore = {};
 
-  (SMARTSLIP_STATE.store_signup_diario || []).forEach(function(item) {
-    mapaStore[String(item.dia || "")] = {
-      lojas_unicas: Number(item.lojas_unicas || 0),
-      quantidade_envios: Number(item.quantidade_envios || 0)
-    };
-  });
+  dados
+    .filter(itemPassaFiltroLojaResumo_)
+    .forEach(function(item) {
+      const dia = String(item.dia || "");
+
+      if (!dia || dia.substring(0, 7) !== ano + "-" + mes) {
+        return;
+      }
+
+      if (!mapa[dia]) {
+        mapa[dia] = {
+          quantidade: 0,
+          valor_total: 0
+        };
+      }
+
+      mapa[dia].quantidade += Number(item.quantidade || 0);
+      mapa[dia].valor_total += Number(item.valor_total || 0);
+    });
+
+  (SMARTSLIP_STATE.store_signup_diario || [])
+    .filter(itemPassaFiltroLojaResumo_)
+    .forEach(function(item) {
+      const dia = String(item.dia || "");
+
+      if (!dia || dia.substring(0, 7) !== ano + "-" + mes) {
+        return;
+      }
+
+      if (!mapaStore[dia]) {
+        mapaStore[dia] = {
+          lojas_mapa: {},
+          quantidade_envios: 0
+        };
+      }
+
+      const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+      if (loja) {
+        mapaStore[dia].lojas_mapa[loja] = true;
+      }
+
+      mapaStore[dia].quantidade_envios += Number(item.quantidade_envios || 0);
+    });
 
   const serie = [];
 
@@ -7243,25 +7799,23 @@ function renderResumoPorDia(dados, ano, mes) {
     const chave = ano + "-" + mes + "-" + dia;
 
     const item = mapa[chave] || { quantidade: 0, valor_total: 0 };
-    const storeItem = mapaStore[chave] || { lojas_unicas: 0, quantidade_envios: 0 };
+    const storeItem = mapaStore[chave] || { lojas_mapa: {}, quantidade_envios: 0 };
 
     serie.push({
       chave: chave,
-      label: dia + "/" + mes,
+      label: dia,
       quantidade: Number(item.quantidade || 0),
       valor_total: Number(item.valor_total || 0),
-      lojas_unicas: Number(storeItem.lojas_unicas || 0),
+      lojas_unicas: Object.keys(storeItem.lojas_mapa || {}).length,
       quantidade_envios_store: Number(storeItem.quantidade_envios || 0),
-
-      // Evita poluir o eixo X com 30/31 rótulos.
       mostrarLabel: d === 1 || d === ultimoDia || d % 2 === 1
     });
   }
 
-    atualizarKpisResumo(serie);
-    desenharGraficoStoreSignup(serie);
-    desenharGraficoLinhas(serie);
-    desenharGraficoQuantidade(serie);
+  atualizarKpisResumo(serie);
+  desenharGraficoStoreSignup(serie);
+  desenharGraficoLinhas(serie);
+  desenharGraficoQuantidade(serie);
 }
 
 function atualizarKpisResumo(serie) {
@@ -7275,6 +7829,39 @@ function atualizarKpisResumo(serie) {
 
   document.getElementById("kpiQtd").textContent = totalQtd;
   document.getElementById("kpiValor").textContent = formatBRL(totalValor);
+  const adocao = SMARTSLIP_STATE.adocao_lojas || {};
+  const lojaFiltro = getLojaResumoSelecionada();
+
+  let totalLojas = Number(adocao.total_lojas_escopo || 0);
+  let lojasUtilizando = Number(adocao.lojas_utilizando || 0);
+
+  if (lojaFiltro && Array.isArray(adocao.rows)) {
+    const itemLoja = adocao.rows.find(function(item) {
+      return normalizarLojaFrontSmartSlip_(item.loja) === lojaFiltro;
+    });
+
+    totalLojas = itemLoja ? 1 : 0;
+    lojasUtilizando = itemLoja && itemLoja.usando ? 1 : 0;
+  }
+
+  const percentualLojasUtilizando = totalLojas > 0
+    ? (lojasUtilizando / totalLojas) * 100
+    : 0;
+
+  const elLojasUtilizando = document.getElementById("kpiLojasUtilizando");
+  const elLojasUtilizandoPct = document.getElementById("kpiLojasUtilizandoPct");
+
+  if (elLojasUtilizando) {
+    elLojasUtilizando.textContent = lojasUtilizando + "/" + totalLojas;
+  }
+
+  if (elLojasUtilizandoPct) {
+    elLojasUtilizandoPct.textContent =
+      percentualLojasUtilizando.toLocaleString("pt-BR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      }) + "%";
+  }
 }
 
 function desenharGraficoStoreSignup(serie) {
@@ -7658,6 +8245,151 @@ function formatarValorGraficoMobileSmartSlip(valor, tipo) {
   return formatBRL(valor);
 }
 
+function desenharGraficoAdocaoLojasSmartSlip(payload) {
+  const box = document.getElementById("chartAdocaoLojas");
+
+  if (!box) return;
+
+  payload = payload || {};
+
+  let rows = Array.isArray(payload.rows) ? payload.rows.slice() : [];
+
+  const lojaFiltro = getLojaResumoSelecionada();
+
+  if (lojaFiltro) {
+    rows = rows.filter(function(item) {
+      return normalizarLojaFrontSmartSlip_(item.loja) === lojaFiltro;
+    });
+  }
+
+  if (!rows.length) {
+    box.innerHTML =
+      "<div class='adocao-empty-card'>Nenhuma loja encontrada para o escopo atual.</div>";
+    return;
+  }
+
+  rows.sort(function(a, b) {
+    return String(a.loja || "").localeCompare(String(b.loja || ""));
+  });
+
+  const width = Math.max(1000, rows.length * 50);
+  const height = 330;
+  const padLeft = 48;
+  const padRight = 24;
+  const padTop = 34;
+  const padBottom = 78;
+
+  const plotW = width - padLeft - padRight;
+  const plotH = height - padTop - padBottom;
+
+  const maxValor = Math.max.apply(null, rows.map(function(item) {
+    return Number(item.quantidade_envios || 0);
+  })) || 1;
+
+  function x(i) {
+    return padLeft + (plotW * i / Math.max(1, rows.length - 1));
+  }
+
+  function y(v) {
+    return padTop + plotH - ((Number(v || 0) / maxValor) * plotH);
+  }
+
+  const baseY = padTop + plotH;
+
+  let areaPoints = "";
+
+  rows.forEach(function(item, i) {
+    const xx = x(i);
+    const yy = y(Number(item.quantidade_envios || 0));
+
+    areaPoints += xx + "," + yy + " ";
+  });
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='Gráfico de área de adoção por loja SmartSlip'>";
+
+  svg +=
+    "<defs>" +
+      "<linearGradient id='adocaoAreaGradient' x1='0' y1='0' x2='0' y2='1'>" +
+        "<stop offset='0%' stop-color='#B5FF20' stop-opacity='.50'/>" +
+        "<stop offset='48%' stop-color='#40E0D0' stop-opacity='.24'/>" +
+        "<stop offset='100%' stop-color='#40E0D0' stop-opacity='.04'/>" +
+      "</linearGradient>" +
+    "</defs>";
+
+  for (let i = 0; i <= 4; i++) {
+    const yy = padTop + (plotH * i / 4);
+
+    svg +=
+      "<line x1='" + padLeft + "' y1='" + yy + "' x2='" + (width - padRight) + "' y2='" + yy + "' stroke='rgba(255,255,255,.08)' stroke-width='1'/>";
+  }
+
+  // Área preenchida.
+  // Não desenha polyline e não desenha barra.
+  if (rows.length > 1) {
+    svg +=
+      "<polygon points='" +
+        padLeft + "," + baseY + " " +
+        areaPoints +
+        (width - padRight) + "," + baseY +
+      "' fill='url(#adocaoAreaGradient)' stroke='none'/>";
+  } else {
+    const qtdUnica = Number(rows[0].quantidade_envios || 0);
+    const xxUnico = x(0);
+    const yyUnico = y(qtdUnica);
+    const wUnico = 90;
+
+    svg +=
+      "<polygon points='" +
+        (xxUnico - wUnico / 2) + "," + baseY + " " +
+        (xxUnico - wUnico / 2) + "," + yyUnico + " " +
+        (xxUnico + wUnico / 2) + "," + yyUnico + " " +
+        (xxUnico + wUnico / 2) + "," + baseY +
+      "' fill='url(#adocaoAreaGradient)' stroke='none'/>";
+  }
+
+  rows.forEach(function(item, i) {
+    const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+    const qtd = Number(item.quantidade_envios || 0);
+    const xx = x(i);
+    const yy = y(qtd);
+
+    const markerFill = qtd > 0 ? "#B5FF20" : "rgba(255,255,255,.36)";
+    const markerStroke = qtd > 0 ? "#40E0D0" : "rgba(255,255,255,.34)";
+
+    svg +=
+      "<g class='adocao-loja-point' onclick=\"setLojaResumoFiltro('" + escapeAttr(loja) + "')\">" +
+
+        // Área invisível de clique. Não aparece visualmente como barra.
+        "<rect x='" + (xx - 20) + "' y='" + padTop + "' width='40' height='" + (plotH + 46) + "' fill='transparent'>" +
+          "<title>Loja " + escapeHtml(loja) + " | " + qtd + " envio(s)</title>" +
+        "</rect>" +
+
+        // Marcador do ponto da área.
+        "<circle cx='" + xx + "' cy='" + yy + "' r='4.5' fill='" + markerFill + "' stroke='" + markerStroke + "' stroke-width='2'>" +
+          "<title>Loja " + escapeHtml(loja) + " | " + qtd + " envio(s)</title>" +
+        "</circle>";
+
+    if (qtd > 0) {
+      svg +=
+        "<text x='" + xx + "' y='" + (yy - 10) + "' text-anchor='middle' font-size='12' font-weight='950' fill='#B5FF20'>" +
+          qtd +
+        "</text>";
+    }
+
+    svg +=
+        "<text class='adocao-axis-text' x='" + xx + "' y='" + (height - 31) + "' text-anchor='end' transform='rotate(-45 " + xx + " " + (height - 31) + ")' font-size='12' font-weight='900'>" +
+          escapeHtml(loja) +
+        "</text>" +
+      "</g>";
+  });
+
+  svg += "</svg>";
+
+  box.innerHTML = svg;
+}
+
 function renderResumoStatus(dados, lojasAtencao) {
   SMARTSLIP_STATE.resumo_status = dados || [];
   SMARTSLIP_STATE.lojas_atencao = lojasAtencao || [];
@@ -7745,31 +8477,39 @@ function desenharGraficoStatusPizza3D(dados) {
   if (!pie || !legenda) return;
 
   if (!dados || !dados.length) {
-    pie.style.background = "#e5e7eb";
+    pie.innerHTML = "";
+    pie.style.background = "transparent";
     legenda.innerHTML = "<p class='page-sub'>Não há dados de status para exibir.</p>";
     return;
   }
 
-  let acumulado = 0;
-  const fatias = [];
+  const totalQuantidade = dados.reduce(function(acc, item) {
+    return acc + Number(item.quantidade || 0);
+  }, 0);
+
+  const itens = [];
   let legendaHtml = "";
 
   dados.forEach(function(item) {
     const cor = obterCorStatusPizza(item.status);
+    const quantidade = Number(item.quantidade || 0);
 
     let percentual = Number(String(item.percentual || 0).replace(",", "."));
-    const quantidade = Number(item.quantidade || 0);
+
+    if ((!isFinite(percentual) || percentual <= 0) && totalQuantidade > 0) {
+      percentual = (quantidade / totalQuantidade) * 100;
+    }
 
     if (!isFinite(percentual) || percentual <= 0) {
       return;
     }
 
-    const inicio = acumulado;
-    const fim = Math.min(100, acumulado + percentual);
-
-    acumulado = fim;
-
-    fatias.push(cor + " " + inicio + "% " + fim + "%");
+    itens.push({
+      status: String(item.status || ""),
+      cor: cor,
+      percentual: percentual,
+      quantidade: quantidade
+    });
 
     legendaHtml +=
       "<div class='status-pizza-item'>" +
@@ -7782,13 +8522,165 @@ function desenharGraficoStatusPizza3D(dados) {
       "</div>";
   });
 
-  if (!fatias.length) {
-    pie.style.background = "#e5e7eb";
+  if (!itens.length) {
+    pie.innerHTML = "";
+    pie.style.background = "transparent";
     legenda.innerHTML = "<p class='page-sub'>Não há dados válidos de status para exibir.</p>";
     return;
   }
 
-  pie.style.background = "conic-gradient(" + fatias.join(", ") + ")";
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const angleRad = (angleDeg - 90) * Math.PI / 180;
+
+    return {
+      x: cx + (r * Math.cos(angleRad)),
+      y: cy + (r * Math.sin(angleRad))
+    };
+  }
+
+  function criarFatiaDonut(cx, cy, rOuter, rInner, startAngle, endAngle) {
+    const outerStart = polarToCartesian(cx, cy, rOuter, endAngle);
+    const outerEnd = polarToCartesian(cx, cy, rOuter, startAngle);
+    const innerStart = polarToCartesian(cx, cy, rInner, startAngle);
+    const innerEnd = polarToCartesian(cx, cy, rInner, endAngle);
+
+    const largeArcFlag = (endAngle - startAngle) > 180 ? "1" : "0";
+
+    return [
+      "M", outerStart.x, outerStart.y,
+      "A", rOuter, rOuter, 0, largeArcFlag, 0, outerEnd.x, outerEnd.y,
+      "L", innerStart.x, innerStart.y,
+      "A", rInner, rInner, 0, largeArcFlag, 1, innerEnd.x, innerEnd.y,
+      "Z"
+    ].join(" ");
+  }
+
+  const width = 820;
+  const height = 350;
+
+  const cx = 410;
+  const cy = 172;
+
+  const rOuter = 104;
+  const rInner = 34; // buraco pequeno no meio
+
+  const totalPercentual = itens.reduce(function(acc, item) {
+    return acc + Number(item.percentual || 0);
+  }, 0) || 100;
+
+  let acumulado = 0;
+  let slicesSvg = "";
+  const labels = [];
+
+  itens.forEach(function(item, idx) {
+    const startAngle = (acumulado / totalPercentual) * 360;
+    const endAngle = ((acumulado + item.percentual) / totalPercentual) * 360;
+    const midAngle = startAngle + ((endAngle - startAngle) / 2);
+
+    acumulado += item.percentual;
+
+    if (itens.length === 1 || item.percentual >= 99.999) {
+      const rStroke = (rOuter + rInner) / 2;
+      const strokeWidth = rOuter - rInner;
+
+      slicesSvg +=
+        "<circle class='status-donut-slice' cx='" + cx + "' cy='" + cy + "' r='" + rStroke + "' " +
+        "fill='none' stroke='" + item.cor + "' stroke-width='" + strokeWidth + "'></circle>";
+    } else {
+      const path = criarFatiaDonut(cx, cy, rOuter, rInner, startAngle, endAngle);
+
+      slicesSvg +=
+        "<path class='status-donut-slice' d='" + path + "' fill='" + item.cor + "' " +
+        "stroke='rgba(255,255,255,.10)' stroke-width='1'></path>";
+    }
+
+    const p1 = polarToCartesian(cx, cy, rOuter - 3, midAngle);
+    const p2 = polarToCartesian(cx, cy, rOuter + 24, midAngle);
+
+    const direita = p2.x >= cx;
+    const p3x = direita ? cx + 205 : cx - 205;
+    const textX = direita ? p3x + 8 : p3x - 8;
+    const anchor = direita ? "start" : "end";
+
+    labels.push({
+      lado: direita ? "D" : "E",
+      p1: p1,
+      p2: p2,
+      p3x: p3x,
+      p3y: p2.y,
+      textX: textX,
+      anchor: anchor,
+      percentual: item.percentual,
+      status: item.status,
+      idx: idx
+    });
+  });
+
+  function ajustarLabelsPorLado(lado) {
+    const minY = 44;
+    const maxY = height - 40;
+    const gap = 24;
+
+    const filtrados = labels
+      .filter(function(label) {
+        return label.lado === lado;
+      })
+      .sort(function(a, b) {
+        return a.p3y - b.p3y;
+      });
+
+    for (let i = 0; i < filtrados.length; i++) {
+      if (i === 0) {
+        filtrados[i].p3y = Math.max(minY, filtrados[i].p3y);
+      } else {
+        filtrados[i].p3y = Math.max(filtrados[i].p3y, filtrados[i - 1].p3y + gap);
+      }
+    }
+
+    for (let j = filtrados.length - 1; j >= 0; j--) {
+      if (j === filtrados.length - 1) {
+        filtrados[j].p3y = Math.min(maxY, filtrados[j].p3y);
+      } else {
+        filtrados[j].p3y = Math.min(filtrados[j].p3y, filtrados[j + 1].p3y - gap);
+      }
+    }
+  }
+
+  ajustarLabelsPorLado("E");
+  ajustarLabelsPorLado("D");
+
+  let labelsSvg = "";
+
+  labels
+    .sort(function(a, b) {
+      return a.idx - b.idx;
+    })
+    .forEach(function(label) {
+      labelsSvg +=
+        "<polyline class='status-donut-label-line' points='" +
+          label.p1.x + "," + label.p1.y + " " +
+          label.p2.x + "," + label.p2.y + " " +
+          label.p3x + "," + label.p3y +
+        "'></polyline>" +
+
+        "<circle class='status-donut-label-dot' cx='" + label.p1.x + "' cy='" + label.p1.y + "' r='2.4'></circle>" +
+
+        "<text class='status-donut-label-text' x='" + label.textX + "' y='" + label.p3y + "' text-anchor='" + label.anchor + "'>" +
+          label.percentual.toFixed(2).replace(".", ",") + "%" +
+        "</text>";
+    });
+
+  const svg =
+    "<svg viewBox='0 0 " + width + " " + height + "' role='img' aria-label='Distribuição percentual dos status dos comprovantes'>" +
+      slicesSvg +
+      "<circle class='status-donut-hole' cx='" + cx + "' cy='" + cy + "' r='" + rInner + "'></circle>" +
+      "<text class='status-donut-center-label' x='" + cx + "' y='" + (cy - 3) + "'>Envios</text>" +
+      "<text class='status-donut-center-value' x='" + cx + "' y='" + (cy + 20) + "'>" + totalQuantidade + "</text>" +
+      labelsSvg +
+    "</svg>";
+
+  pie.innerHTML = svg;
+  pie.style.background = "transparent";
   legenda.innerHTML = legendaHtml;
 }
 
@@ -7882,7 +8774,12 @@ function aplicarFiltrosHistorico() {
 
   const usuarioAtual = SMARTSLIP_STATE.usuario || {};
 
-  const filtroLoja = usuarioAtual.is_admin && document.getElementById("filtroHistLoja")
+  const podeFiltrarLoja =
+    usuarioAtual.is_admin === true ||
+    usuarioAtual.is_analista_pro === true ||
+    usuarioAtual.is_regional === true;
+
+  const filtroLoja = podeFiltrarLoja && document.getElementById("filtroHistLoja")
     ? document.getElementById("filtroHistLoja").value
     : "";
 
@@ -8754,6 +9651,8 @@ function aplicarFiltrosCompHub() {
   const status = document.getElementById("compFiltroStatus").value;
   const busca = String(document.getElementById("compBusca").value || "").trim().toLowerCase();
 
+  const lojaFiltroNorm = loja ? normalizarLojaFrontSmartSlip_(loja) : "";
+
   SMARTSLIP_STATE.comp_hub_filtrado = dados.filter(function(item) {
     if (dataDe) {
       if (!item.dataRegistroInput || item.dataRegistroInput < dataDe) return false;
@@ -8762,13 +9661,29 @@ function aplicarFiltrosCompHub() {
     if (dataAte) {
       if (!item.dataRegistroInput || item.dataRegistroInput > dataAte) return false;
     }
-    if (loja && String(item.loja || "") !== loja) return false;
+
+    if (lojaFiltroNorm) {
+      const lojaItemNorm = normalizarLojaFrontSmartSlip_(
+        item.loja ||
+        item.Loja ||
+        item.loja_padrao ||
+        ""
+      );
+
+      if (lojaItemNorm !== lojaFiltroNorm) {
+        return false;
+      }
+    }
+
     if (empresa && String(item.empresa || "") !== empresa) return false;
     if (banco && String(item.banco || "") !== banco) return false;
     if (tipo && String(item.tipoDocumento || "") !== tipo) return false;
     if (status && String(item.statusProcessamento || "") !== status) return false;
 
     if (busca) {
+      const lojaItemNormBusca = normalizarLojaFrontSmartSlip_(item.loja || "");
+      const lojaBuscaSemZero = lojaItemNormBusca ? String(Number(lojaItemNormBusca)) : "";
+
       const alvo = [
         item.dataRegistro,
         item.idComprovante,
@@ -8776,6 +9691,8 @@ function aplicarFiltrosCompHub() {
         item.protocolo,
         item.indiceComprovante,
         item.loja,
+        lojaItemNormBusca,
+        lojaBuscaSemZero,
         item.empresa,
         item.tipoDocumento,
         item.banco,
@@ -8796,6 +9713,8 @@ function aplicarFiltrosCompHub() {
 
   COMP_HUB_PAGE = 1;
   desenharCompHub();
+
+  return SMARTSLIP_STATE.comp_hub_filtrado.length;
 }
 
 function limparFiltrosCompHub() {
@@ -8805,7 +9724,10 @@ function limparFiltrosCompHub() {
     "compBusca"
   ].forEach(function(id) {
     const el = document.getElementById(id);
-    if (el) el.value = "";
+
+    if (el) {
+      el.value = "";
+    }
   });
 
   [
@@ -8816,7 +9738,10 @@ function limparFiltrosCompHub() {
     "compFiltroStatus"
   ].forEach(function(id) {
     const el = document.getElementById(id);
-    if (el) el.value = "";
+
+    if (el) {
+      el.value = "";
+    }
   });
 
   aplicarFiltrosCompHub();
