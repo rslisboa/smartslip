@@ -25,7 +25,7 @@ const SMARTSLIP_ABA_FILA = "SMARTSLIP_FILA";
 const SMARTSLIP_ABA_VEKTOR_EMAILS = "VEKTOR_EMAILS";
 const SMARTSLIP_VEKTOR_EMAILS_SPREADSHEET_ID = SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID;
 const SMARTSLIP_ABA_USUARIOS = "SMARTSLIP_USUARIOS";
-const SMARTSLIP_COOLDOWN_ENVIO_SEGUNDOS = 120;
+const SMARTSLIP_COOLDOWN_ENVIO_SEGUNDOS = 10;
 const SMARTSLIP_TOLERANCIA_TOTAL_IA = 5.00;
 const SMARTSLIP_DOMINIOS_CORPORATIVOS = [
   "gruposbf.com.br", 
@@ -886,6 +886,10 @@ Regras obrigatórias:
 - Se houver dúvida se dois itens são comprovantes distintos ou duplicação da mesma leitura, marque o item como PENDENCIA e explique em observacoes.
 - Valores iguais podem existir em comprovantes diferentes. Não trate valor repetido como duplicidade por si só.
 - Se dois comprovantes tiverem o mesmo valor, retorne ambos somente se houver evidência documental distinta para cada um.
+- Quando houver comprovantes com o mesmo valor, cada item deve trazer codigo_autenticacao_texto, controle_texto ou bloco_textual_comprovante claramente distinto.
+- Não use a mesma posicao_visual_aproximada genérica para vários comprovantes. Diferencie por ordem e localização, por exemplo: "comprovante 1 de cima para baixo", "comprovante 2 de cima para baixo", "comprovante 3 de cima  para baixo".
+- Se três comprovantes tiverem o mesmo valor, mas forem documentos fisicamente distintos, retorne os três, desde que cada item tenha evidência própria no bloco_textual_comprovante.
+- O bloco_textual_comprovante de cada item deve conter trechos específicos daquele comprovante, incluindo valor, data e código/controle quando visível. 
 - Para valores repetidos, a posicao_visual_aproximada e o bloco_textual_comprovante precisam indicar claramente comprovantes físicos diferentes.
 - Se não for possível distinguir se o valor repetido pertence a dois comprovantes diferentes ou se é duplicação da mesma leitura, marque o item como PENDENCIA e explique em observacoes.
 - A loja, empresa, data_movimento, houve_retirada, valor_retirada e motivo_retirada vêm das respostas do usuário e se aplicam ao arquivo inteiro.
@@ -3765,10 +3769,38 @@ function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
 function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
   comprovantes = Array.isArray(comprovantes) ? comprovantes : [];
 
-  const mapaBloco = {};
+  const mapaEvidenciaForte = {};
   const mapaPosicaoValor = {};
   const duplicidades = [];
   const repeticoesSemEvidenciaDistinta = [];
+
+  function assinaturaBloco_(txt) {
+    txt = smartSlipTextoChave_(txt || "");
+
+    if (!txt) {
+      return "";
+    }
+
+    /*
+      Usa trecho maior do bloco, porque comprovantes iguais em layout
+      podem ter início muito parecido, mas diferir em controle/autenticação.
+    */
+    return txt.substring(0, 900);
+  }
+
+  function unicosNaoVazios_(arr) {
+    const mapa = {};
+
+    (arr || []).forEach(function(v) {
+      v = String(v || "").trim();
+
+      if (v) {
+        mapa[v] = true;
+      }
+    });
+
+    return Object.keys(mapa);
+  }
 
   comprovantes.forEach(function(item) {
     item = item || {};
@@ -3784,6 +3816,7 @@ function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
     const posicao = smartSlipTextoChave_(item.posicao_visual_aproximada || "");
     const valorTexto = smartSlipTextoChave_(evid.valor_deposito_texto || "");
     const blocoTexto = smartSlipTextoChave_(evid.bloco_textual_comprovante || "");
+
     const controleTexto = smartSlipTextoChave_(
       evid.codigo_autenticacao_texto ||
       evid.controle_texto ||
@@ -3791,32 +3824,38 @@ function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
       ""
     );
 
-    /*
-      1) Mesmo valor NÃO é duplicidade.
-      A duplicidade só é considerada quando a IA usa o mesmo bloco/evidência
-      para mais de um comprovante.
-    */
+    const assinaturaBloco = assinaturaBloco_(blocoTexto);
 
-    if (blocoTexto && blocoTexto.length >= 40) {
-      const chaveBloco = [
+    /*
+      Mesmo valor NÃO é duplicidade.
+      Duplicidade só deve ocorrer quando a IA reutiliza a mesma evidência
+      documental sem código/controle/bloco distinto.
+    */
+    if (valorCentavos && (controleTexto || assinaturaBloco)) {
+      const chaveEvidenciaForte = [
         tipo,
         banco,
         dataDeposito,
         valorCentavos,
-        blocoTexto.substring(0, 320)
+        controleTexto || assinaturaBloco
       ].join("|");
 
-      if (!mapaBloco[chaveBloco]) {
-        mapaBloco[chaveBloco] = [];
+      if (!mapaEvidenciaForte[chaveEvidenciaForte]) {
+        mapaEvidenciaForte[chaveEvidenciaForte] = [];
       }
 
-      mapaBloco[chaveBloco].push(indice);
+      mapaEvidenciaForte[chaveEvidenciaForte].push({
+        indice: indice,
+        controle: controleTexto,
+        bloco: assinaturaBloco,
+        posicao: posicao
+      });
     }
 
     /*
-      2) Se a IA informou a mesma posição visual para o mesmo valor/data/banco,
-      isso é suspeito, porque dois comprovantes reais iguais deveriam aparecer
-      em posições diferentes na foto.
+      Posição visual igual é apenas sinal de atenção.
+      Não deve bloquear sozinha, porque a IA pode retornar posições genéricas
+      para comprovantes reais parecidos.
     */
     if (posicao && valorCentavos) {
       const chavePosicaoValor = [
@@ -3831,13 +3870,18 @@ function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
         mapaPosicaoValor[chavePosicaoValor] = [];
       }
 
-      mapaPosicaoValor[chavePosicaoValor].push(indice);
+      mapaPosicaoValor[chavePosicaoValor].push({
+        indice: indice,
+        controle: controleTexto,
+        bloco: assinaturaBloco,
+        posicao: posicao
+      });
     }
 
     /*
-      3) Se existe valor repetido, mas a IA não entregou evidência textual mínima,
-      não é bloqueio por valor repetido; é bloqueio por falta de evidência distinta.
-      A validação individual também deve pegar isso, mas aqui reforçamos no lote.
+      Falta de evidência mínima continua sendo risco.
+      Aqui não bloqueia o lote diretamente, mas fica registrado no retorno
+      para auditoria e eventual uso futuro.
     */
     if (valorCentavos && (!valorTexto || !blocoTexto || blocoTexto.length < 40)) {
       repeticoesSemEvidenciaDistinta.push({
@@ -3848,22 +3892,66 @@ function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
     }
   });
 
-  Object.keys(mapaBloco).forEach(function(chave) {
-    if (mapaBloco[chave].length > 1) {
+  /*
+    Bloqueio forte:
+    mesma evidência forte repetida para mais de um item.
+    Se o controle/autenticação é diferente, a chave muda e não bloqueia.
+  */
+  Object.keys(mapaEvidenciaForte).forEach(function(chave) {
+    const grupo = mapaEvidenciaForte[chave];
+
+    if (grupo.length > 1) {
       duplicidades.push({
-        tipo: "MESMO_BLOCO_TEXTUAL",
-        indices: mapaBloco[chave]
+        tipo: "MESMA_EVIDENCIA_FORTE",
+        indices: grupo.map(function(x) {
+          return x.indice;
+        })
       });
     }
   });
 
+  /*
+    Bloqueio por posição só acontece se os itens também não tiverem
+    controles/blocos distintos. Isso evita falso bloqueio em comprovantes
+    reais com mesmo valor.
+  */
   Object.keys(mapaPosicaoValor).forEach(function(chave) {
-    if (mapaPosicaoValor[chave].length > 1) {
-      duplicidades.push({
-        tipo: "MESMA_POSICAO_VISUAL_MESMO_VALOR",
-        indices: mapaPosicaoValor[chave]
-      });
+    const grupo = mapaPosicaoValor[chave];
+
+    if (grupo.length <= 1) {
+      return;
     }
+
+    const controlesDistintos = unicosNaoVazios_(grupo.map(function(x) {
+      return x.controle;
+    }));
+
+    const blocosDistintos = unicosNaoVazios_(grupo.map(function(x) {
+      return x.bloco;
+    }));
+
+    const temControleDistintoParaTodos =
+      controlesDistintos.length === grupo.length;
+
+    const temBlocoDistintoParaTodos =
+      blocosDistintos.length === grupo.length;
+
+    /*
+      Se cada item tem controle ou bloco distinto, permite.
+      Mesma posição visual, nesse caso, é só imprecisão da IA.
+    */
+    if (temControleDistintoParaTodos || temBlocoDistintoParaTodos) {
+      return;
+    }
+
+    duplicidades.push({
+      tipo: "MESMA_POSICAO_VISUAL_MESMO_VALOR_SEM_EVIDENCIA_DISTINTA",
+      indices: grupo.map(function(x) {
+        return x.indice;
+      }),
+      controles_distintos: controlesDistintos.length,
+      blocos_distintos: blocosDistintos.length
+    });
   });
 
   if (duplicidades.length) {
@@ -3871,7 +3959,7 @@ function smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes) {
       ok: false,
       motivo: "DUPLICIDADE_EVIDENCIA_DOCUMENTAL",
       mensagem:
-        "Validação anti-alucinação bloqueou o lote. A IA retornou comprovantes usando a mesma evidência documental ou a mesma posição visual para o mesmo valor. Índices envolvidos: " +
+        "Validação anti-alucinação bloqueou o lote. A IA retornou comprovantes sem evidência documental distinta suficiente. Índices envolvidos: " +
         duplicidades.map(function(d) {
           return d.indices.join(", ");
         }).join(" | "),
