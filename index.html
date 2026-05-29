@@ -4623,6 +4623,142 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
   text-shadow: 0 0 18px rgba(181,255,32,.18) !important;
 }
 
+/* =========================================================
+   SMARTSLIP MOBILE | MICROVISÃO REGIONAL POR LOJA
+   ========================================================= */
+
+.mobile-regional-lojas-box {
+  display: none;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  body.smart-mobile #mobileRegionalLojasResumo.show {
+    display: block !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-box {
+    margin: -8px 0 18px !important;
+    padding: 16px !important;
+    border-radius: 22px !important;
+    background:
+      radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 36%),
+      linear-gradient(135deg, #071E3D 0%, #0B3E78 54%, #082A5A 100%) !important;
+    border: 1px solid rgba(64,224,208,.34) !important;
+    box-shadow:
+      0 18px 42px rgba(0,0,0,.22),
+      inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-head {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-bottom: 13px !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-head span {
+    display: block !important;
+    color: #B5FF20 !important;
+    font-size: 10px !important;
+    font-weight: 950 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .45px !important;
+    margin-bottom: 5px !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-head h2 {
+    margin: 0 !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    line-height: 1.15 !important;
+    font-weight: 950 !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-head p {
+    margin: 4px 0 0 !important;
+    color: rgba(255,255,255,.68) !important;
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+    font-weight: 700 !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-head > strong {
+    min-width: 42px !important;
+    text-align: right !important;
+    color: #B5FF20 !important;
+    font-size: 26px !important;
+    line-height: 1 !important;
+    font-weight: 950 !important;
+    text-shadow: 0 0 18px rgba(181,255,32,.18) !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-table {
+    display: grid !important;
+    gap: 7px !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-header,
+  body.smart-mobile .mobile-regional-lojas-row {
+    display: grid !important;
+    grid-template-columns: 58px 48px 1fr !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-header {
+    padding: 0 2px 4px !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-header span {
+    color: rgba(255,255,255,.56) !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .35px !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-row {
+    min-height: 40px !important;
+    padding: 9px 10px !important;
+    border-radius: 15px !important;
+    background: rgba(5, 8, 7, .38) !important;
+    border: 1px solid rgba(181,255,32,.16) !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-row b {
+    color: #B5FF20 !important;
+    font-size: 13px !important;
+    font-weight: 950 !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-row span {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 850 !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-row strong {
+    color: #ffffff !important;
+    font-size: 12px !important;
+    font-weight: 950 !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+  }
+
+  body.smart-mobile .mobile-regional-lojas-more,
+  body.smart-mobile .mobile-regional-lojas-empty {
+    padding: 11px 12px !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,.08) !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    color: rgba(255,255,255,.74) !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    font-weight: 700 !important;
+  }
+}
+
   </style>
 </head>
 
@@ -4802,6 +4938,31 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
               <div class="kpi-lojas-utilizando-wrap">
                 <strong id="kpiLojasUtilizando">0/0</strong>
                 <strong id="kpiLojasUtilizandoPct" class="kpi-lojas-utilizando-pct">0,0%</strong>
+              </div>
+            </div>
+          </div>
+
+          <div id="mobileRegionalLojasResumo" class="mobile-regional-lojas-box">
+            <div class="mobile-regional-lojas-head">
+              <div>
+                <span>Visão regional</span>
+                <h2>Lojas enviando comprovantes</h2>
+                <p id="mobileRegionalLojasPeriodo">Últimos 30 dias</p>
+              </div>
+              <strong id="mobileRegionalLojasTotal">0</strong>
+            </div>
+
+            <div class="mobile-regional-lojas-table">
+              <div class="mobile-regional-lojas-header">
+                <span>Loja</span>
+                <span>Qtd.</span>
+                <span>Valor</span>
+              </div>
+
+              <div id="mobileRegionalLojasLista">
+                <div class="mobile-regional-lojas-empty">
+                  Carregando lojas do escopo regional...
+                </div>
               </div>
             </div>
           </div>
@@ -5061,7 +5222,7 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
 
               <div class="row row-single">
                 <div>
-                  <label>Houve retirada (cancelamento/estorno/reembolso)?</label>
+                  <label>Houve retirada (falta/cancelamento/estorno/reembolso)?</label>
                   <select id="houve_retirada" onchange="toggleRetirada()">
                     <option value="false">Não</option>
                     <option value="true">Sim</option>
@@ -5649,7 +5810,7 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
     let SMARTSLIP_PREVALIDACAO_TOTAL_TIMER = null;
     let SMARTSLIP_PREVALIDACAO_TOTAL_SEQ = 0;
     let SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO = false;
-    const SMARTSLIP_COOLDOWN_ENVIO_MS = 120000;
+    const SMARTSLIP_COOLDOWN_ENVIO_MS = 10000;
     const SMARTSLIP_COOLDOWN_ENVIO_KEY = "SMARTSLIP_ULTIMO_ENVIO_FINALIZADO_EM";
     let SMARTSLIP_COOLDOWN_TIMER = null;
     let SMARTSLIP_ARQUIVO_PREVIEW_URL = null;
@@ -7818,6 +7979,169 @@ function renderResumoPorDia(dados, ano, mes) {
   desenharGraficoQuantidade(serie);
 }
 
+function formatarDataIsoMobileRegional_(dt) {
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+
+  return yyyy + "-" + mm + "-" + dd;
+}
+
+function formatarDataBrMobileRegional_(iso) {
+  iso = String(iso || "").trim();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    return "";
+  }
+
+  const p = iso.split("-");
+
+  return p[2] + "/" + p[1];
+}
+
+function montarMapaLojasPermitidasMobileRegional_() {
+  const mapa = {};
+  const lojas = SMARTSLIP_STATE.lojas || [];
+
+  lojas.forEach(function(item) {
+    const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+    if (loja) {
+      mapa[loja] = true;
+    }
+  });
+
+  return mapa;
+}
+
+function renderMobileRegionalLojasResumo() {
+  const box = document.getElementById("mobileRegionalLojasResumo");
+  const lista = document.getElementById("mobileRegionalLojasLista");
+  const totalEl = document.getElementById("mobileRegionalLojasTotal");
+  const periodoEl = document.getElementById("mobileRegionalLojasPeriodo");
+
+  if (!box || !lista) {
+    return;
+  }
+
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  if (!isSmartSlipMobile() || usuario.is_regional !== true) {
+    box.classList.remove("show");
+    lista.innerHTML = "";
+    return;
+  }
+
+  box.classList.add("show");
+
+  const hoje = new Date();
+  const fimIso = formatarDataIsoMobileRegional_(hoje);
+
+  const inicio = new Date(hoje.getTime());
+  inicio.setDate(inicio.getDate() - 29);
+
+  const inicioIso = formatarDataIsoMobileRegional_(inicio);
+
+  if (periodoEl) {
+    periodoEl.textContent =
+      "Últimos 30 dias · " +
+      formatarDataBrMobileRegional_(inicioIso) +
+      " a " +
+      formatarDataBrMobileRegional_(fimIso);
+  }
+
+  const mapaPermitidas = montarMapaLojasPermitidasMobileRegional_();
+  const temMapaPermitidas = Object.keys(mapaPermitidas).length > 0;
+
+  const mapa = {};
+
+  (SMARTSLIP_STATE.resumo_diario || []).forEach(function(item) {
+    const dia = String(item.dia || "").trim();
+
+    if (!dia || dia < inicioIso || dia > fimIso) {
+      return;
+    }
+
+    const loja = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+    if (!loja) {
+      return;
+    }
+
+    /*
+      Segurança adicional:
+      mesmo que o backend já venha escopado,
+      no mobile regional só mostra lojas que estão no escopo do usuário.
+    */
+    if (temMapaPermitidas && mapaPermitidas[loja] !== true) {
+      return;
+    }
+
+    if (!mapa[loja]) {
+      mapa[loja] = {
+        loja: loja,
+        quantidade: 0,
+        valor_total: 0
+      };
+    }
+
+    mapa[loja].quantidade += Number(item.quantidade || 0);
+    mapa[loja].valor_total += Number(item.valor_total || 0);
+  });
+
+  const rows = Object.keys(mapa)
+    .map(function(loja) {
+      return mapa[loja];
+    })
+    .filter(function(item) {
+      return Number(item.quantidade || 0) > 0 || Number(item.valor_total || 0) > 0;
+    })
+    .sort(function(a, b) {
+      const valorDiff = Number(b.valor_total || 0) - Number(a.valor_total || 0);
+
+      if (valorDiff !== 0) {
+        return valorDiff;
+      }
+
+      return Number(b.quantidade || 0) - Number(a.quantidade || 0);
+    });
+
+  if (totalEl) {
+    totalEl.textContent = rows.length;
+  }
+
+  if (!rows.length) {
+    lista.innerHTML =
+      "<div class='mobile-regional-lojas-empty'>" +
+        "Nenhuma loja do seu grupo enviou comprovante nos últimos 30 dias." +
+      "</div>";
+    return;
+  }
+
+  const limite = 8;
+  const visiveis = rows.slice(0, limite);
+
+  let html = "";
+
+  visiveis.forEach(function(item) {
+    html +=
+      "<div class='mobile-regional-lojas-row'>" +
+        "<b>" + escapeHtml(item.loja) + "</b>" +
+        "<span>" + Number(item.quantidade || 0) + "</span>" +
+        "<strong>" + formatBRL(Number(item.valor_total || 0)) + "</strong>" +
+      "</div>";
+  });
+
+  if (rows.length > limite) {
+    html +=
+      "<div class='mobile-regional-lojas-more'>" +
+        "+" + (rows.length - limite) + " loja(s) com envio no período." +
+      "</div>";
+  }
+
+  lista.innerHTML = html;
+}
+
 function atualizarKpisResumo(serie) {
   const totalQtd = serie.reduce(function(acc, item) {
     return acc + Number(item.quantidade || 0);
@@ -7861,6 +8185,9 @@ function atualizarKpisResumo(serie) {
         minimumFractionDigits: 1,
         maximumFractionDigits: 1
       }) + "%";
+  }
+  if (typeof renderMobileRegionalLojasResumo === "function") {
+  renderMobileRegionalLojasResumo();
   }
 }
 
