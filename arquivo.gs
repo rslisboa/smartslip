@@ -440,59 +440,48 @@ function smartSlipConsultarInfoLoja_(lojaInformada) {
  * Salva o comprovante validado na aba BASE_SMARTSLIP.
  */
 function smartSlipSalvarDadosComprovantePlanilha_(dados) {
-  const lock = LockService.getScriptLock();
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  let sh = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
 
-  try {
-    lock.waitLock(10000);
-
-   const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
-    let sh = ss.getSheetByName(SMARTSLIP_ABA_DESTINO);
-
-    if (!sh) {
-      sh = ss.insertSheet(SMARTSLIP_ABA_DESTINO);
-      smartSlipCriarCabecalho_(sh);
-    }
-
-    smartSlipGarantirCabecalho_(sh);
-    smartSlipValidarDadosComprovante_(dados);
-
-      sh.appendRow([
-      new Date(),
-      dados.id_comprovante || "",
-      dados.hash_comprovante || "",
-      dados.protocolo || "",
-      dados.indice_comprovante || "",
-      dados.loja || "",
-      dados.empresa || "",
-      dados.tipo_documento || "",
-      dados.data_deposito || "",
-      dados.valor_deposito || 0,
-      dados.banco || "",
-      dados.data_movimento || "",
-      dados.houve_retirada === true ? "Sim" : "Não",
-      dados.valor_retirada || 0,
-      dados.motivo_retirada || "",
-      dados.data_geracao_documento || "",
-      dados.codigo_autenticacao || "",
-      dados.link_comprovante || "",
-      dados.status_processamento || "",
-      (dados.pendencias || []).join(" | "),
-      (dados.divergencias || []).join(" | "),
-      dados.confianca_geral || "",
-      JSON.stringify(dados)
-    ]);
-
-    return {
-      ok: true,
-      mensagem: "Dados salvos com sucesso na planilha.",
-      aba_destino: SMARTSLIP_ABA_DESTINO
-    };
-
-  } finally {
-    try {
-      lock.releaseLock();
-    } catch (e) {}
+  if (!sh) {
+    sh = ss.insertSheet(SMARTSLIP_ABA_DESTINO);
+    smartSlipCriarCabecalho_(sh);
   }
+
+  smartSlipGarantirCabecalho_(sh);
+  smartSlipValidarDadosComprovante_(dados);
+
+  sh.appendRow([
+    new Date(),
+    dados.id_comprovante || "",
+    dados.hash_comprovante || "",
+    dados.protocolo || "",
+    dados.indice_comprovante || "",
+    dados.loja || "",
+    dados.empresa || "",
+    dados.tipo_documento || "",
+    dados.data_deposito || "",
+    dados.valor_deposito || 0,
+    dados.banco || "",
+    dados.data_movimento || "",
+    dados.houve_retirada === true ? "Sim" : "Não",
+    dados.valor_retirada || 0,
+    dados.motivo_retirada || "",
+    dados.data_geracao_documento || "",
+    dados.codigo_autenticacao || "",
+    dados.link_comprovante || "",
+    dados.status_processamento || "",
+    (dados.pendencias || []).join(" | "),
+    (dados.divergencias || []).join(" | "),
+    dados.confianca_geral || "",
+    JSON.stringify(dados)
+  ]);
+
+  return {
+    ok: true,
+    mensagem: "Dados salvos com sucesso na planilha.",
+    aba_destino: SMARTSLIP_ABA_DESTINO
+  };
 }
 
 /**
@@ -849,6 +838,10 @@ Regras obrigatórias:
 - Se todos os dados estiverem completos, retorne status = "PRONTO_PARA_SALVAR".
 - Datas devem estar no formato dd/mm/aaaa.
 - Se o comprovante trouxer data em outro formato, converta para dd/mm/aaaa.
+- Tenha atenção máxima ao ano das datas. Não troque 2026 por 2025.
+- Se a data do comprovante estiver próxima ao período de movimento informado pelo usuário, mantenha coerência de ano.
+- Se houver dúvida visual apenas no ano, use o ano do período de movimento como referência e registre a dúvida em observacoes.
+- Nunca retorne uma data de depósito/documento em ano anterior ao movimento informado quando o dia e mês indicarem que o depósito ocorreu logo após o movimento.
 - Valor deve ser número decimal. Exemplo: 37200.46.
 - Não envie nada para Slack.
 - Não escreva explicações fora do JSON.
@@ -894,6 +887,9 @@ Regras obrigatórias:
 - Se não for possível distinguir se o valor repetido pertence a dois comprovantes diferentes ou se é duplicação da mesma leitura, marque o item como PENDENCIA e explique em observacoes.
 - A loja, empresa, data_movimento, houve_retirada, valor_retirada e motivo_retirada vêm das respostas do usuário e se aplicam ao arquivo inteiro.
 - codigo_autenticacao não é campo bloqueante. Se não for identificado, retorne como string vazia e registre em observacoes apenas como observação.
+- Se codigo_autenticacao for lido claramente em codigo_autenticacao_texto, não escreva que ele foi inferido.
+- Observações sobre codigo_autenticacao não devem transformar o comprovante em PENDENCIA quando valor_deposito, data_deposito e bloco_textual_comprovante estiverem claros.
+- Use observacoes de inferência apenas para campos críticos como valor_deposito, data_deposito, tipo_documento ou identificação física do comprovante.
 
 Respostas complementares já informadas pelo usuário:
 ${JSON.stringify(respostasUsuario || {}, null, 2)}
@@ -1068,8 +1064,29 @@ function smartSlipPreValidarTotalComprovanteApp(payload) {
       };
     }
     
-// Para múltiplos comprovantes, a pré-leitura IA não deve bloquear.
-// Ela pode errar contagem/duplicar valor. A validação forte fica na SMARTSLIP_FILA.
+// Múltiplos comprovantes no mesmo arquivo:
+// se a IA leu todos os valores com alta confiança, a divergência deve bloquear.
+if (
+  diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA &&
+  qtdValoresConsiderados > 1 &&
+  confianca >= 0.98
+) {
+  return {
+    ok: true,
+    status_validacao: "DIVERGENTE_MULTIPLO_BLOQUEANTE",
+    bloquear_envio: true,
+    valor_total_usuario: valorTotalUsuario,
+    valor_total_ia: valorTotalIa,
+    diferenca: diferenca,
+    confianca: confianca,
+    mensagem:
+      "A IA identificou múltiplos comprovantes no arquivo e leu os valores com alta confiança, mas a soma informada está diferente do total lido.",
+    leitura_ia: leitura
+  };
+}
+
+// Múltiplos comprovantes com leitura não plenamente confiável:
+// não bloqueia automaticamente, mas orienta revisão.
 if (diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA && qtdValoresConsiderados > 1) {
   return {
     ok: true,
@@ -1080,7 +1097,7 @@ if (diferenca > SMARTSLIP_TOLERANCIA_TOTAL_IA && qtdValoresConsiderados > 1) {
     diferenca: diferenca,
     confianca: confianca,
     mensagem:
-      "A IA encontrou diferença no total, mas há múltiplos comprovantes no arquivo. Revise os valores antes de enviar.",
+      "A IA encontrou diferença no total e há múltiplos comprovantes no arquivo, mas a leitura não atingiu confiança suficiente para bloquear automaticamente. Revise os valores antes de enviar.",
     leitura_ia: leitura
   };
 }
@@ -1152,10 +1169,23 @@ Regras críticas:
 - Não invente valores.
 - Não use código de barras, autenticação, controle, telefone, terminal, agência, conta ou identificador como valor.
 - Não complete valor por suposição.
+
+Regra de confiança:
+- Só retorne status = "OK" quando todos os valores considerados estiverem visualmente claros, legíveis e sustentados por evidência textual própria.
+- Se houver múltiplos comprovantes no mesmo arquivo e todos os valores estiverem claramente legíveis, retorne status = "OK", qtd_valores_considerados maior que 1, valor_total_documental com a soma dos valores e confianca >= 0.98.
+- Se houver múltiplos comprovantes, mas algum valor estiver cortado, parcialmente visível, borrado, sobreposto, distante, duplicado de forma duvidosa ou sem evidência textual própria, retorne status = "IA_NAO_CONFIAVEL".
+- Se houver dúvida se dois valores pertencem a comprovantes distintos ou se a leitura duplicou o mesmo comprovante, retorne status = "IA_NAO_CONFIAVEL".
 - Se o valor estiver ilegível ou houver dúvida, retorne status = "IA_NAO_CONFIAVEL".
-- Só retorne status = "OK" se houver evidência textual clara do valor.
-- O campo evidencia_textual_total deve conter o trecho textual que sustenta o valor total lido.
+- Só use confianca >= 0.98 quando a leitura dos valores for praticamente certa.
+- Use confianca entre 0.95 e 0.97 quando praticamente certa.
+- Use confianca entre 0.95 e 0.97 quando os valores parecem corretos, mas existe pequena incerteza visual.
+- Use confianca menor que 0.95 quando houver qualquer dúvida relevante.
+
+Evidências obrigatórias:
+- O campo evidencia_textual_total deve conter os trechos textuais que sustentam o valor total lido.
 - Se houver múltiplos valores individuais, retorne cada um em valores_individuais com sua evidência.
+- Cada item de valores_individuais deve ter valor, evidencia_textual e posicao_visual_aproximada próprios.
+- Não use a mesma evidencia_textual ou a mesma posicao_visual_aproximada para justificar dois valores diferentes.
 
 Retorne exatamente este JSON:
 
@@ -1970,7 +2000,13 @@ function smartSlipGarantirAbaFila() {
       "Mensagem",
       "JSON Respostas",
       "JSON Resultado",
-      "Data Processamento"
+      "Data Processamento",
+      "Protocolo Lote",
+      "Protocolo Envio",
+      "Sequência Lote",
+      "Status Lote",
+      "Último Envio do Lote",
+      "Total Movimento Lote"
     ]);
   }
 
@@ -2009,8 +2045,14 @@ function smartSlipTesteFila() {
     "RECEBIDO",
     "Linha de teste criada na fila.",
     JSON.stringify(respostasUsuario),
-    "",
-    ""
+      "",
+      "",
+      "SS-TESTE-001",
+      "SS-TESTE-001",
+      1,
+      "FECHADO",
+      "Sim",
+      0
   ]);
 
   Logger.log("Linha de teste criada na SMARTSLIP_FILA.");
@@ -2765,6 +2807,75 @@ function smartSlipParseDateBR(valor) {
   return null;
 }
 
+function smartSlipCorrigirAnoDataDocumentoPeloMovimento_(dataDocumentoTexto, movInicioTexto, movFimTexto) {
+  const dataDoc = smartSlipParseDateBR(dataDocumentoTexto);
+  const movFim = smartSlipParseDateBR(movFimTexto || movInicioTexto);
+
+  if (!dataDoc || !movFim) {
+    return {
+      data: dataDocumentoTexto || "",
+      corrigida: false,
+      motivo: ""
+    };
+  }
+
+  // Se a data do documento já é maior ou igual ao fim do movimento, não corrige.
+  if (dataDoc >= movFim) {
+    return {
+      data: dataDocumentoTexto || "",
+      corrigida: false,
+      motivo: ""
+    };
+  }
+
+  const anoDoc = dataDoc.getFullYear();
+  const anoMov = movFim.getFullYear();
+
+  if (anoDoc >= anoMov) {
+    return {
+      data: dataDocumentoTexto || "",
+      corrigida: false,
+      motivo: ""
+    };
+  }
+
+  const candidatos = [
+    new Date(anoMov, dataDoc.getMonth(), dataDoc.getDate()),
+    new Date(anoMov + 1, dataDoc.getMonth(), dataDoc.getDate())
+  ];
+
+  for (let i = 0; i < candidatos.length; i++) {
+    const candidato = candidatos[i];
+
+    const diffDias = Math.round(
+      (candidato.getTime() - movFim.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    /*
+      Aceita correção só se a data corrigida ficar entre o fim do movimento
+      e até 31 dias depois. Isso evita corrigir documentos realmente antigos.
+    */
+    if (diffDias >= 0 && diffDias <= 31) {
+      return {
+        data: smartSlipFormatDateBR(candidato),
+        corrigida: true,
+        motivo:
+          "Ano da data do documento corrigido automaticamente de " +
+          smartSlipFormatDateBR(dataDoc) +
+          " para " +
+          smartSlipFormatDateBR(candidato) +
+          " com base no período de movimento."
+      };
+    }
+  }
+
+  return {
+    data: dataDocumentoTexto || "",
+    corrigida: false,
+    motivo: ""
+  };
+}
+
 function smartSlipFormatDateBR(date) {
   const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
   return Utilities.formatDate(date, tz, "dd/MM/yyyy");
@@ -2862,7 +2973,15 @@ function smartSlipGarantirCabecalhoFila() {
     "Mensagem",
     "JSON Respostas",
     "JSON Resultado",
-    "Data Processamento"
+    "Data Processamento",
+
+    // Novas colunas de controle de lote - não alteram A:R
+    "Protocolo Lote",
+    "Protocolo Envio",
+    "Sequência Lote",
+    "Status Lote",
+    "Último Envio do Lote",
+    "Total Movimento Lote"
   ];
 
   const primeiraCelula = String(sh.getRange(1, 1).getValue() || "").trim();
@@ -3104,8 +3223,6 @@ function smartSlipValidarCooldownEnvio_(emailUsuario) {
 }
 
 function smartSlipEnviarComprovanteApp(form) {
-  const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
 
   try {
         smartSlipAssertUsuarioAutorizado_();
@@ -3160,12 +3277,26 @@ function smartSlipEnviarComprovanteApp(form) {
       form.data_movimento_fim
     );
 
-    const preValidacaoTotalIa = smartSlipNormalizarPreValidacaoTotalIa_(
+    let preValidacaoTotalIa = smartSlipNormalizarPreValidacaoTotalIa_(
       form.pre_validacao_total_ia,
       valoresDiariosMovimento.total
     );
 
-    if (preValidacaoTotalIa && preValidacaoTotalIa.bloquear_envio === true) {
+    preValidacaoTotalIa = smartSlipAplicarBloqueioMultiploConfiavelBackend_(
+      preValidacaoTotalIa,
+      form
+    );
+
+    const envioEmLoteForm =
+      String(form.envio_lote || "") === "true" ||
+      String(form.mais_comprovantes || "") === "true" ||
+      String(form.protocolo_lote || "").trim() !== "";
+
+    if (
+      preValidacaoTotalIa &&
+      preValidacaoTotalIa.bloquear_envio === true &&
+      !envioEmLoteForm
+    ) {
       throw new Error(
         "A soma dos valores diários não confere com o total lido pela IA no comprovante. " +
         "Revise os valores antes de enviar."
@@ -3195,7 +3326,16 @@ function smartSlipEnviarComprovanteApp(form) {
     const usuarioAtual = smartSlipGetUsuarioAtual();
     const emailUsuario = String(usuarioAtual.email || Session.getActiveUser().getEmail() || "").trim().toLowerCase();
 
-    smartSlipValidarCooldownEnvio_(emailUsuario);
+    const ehContinuacaoLoteForm = String(form.protocolo_lote || "").trim() !== "";
+
+    /*
+      O cooldown continua valendo para iniciar um novo envio.
+      Mas não deve travar a continuidade do mesmo lote,
+      senão a loja teria que esperar entre uma foto e outra.
+    */
+    if (!ehContinuacaoLoteForm) {
+      smartSlipValidarCooldownEnvio_(emailUsuario);
+    }
 
     const lojaForm = smartSlipNormalizarLoja4(form.loja);
 
@@ -3211,7 +3351,6 @@ function smartSlipEnviarComprovanteApp(form) {
       }
     }
 
-    const protocolo = smartSlipGerarProtocolo();
     const loja4 = usuarioAtual.is_admin ? lojaForm : lojaPadraoUsuario;
 
     if (!loja4) {
@@ -3250,54 +3389,87 @@ function smartSlipEnviarComprovanteApp(form) {
       mais_comprovantes: String(form.mais_comprovantes) === "true"
     };
 
-    const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+      const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
 
-    const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
-      form,
-      respostasUsuario,
-      protocolo
-    );
+const controleLote = smartSlipMontarControleLoteEnvio_(
+  form,
+  valoresDiariosMovimento
+);
 
-    const sh = smartSlipGarantirCabecalhoFila();
+const protocolo = controleLote.protocolo_envio;
 
-    sh.appendRow([
-      new Date(),
-      protocolo,
-      emailUsuario,
-      loja4,
-      "",
-      dataMovimentoTexto,
-      respostasUsuario.houve_retirada ? "Sim" : "Não",
-      respostasUsuario.valor_retirada,
-      respostasUsuario.motivo_retirada,
-      respostasUsuario.mais_comprovantes ? "Sim" : "Não",
-      arquivo.file_id,
-      arquivo.link_comprovante,
-      arquivo.nome_arquivo,
-      "RECEBIDO",
-      "Comprovante recebido e aguardando processamento.",
-      JSON.stringify(respostasUsuario),
-      "",
-      ""
-    ]);
+respostasUsuario.protocolo = protocolo;
+respostasUsuario.protocolo_lote = controleLote.protocolo_lote;
+respostasUsuario.protocolo_envio = controleLote.protocolo_envio;
+respostasUsuario.sequencia_lote = controleLote.sequencia_lote;
+respostasUsuario.status_lote = controleLote.status_lote;
+respostasUsuario.ultimo_envio_lote = controleLote.ultimo_envio_lote;
+respostasUsuario.total_movimento_lote = controleLote.total_movimento_lote;
+respostasUsuario.envio_lote = controleLote.eh_lote;
 
-    return {
-      ok: true,
-      protocolo: protocolo,
-      status: "RECEBIDO",
-      mensagem: "Comprovante recebido com sucesso."
-    };
+const sh = smartSlipGarantirCabecalhoFila();
+
+smartSlipValidarContinuidadeLote_(
+  sh,
+  controleLote,
+  emailUsuario,
+  loja4,
+  dataMovimentoTexto
+);
+
+const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
+  form,
+  respostasUsuario,
+  protocolo
+);
+
+sh.appendRow([
+  new Date(),
+  protocolo,
+  emailUsuario,
+  loja4,
+  "",
+  dataMovimentoTexto,
+  respostasUsuario.houve_retirada ? "Sim" : "Não",
+  respostasUsuario.valor_retirada,
+  respostasUsuario.motivo_retirada,
+  respostasUsuario.mais_comprovantes ? "Sim" : "Não",
+  arquivo.file_id,
+  arquivo.link_comprovante,
+  arquivo.nome_arquivo,
+  "RECEBIDO",
+  "Comprovante recebido e aguardando processamento.",
+  JSON.stringify(respostasUsuario),
+  "",
+  "",
+
+  // Novas colunas S:X
+  controleLote.protocolo_lote,
+  controleLote.protocolo_envio,
+  controleLote.sequencia_lote,
+  controleLote.status_lote,
+  controleLote.ultimo_envio_lote ? "Sim" : "Não",
+  controleLote.total_movimento_lote
+]);
+
+return {
+  ok: true,
+  protocolo: protocolo,
+  protocolo_lote: controleLote.protocolo_lote,
+  protocolo_envio: controleLote.protocolo_envio,
+  sequencia_lote: controleLote.sequencia_lote,
+  proxima_sequencia_lote: controleLote.proxima_sequencia_lote,
+  continuar_lote: controleLote.ultimo_envio_lote !== true,
+  status: "RECEBIDO",
+  status_lote: controleLote.status_lote,
+  mensagem: "Comprovante recebido com sucesso."
+};
 
   } catch (err) {
     return {
       ok: false,
       erro: String(err && err.message ? err.message : err)
     };
-
-  } finally {
-    try {
-      lock.releaseLock();
-    } catch (e) {}
   }
 }
 
@@ -3335,6 +3507,52 @@ function smartSlipNormalizarPreValidacaoTotalIa_(valor, totalUsuario) {
   };
 }
 
+function smartSlipAplicarBloqueioMultiploConfiavelBackend_(preValidacao, form) {
+  if (!preValidacao) {
+    return preValidacao;
+  }
+
+  form = form || {};
+
+  const status = String(preValidacao.status_validacao || "").trim().toUpperCase();
+  const mensagem = String(preValidacao.mensagem || "").trim().toLowerCase();
+
+  const confianca = Number(preValidacao.confianca || 0);
+  const diferenca = Math.abs(Number(preValidacao.diferenca || 0));
+
+  const totalAnexosLote = Number(form.total_anexos_lote || 1);
+
+  const ehFluxoComVariosAnexos =
+    String(form.envio_lote || "") === "true" &&
+    totalAnexosLote > 1;
+
+  const pareceMultiplo =
+    status.indexOf("MULTIPLO") >= 0 ||
+    status.indexOf("MÚLTIPLO") >= 0 ||
+    mensagem.indexOf("múltiplos comprovantes") >= 0 ||
+    mensagem.indexOf("multiplos comprovantes") >= 0 ||
+    mensagem.indexOf("múltiplos") >= 0 ||
+    mensagem.indexOf("multiplos") >= 0;
+
+  if (ehFluxoComVariosAnexos) {
+    return preValidacao;
+  }
+
+  if (
+    pareceMultiplo &&
+    confianca >= 0.98 &&
+    diferenca > 0.01
+  ) {
+    preValidacao.status_validacao = "DIVERGENTE_MULTIPLO_BLOQUEANTE";
+    preValidacao.bloquear_envio = true;
+    preValidacao.mensagem =
+      "A IA identificou múltiplos comprovantes no arquivo e leu os valores com alta confiança, " +
+      "mas a soma informada está diferente do total lido.";
+  }
+
+  return preValidacao;
+}
+
 function smartSlipGerarProtocolo() {
   const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
   const agora = new Date();
@@ -3344,7 +3562,132 @@ function smartSlipGerarProtocolo() {
   return "SS-" + data + "-" + rand;
 }
 
+function smartSlipMontarControleLoteEnvio_(form, valoresDiariosMovimento) {
+  form = form || {};
+  valoresDiariosMovimento = valoresDiariosMovimento || {};
+
+  const protocoloLoteInformado = String(form.protocolo_lote || "").trim();
+  const temMaisComprovantes = String(form.mais_comprovantes) === "true";
+
+  /*
+    Envio em lote:
+    - começa quando o usuário marca "Sim, vou enviar mais arquivos"
+    - continua quando o front envia protocolo_lote já existente
+  */
+  const ehContinuacaoLote = !!protocoloLoteInformado;
+  const ehLote = temMaisComprovantes || ehContinuacaoLote;
+
+  const protocoloLote = protocoloLoteInformado || smartSlipGerarProtocolo();
+
+  const sequenciaLote = ehLote
+    ? Math.max(1, Number(form.sequencia_lote || 1))
+    : 1;
+
+  const protocoloEnvio = ehLote
+    ? protocoloLote + "-P" + String(sequenciaLote).padStart(2, "0")
+    : protocoloLote;
+
+  const ultimoEnvioLote = !temMaisComprovantes;
+
+  return {
+    eh_lote: ehLote,
+    eh_continuacao_lote: ehContinuacaoLote,
+    protocolo_lote: protocoloLote,
+    protocolo_envio: protocoloEnvio,
+    sequencia_lote: sequenciaLote,
+    proxima_sequencia_lote: sequenciaLote + 1,
+    status_lote: ultimoEnvioLote ? "FECHADO" : "ABERTO",
+    ultimo_envio_lote: ultimoEnvioLote,
+    total_movimento_lote: Number(valoresDiariosMovimento.total || 0)
+  };
+}
+
+function smartSlipValidarContinuidadeLote_(sh, controleLote, emailUsuario, loja4, dataMovimentoTexto) {
+  controleLote = controleLote || {};
+
+  const protocoloLote = String(controleLote.protocolo_lote || "").trim();
+
+  if (!protocoloLote || !controleLote.eh_continuacao_lote) {
+    return;
+  }
+
+  if (!sh || sh.getLastRow() < 2) {
+    throw new Error("Não foi possível continuar o lote. Nenhum envio anterior foi encontrado.");
+  }
+
+  const values = sh.getDataRange().getValues();
+  const headers = values[0].map(function(h) {
+    return String(h || "").trim();
+  });
+
+  const idxProtocoloLote = smartSlipEncontrarIndiceHeader_(headers, ["Protocolo Lote"]);
+  const idxEmail = smartSlipEncontrarIndiceHeader_(headers, ["Email Usuário"]);
+  const idxLoja = smartSlipEncontrarIndiceHeader_(headers, ["Loja Informada"]);
+  const idxDataMovimento = smartSlipEncontrarIndiceHeader_(headers, ["Data Movimento"]);
+  const idxStatusLote = smartSlipEncontrarIndiceHeader_(headers, ["Status Lote"]);
+  const idxTotalLote = smartSlipEncontrarIndiceHeader_(headers, ["Total Movimento Lote"]);
+
+  if (
+    idxProtocoloLote < 0 ||
+    idxEmail < 0 ||
+    idxLoja < 0 ||
+    idxDataMovimento < 0 ||
+    idxStatusLote < 0 ||
+    idxTotalLote < 0
+  ) {
+    throw new Error("Cabeçalhos de controle de lote não encontrados na SMARTSLIP_FILA.");
+  }
+
+  let linhaEncontrada = null;
+
+  for (let i = values.length - 1; i >= 1; i--) {
+    const row = values[i];
+
+    if (String(row[idxProtocoloLote] || "").trim() === protocoloLote) {
+      linhaEncontrada = row;
+      break;
+    }
+  }
+
+  if (!linhaEncontrada) {
+    throw new Error("Não foi possível continuar o lote. Protocolo Lote não encontrado na SMARTSLIP_FILA.");
+  }
+
+  const emailBase = String(linhaEncontrada[idxEmail] || "").trim().toLowerCase();
+  const lojaBase = smartSlipNormalizarLoja4(linhaEncontrada[idxLoja] || "");
+  const dataMovimentoBase = String(linhaEncontrada[idxDataMovimento] || "").trim();
+  const statusLoteBase = String(linhaEncontrada[idxStatusLote] || "").trim().toUpperCase();
+  const totalBase = Number(linhaEncontrada[idxTotalLote] || 0);
+  const totalAtual = Number(controleLote.total_movimento_lote || 0);
+
+  if (statusLoteBase === "FECHADO") {
+    throw new Error("Este lote já está fechado. Para enviar outro comprovante, inicie um novo envio.");
+  }
+
+  if (emailBase !== String(emailUsuario || "").trim().toLowerCase()) {
+    throw new Error("Este lote pertence a outro usuário. Não é possível continuar o envio.");
+  }
+
+  if (lojaBase !== smartSlipNormalizarLoja4(loja4 || "")) {
+    throw new Error("A loja informada não corresponde à loja do lote iniciado.");
+  }
+
+  if (dataMovimentoBase !== String(dataMovimentoTexto || "").trim()) {
+    throw new Error("O período de movimento não corresponde ao lote iniciado.");
+  }
+
+  if (Math.abs(totalBase - totalAtual) > 0.009) {
+    throw new Error("O total dos valores diários não corresponde ao lote iniciado.");
+  }
+}
+
 function smartSlipProcessarFila() {
+  let itemProcessar = null;
+
+  /*
+    Lock curto somente para reservar 1 linha RECEBIDO.
+    Não chama Gemini, Drive ou salvamento dentro do lock.
+  */
   const lock = LockService.getScriptLock();
 
   if (!lock.tryLock(1000)) {
@@ -3360,19 +3703,14 @@ function smartSlipProcessarFila() {
     }
 
     const values = sh.getRange(2, 1, lastRow - 1, 18).getValues();
-    const limitePorExecucao = 10;
-    let processados = 0;
 
     for (let i = 0; i < values.length; i++) {
-      if (processados >= limitePorExecucao) {
-        break;
-      }
-
       const rowIndex = i + 2;
       const row = values[i];
+
       const protocolo = row[1];
       const fileId = row[10];
-      const statusFila = row[13];
+      const statusFila = String(row[13] || "").trim();
       const jsonRespostas = row[15];
 
       if (statusFila !== "RECEBIDO") {
@@ -3381,29 +3719,56 @@ function smartSlipProcessarFila() {
 
       sh.getRange(rowIndex, 14).setValue("PROCESSANDO");
       sh.getRange(rowIndex, 15).setValue("Processando comprovante via Gemini...");
+      SpreadsheetApp.flush();
 
-      try {
-        const respostasUsuario = JSON.parse(jsonRespostas || "{}");
-        const resultado = smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo);
+      itemProcessar = {
+        rowIndex: rowIndex,
+        protocolo: protocolo,
+        fileId: fileId,
+        jsonRespostas: jsonRespostas
+      };
 
-        sh.getRange(rowIndex, 14).setValue(resultado.status_fila);
-        sh.getRange(rowIndex, 15).setValue(resultado.mensagem || "");
-        sh.getRange(rowIndex, 17).setValue(JSON.stringify(resultado));
-        sh.getRange(rowIndex, 18).setValue(new Date());
-
-        processados++;
-
-      } catch (err) {
-        sh.getRange(rowIndex, 14).setValue("ERRO_PROCESSAMENTO");
-        sh.getRange(rowIndex, 15).setValue(String(err && err.message ? err.message : err));
-        sh.getRange(rowIndex, 18).setValue(new Date());
-      }
+      break;
     }
 
   } finally {
     try {
       lock.releaseLock();
     } catch (e) {}
+  }
+
+  if (!itemProcessar) {
+    return;
+  }
+
+  /*
+    Daqui para baixo não existe lock.
+    Isso evita travar envios no celular, desktop ou em outras lojas.
+  */
+  try {
+    const respostasUsuario = JSON.parse(itemProcessar.jsonRespostas || "{}");
+
+    const resultado = smartSlipProcessarComprovanteFila(
+      itemProcessar.fileId,
+      respostasUsuario,
+      itemProcessar.protocolo
+    );
+
+    const sh = smartSlipGarantirCabecalhoFila();
+
+    sh.getRange(itemProcessar.rowIndex, 14).setValue(resultado.status_fila);
+    sh.getRange(itemProcessar.rowIndex, 15).setValue(resultado.mensagem || "");
+    sh.getRange(itemProcessar.rowIndex, 17).setValue(JSON.stringify(resultado));
+    sh.getRange(itemProcessar.rowIndex, 18).setValue(new Date());
+    SpreadsheetApp.flush();
+
+  } catch (err) {
+    const sh = smartSlipGarantirCabecalhoFila();
+
+    sh.getRange(itemProcessar.rowIndex, 14).setValue("ERRO_PROCESSAMENTO");
+    sh.getRange(itemProcessar.rowIndex, 15).setValue(String(err && err.message ? err.message : err));
+    sh.getRange(itemProcessar.rowIndex, 18).setValue(new Date());
+    SpreadsheetApp.flush();
   }
 }
 
@@ -3420,6 +3785,13 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
   const loja4 = smartSlipNormalizarLoja4(respostasUsuario.loja);
   const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
   const valoresDiariosMovimento = respostasUsuario.valores_diarios_movimento || null;
+
+  const protocoloLote = String(respostasUsuario.protocolo_lote || protocolo || "").trim();
+  const protocoloEnvio = String(respostasUsuario.protocolo_envio || protocolo || "").trim();
+  const sequenciaLote = Number(respostasUsuario.sequencia_lote || 1);
+  const statusLote = String(respostasUsuario.status_lote || "").trim();
+  const ultimoEnvioLote = respostasUsuario.ultimo_envio_lote === true;
+  const totalMovimentoLote = Number(respostasUsuario.total_movimento_lote || 0);
 
   const infoLoja = smartSlipConsultarInfoLoja_(loja4);
 
@@ -3500,19 +3872,62 @@ if (!validacaoDuplicidadeEvidencia.ok) {
       pendenciasItem.push("Data de geração do documento não identificada.");
     }
 
-    const dadosGuardrail = {
-      data_deposito: item.data_deposito,
-      data_movimento: dataMovimentoTexto,
-      data_movimento_inicio: respostasUsuario.data_movimento_inicio || respostasUsuario.data_movimento || "",
-      data_movimento_fim: respostasUsuario.data_movimento_fim || respostasUsuario.data_movimento_inicio || respostasUsuario.data_movimento || ""
-    };
+const movInicioGuardrail =
+  respostasUsuario.data_movimento_inicio ||
+  respostasUsuario.data_movimento ||
+  "";
 
-    const resultadoGuardrail = {
-      status: "PRONTO_PARA_SALVAR",
-      divergencias: []
-    };
+const movFimGuardrail =
+  respostasUsuario.data_movimento_fim ||
+  respostasUsuario.data_movimento_inicio ||
+  respostasUsuario.data_movimento ||
+  "";
 
-    smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
+const correcaoDataDeposito = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
+  item.data_deposito,
+  movInicioGuardrail,
+  movFimGuardrail
+);
+
+if (correcaoDataDeposito.corrigida) {
+  item.data_deposito = correcaoDataDeposito.data;
+
+  if (!Array.isArray(item.observacoes)) {
+    item.observacoes = [];
+  }
+
+  item.observacoes.push(correcaoDataDeposito.motivo);
+}
+
+const correcaoDataGeracao = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
+  item.data_geracao_documento,
+  movInicioGuardrail,
+  movFimGuardrail
+);
+
+if (correcaoDataGeracao.corrigida) {
+  item.data_geracao_documento = correcaoDataGeracao.data;
+
+  if (!Array.isArray(item.observacoes)) {
+    item.observacoes = [];
+  }
+
+  item.observacoes.push(correcaoDataGeracao.motivo);
+}
+
+const dadosGuardrail = {
+  data_deposito: item.data_deposito,
+  data_movimento: dataMovimentoTexto,
+  data_movimento_inicio: movInicioGuardrail,
+  data_movimento_fim: movFimGuardrail
+};
+
+const resultadoGuardrail = {
+  status: "PRONTO_PARA_SALVAR",
+  divergencias: []
+};
+
+smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
 
     if (resultadoGuardrail.divergencias.length > 0) {
       pendenciasItem.push(resultadoGuardrail.divergencias.join(" | "));
@@ -3555,6 +3970,12 @@ if (!validacaoDuplicidadeEvidencia.ok) {
       id_comprovante: idComprovante,
       hash_comprovante: "",
       protocolo: protocolo,
+      protocolo_lote: protocoloLote,
+      protocolo_envio: protocoloEnvio,
+      sequencia_lote: sequenciaLote,
+      status_lote: statusLote,
+      ultimo_envio_lote: ultimoEnvioLote,
+      total_movimento_lote: totalMovimentoLote,
       indice_comprovante: indiceComprovante,
       loja: loja4,
       empresa: empresa,
@@ -3718,24 +4139,50 @@ function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
   const evid = item.evidencias || {};
 
   const valorTexto = String(evid.valor_deposito_texto || "").trim();
+  const dataTexto = String(evid.data_deposito_texto || "").trim();
   const blocoTexto = String(evid.bloco_textual_comprovante || "").trim();
 
   const valor = Number(item.valor_deposito || 0);
+  const dataDeposito = String(item.data_deposito || "").trim();
 
-  const temTextoInferencia =
-    obsNorm.includes("inferid") ||
-    obsNorm.includes("parcialmente visivel") ||
-    obsNorm.includes("parcialmente visíveis") ||
-    obsNorm.includes("trechos parcialmente") ||
-    obsNorm.includes("nao esta claro") ||
-    obsNorm.includes("não está claro") ||
-    obsNorm.includes("duvida") ||
-    obsNorm.includes("dúvida");
+  /*
+    Regra:
+    - Código de autenticação inferido NÃO bloqueia.
+    - Valor/data/documento inferidos ou sem evidência bloqueiam.
+  */
+  const falaDeCodigoAutenticacao =
+    obsNorm.includes("codigo de autenticacao") ||
+    obsNorm.includes("autenticacao") ||
+    obsNorm.includes("tipo de pagamento") ||
+    obsNorm.includes("via do cliente");
 
-  if (temTextoInferencia) {
+  const falaDeValorOuDataOuDocumento =
+    obsNorm.includes("valor") ||
+    obsNorm.includes("data") ||
+    obsNorm.includes("deposito") ||
+    obsNorm.includes("pagamento") ||
+    obsNorm.includes("comprovante") ||
+    obsNorm.includes("boleto") ||
+    obsNorm.includes("documento");
+
+  const temTextoInferenciaCritica =
+    (
+      obsNorm.includes("inferid") ||
+      obsNorm.includes("parcialmente visivel") ||
+      obsNorm.includes("parcialmente visiveis") ||
+      obsNorm.includes("trechos parcialmente") ||
+      obsNorm.includes("nao esta claro") ||
+      obsNorm.includes("não está claro") ||
+      obsNorm.includes("duvida") ||
+      obsNorm.includes("dúvida")
+    ) &&
+    falaDeValorOuDataOuDocumento &&
+    !falaDeCodigoAutenticacao;
+
+  if (temTextoInferenciaCritica) {
     return {
       bloquear: true,
-      motivo: "Item possui observação de inferência ou leitura parcial."
+      motivo: "Item possui observação de inferência ou leitura parcial em campo crítico."
     };
   }
 
@@ -3750,6 +4197,20 @@ function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
     return {
       bloquear: true,
       motivo: "Sem evidência textual do valor do depósito."
+    };
+  }
+
+  if (!dataDeposito) {
+    return {
+      bloquear: true,
+      motivo: "Data do depósito ausente."
+    };
+  }
+
+  if (!dataTexto) {
+    return {
+      bloquear: true,
+      motivo: "Sem evidência textual da data do depósito."
     };
   }
 
