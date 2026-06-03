@@ -3215,6 +3215,255 @@ body:not(.smart-mobile) .hist-status-modal-card {
 }
 
 /* =========================================================
+   SMARTSLIP - NOVO ENVIO COM QUANTIDADE DE ANEXOS
+   ========================================================= */
+
+.novo-envio-panel {
+  margin-bottom: 18px;
+  padding: 22px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(181,255,32,.22), transparent 38%),
+    linear-gradient(135deg, #050807 0%, #071E3D 100%);
+  border: 1px solid rgba(181,255,32,.34);
+  box-shadow: 0 18px 42px rgba(0,0,0,.22);
+  color: #ffffff;
+}
+
+.novo-envio-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.novo-envio-head h2 {
+  margin: 0 0 6px;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 950;
+  letter-spacing: -.35px;
+}
+
+.novo-envio-head p {
+  margin: 0;
+  max-width: 680px;
+  color: rgba(255,255,255,.72);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.novo-envio-btn {
+  width: auto !important;
+  min-width: 160px !important;
+  background: #B5FF20 !important;
+  color: #050807 !important;
+  border: 1px solid rgba(181,255,32,.85) !important;
+  font-weight: 950 !important;
+}
+
+.novo-envio-qtd-box {
+  display: none;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+}
+
+.novo-envio-qtd-box.show {
+  display: block;
+}
+
+.novo-envio-qtd-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 220px;
+  gap: 18px;
+  align-items: start;
+  justify-content: start;
+}
+
+.novo-envio-qtd-grid > button {
+  width: 220px !important;
+  min-height: 48px !important;
+  margin-top: 28px !important;
+  border-radius: 14px !important;
+  align-self: start !important;
+}
+
+.novo-envio-qtd-box .hint {
+  color: rgba(255, 255, 255, .78) !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  font-weight: 750 !important;
+}
+
+.novo-envio-qtd-box label {
+  margin-top: 0 !important;
+  color: #B5FF20 !important;
+}
+
+.novo-envio-qtd-box select {
+  background: #ffffff !important;
+  color: #050807 !important;
+  font-weight: 850 !important;
+}
+
+.envio-lote-progresso {
+  display: none;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #050807;
+  border: 1px solid rgba(181,255,32,.34);
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.envio-lote-progresso.show {
+  display: block;
+}
+
+.envio-lote-progresso b {
+  color: #B5FF20;
+}
+
+.proximo-anexo-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 93000;
+  background: rgba(5, 8, 7, .68);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.proximo-anexo-popup.show {
+  display: flex;
+}
+
+body.proximo-anexo-lock {
+  overflow: hidden;
+}
+
+.proximo-anexo-card {
+  width: min(560px, 100%);
+  background: #050807;
+  border: 1px solid rgba(181,255,32,.34);
+  border-radius: 28px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.46);
+  overflow: hidden;
+}
+
+.proximo-anexo-head {
+  padding: 24px 24px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(181,255,32,.18), transparent 36%),
+    #050807;
+}
+
+.proximo-anexo-pill {
+  display: inline-flex;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(181,255,32,.14);
+  border: 1px solid rgba(181,255,32,.32);
+  color: #B5FF20;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+  margin-bottom: 12px;
+}
+
+.proximo-anexo-head h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 23px;
+  line-height: 1.12;
+  font-weight: 950;
+}
+
+.proximo-anexo-head p {
+  margin: 0;
+  color: rgba(255,255,255,.74);
+  font-size: 14px;
+  line-height: 1.48;
+  font-weight: 700;
+}
+
+.proximo-anexo-body {
+  padding: 18px 24px 24px;
+}
+
+.proximo-anexo-alert {
+  padding: 14px;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #050807;
+  border: 1px solid rgba(255,255,255,.86);
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 850;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+}
+
+.proximo-anexo-alert b {
+  color: #050807 !important;
+  font-weight: 950 !important;
+}
+
+.proximo-anexo-btn {
+  width: 100% !important;
+  min-height: 56px !important;
+  border-radius: 17px !important;
+  background: #B5FF20 !important;
+  color: #050807 !important;
+  border: 1px solid rgba(181,255,32,.90) !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  box-shadow: 0 14px 30px rgba(181,255,32,.24) !important;
+}
+
+.proximo-anexo-btn:hover {
+  background: #c8ff4d !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .novo-envio-head,
+  .novo-envio-qtd-grid {
+    grid-template-columns: 1fr !important;
+    display: grid !important;
+  }
+
+  .novo-envio-btn {
+    width: 100% !important;
+  }
+
+  body.smart-mobile .proximo-anexo-popup {
+    align-items: flex-end !important;
+    padding: 14px !important;
+  }
+
+  body.smart-mobile .proximo-anexo-card {
+    border-radius: 26px 26px 18px 18px !important;
+  }
+
+  .novo-envio-qtd-grid > button {
+  width: 100% !important;
+  margin-top: 6px !important;
+}
+
+}
+
+/* =========================================================
    SMARTSLIP - VALORES DIÁRIOS DO MOVIMENTO
    ========================================================= */
 
@@ -5137,15 +5386,58 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
             </div>
       </section>
 
-      <section id="view-comprovantes" class="view">
-        <div class="top-pill">Novo envio</div>
-        <h1>Enviar comprovante</h1>
-        <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
+<section id="view-comprovantes" class="view">
+  <div class="top-pill">Novo envio</div>
+  <h1>Enviar comprovante</h1>
+  <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
 
-          <div class="form-card">
-            <label>Comprovante</label>
+  <div id="novoEnvioPanel" class="novo-envio-panel">
+    <div class="novo-envio-head">
+      <div>
+        <h2>Novo envio de comprovantes</h2>
+        <p>
+          Antes de iniciar, informe quantos anexos serão enviados para este mesmo movimento.
+          O SmartSlip irá solicitar um arquivo por vez até concluir todos os anexos.
+        </p>
+      </div>
 
-            <div class="upload-box"
+      <button type="button" class="novo-envio-btn" onclick="smartSlipAbrirQtdNovoEnvio_()">
+        Novo Envio
+      </button>
+    </div>
+
+    <div id="novoEnvioQtdBox" class="novo-envio-qtd-box">
+      <div class="novo-envio-qtd-grid">
+        <div>
+          <label>Quantos anexos você irá enviar?</label>
+
+        <select id="novoEnvioQtdAnexos">
+          <option value="" selected disabled>Selecione</option>
+          <option value="1">1 anexo</option>
+          <option value="2">2 anexos</option>
+          <option value="3">3 anexos</option>
+          <option value="4">4 anexos</option>
+          <option value="5">5 anexos</option>
+        </select>
+
+          <div class="hint">
+            Escolha a quantidade total de fotos/PDFs deste mesmo movimento.
+          </div>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="smartSlipIniciarNovoEnvioComAnexos_()">
+          Iniciar envio
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="envioFormCard" class="form-card" style="display:none;">
+    <div id="envioLoteProgresso" class="envio-lote-progresso"></div>
+
+    <label>Comprovante</label>
+
+    <div class="upload-box"
                 onclick="abrirSeletorArquivo()"
                 ondragover="onDragOverArquivo(event)"
                 ondragleave="onDragLeaveArquivo(event)"
@@ -5779,6 +6071,28 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
                 </main>
               </div>
 
+          <div id="proximoAnexoPopup" class="proximo-anexo-popup">
+            <div class="proximo-anexo-card">
+              <div class="proximo-anexo-head">
+                <span class="proximo-anexo-pill">Próximo anexo</span>
+                <h2 id="proximoAnexoTitulo">Envie o próximo arquivo</h2>
+                <p id="proximoAnexoTexto">
+                  O anexo anterior foi recebido. Agora envie o próximo arquivo deste mesmo movimento.
+                </p>
+              </div>
+
+              <div class="proximo-anexo-body">
+                <div id="proximoAnexoAlerta" class="proximo-anexo-alert">
+                  Os dados de loja, período, retirada e valores diários foram mantidos.
+                </div>
+
+                <button type="button" class="proximo-anexo-btn" onclick="smartSlipFecharPopupProximoAnexo_()">
+                  Ok, anexar próximo arquivo
+                </button>
+              </div>
+            </div>
+          </div>
+
   <script>
     let SMARTSLIP_STATE = {
       usuario: null,
@@ -5800,7 +6114,13 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
       comp_hub: [],
       comp_hub_filtrado: [],
       custos_ia: null,
-      custos_ia_filtros_iniciados: false
+      custos_ia_filtros_iniciados: false,
+      // Controle de envio em lote por quantidade fixa de anexos
+      protocolo_lote_ativo: "",
+      sequencia_lote_ativo: 1,
+      envio_lote_iniciado: false,
+      envio_lote_total_anexos: 0,
+      envio_lote_anexo_atual: 0
     };
 
     let COMP_HUB_PAGE = 1;
@@ -6369,9 +6689,26 @@ try {
   const custosIaAnoAnterior = SMARTSLIP_STATE.custos_ia_ano || null;
   const custosIaMesAnterior = SMARTSLIP_STATE.custos_ia_mes || null;
   const custosIaFiltrosIniciadosAnterior = SMARTSLIP_STATE.custos_ia_filtros_iniciados === true;
+  const loteProtocoloAtivoAnterior = SMARTSLIP_STATE.protocolo_lote_ativo || "";
+  const loteSequenciaAtivaAnterior = Number(SMARTSLIP_STATE.sequencia_lote_ativo || 1);
+  const envioLoteIniciadoAnterior = SMARTSLIP_STATE.envio_lote_iniciado === true;
+  const envioLoteTotalAnexosAnterior = Number(SMARTSLIP_STATE.envio_lote_total_anexos || 0);
+  const envioLoteAnexoAtualAnterior = Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 0);
 
   SMARTSLIP_STATE = resp || {};
   SMARTSLIP_STATE.lojas = resp.lojas || [];
+  SMARTSLIP_STATE.protocolo_lote_ativo = loteProtocoloAtivoAnterior;
+  SMARTSLIP_STATE.sequencia_lote_ativo = loteSequenciaAtivaAnterior || 1;
+  SMARTSLIP_STATE.envio_lote_iniciado = envioLoteIniciadoAnterior;
+  SMARTSLIP_STATE.envio_lote_total_anexos = envioLoteTotalAnexosAnterior;
+  SMARTSLIP_STATE.envio_lote_anexo_atual = envioLoteAnexoAtualAnterior;
+
+  if (SMARTSLIP_STATE.envio_lote_iniciado === true) {
+    smartSlipMostrarFormularioEnvio_();
+    smartSlipAtualizarProgressoAnexos_();
+  } else {
+    smartSlipMostrarSomenteNovoEnvio_();
+  }
 
   SMARTSLIP_STATE.adocao_lojas = resp.adocao_lojas || {
     total_lojas_escopo: 0,
@@ -7363,6 +7700,15 @@ function abrirView(nome, btn) {
     }
   }
 
+  if (nome === "comprovantes") {
+  if (SMARTSLIP_STATE.envio_lote_iniciado === true) {
+    smartSlipMostrarFormularioEnvio_();
+    smartSlipAtualizarProgressoAnexos_();
+  } else {
+    smartSlipMostrarSomenteNovoEnvio_();
+  }
+}
+
 }
 
 function toggleRetirada() {
@@ -7425,11 +7771,228 @@ function limparFormulario(limparLoja) {
   atualizarTotalValoresDiariosMovimento();
 
   resetarPreValidacaoTotalIa();
+  smartSlipResetarFluxoNovoEnvio_();
 
   if (limparLoja) {
     document.getElementById("loja").value = "";
   }
+
+  smartSlipMostrarSomenteNovoEnvio_();
   limparMensagem();
+}
+
+function smartSlipMostrarSomenteNovoEnvio_() {
+  const setup = document.getElementById("novoEnvioPanel");
+  const qtdBox = document.getElementById("novoEnvioQtdBox");
+  const formCard = document.getElementById("envioFormCard");
+  const progresso = document.getElementById("envioLoteProgresso");
+
+  if (setup) {
+    setup.style.display = "block";
+  }
+
+  if (qtdBox) {
+    qtdBox.classList.remove("show");
+  }
+
+  if (formCard) {
+    formCard.style.display = "none";
+  }
+
+  if (progresso) {
+    progresso.classList.remove("show");
+    progresso.innerHTML = "";
+  }
+
+  smartSlipFecharPopupProximoAnexo_(false);
+}
+
+function smartSlipMostrarFormularioEnvio_() {
+  const setup = document.getElementById("novoEnvioPanel");
+  const formCard = document.getElementById("envioFormCard");
+
+  if (setup) {
+    setup.style.display = "none";
+  }
+
+  if (formCard) {
+    formCard.style.display = "block";
+  }
+
+  smartSlipAtualizarProgressoAnexos_();
+}
+
+function smartSlipAbrirQtdNovoEnvio_() {
+  const qtdBox = document.getElementById("novoEnvioQtdBox");
+  const qtdEl = document.getElementById("novoEnvioQtdAnexos");
+
+  if (qtdEl) {
+    qtdEl.value = "";
+  }
+
+  if (qtdBox) {
+    qtdBox.classList.add("show");
+  }
+
+  limparMensagem();
+}
+
+function smartSlipIniciarNovoEnvioComAnexos_() {
+  const qtdEl = document.getElementById("novoEnvioQtdAnexos");
+  const qtd = qtdEl ? Number(qtdEl.value || 1) : 1;
+
+  if (!qtd || qtd < 1 || qtd > 5) {
+    mostrarMensagem("erro", "Selecione uma quantidade de anexos entre 1 e 5.");
+    return;
+  }
+
+  limparFormulario(false);
+
+  SMARTSLIP_STATE.envio_lote_iniciado = true;
+  SMARTSLIP_STATE.envio_lote_total_anexos = qtd;
+  SMARTSLIP_STATE.envio_lote_anexo_atual = 1;
+  SMARTSLIP_STATE.sequencia_lote_ativo = 1;
+  SMARTSLIP_STATE.protocolo_lote_ativo = "";
+
+  smartSlipMostrarFormularioEnvio_();
+
+  mostrarMensagem(
+    "ok",
+    "Novo envio iniciado.\n\n" +
+    "Quantidade de anexos: " + qtd + "\n" +
+    "Anexe o arquivo 1 de " + qtd + "."
+  );
+}
+
+function smartSlipResetarFluxoNovoEnvio_() {
+  SMARTSLIP_STATE.protocolo_lote_ativo = "";
+  SMARTSLIP_STATE.sequencia_lote_ativo = 1;
+  SMARTSLIP_STATE.envio_lote_iniciado = false;
+  SMARTSLIP_STATE.envio_lote_total_anexos = 0;
+  SMARTSLIP_STATE.envio_lote_anexo_atual = 0;
+
+  smartSlipFecharPopupProximoAnexo_(false);
+}
+
+function smartSlipResetarLoteMovimento_() {
+  smartSlipResetarFluxoNovoEnvio_();
+}
+
+function smartSlipFluxoNovoEnvioAtivo_() {
+  return SMARTSLIP_STATE.envio_lote_iniciado === true &&
+    Number(SMARTSLIP_STATE.envio_lote_total_anexos || 0) >= 1 &&
+    Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 0) >= 1;
+}
+
+function smartSlipEhUltimoAnexoDoFluxo_() {
+  const atual = Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 0);
+  const total = Number(SMARTSLIP_STATE.envio_lote_total_anexos || 0);
+
+  return total > 0 && atual >= total;
+}
+
+function smartSlipTemProximoAnexoNoFluxo_() {
+  return smartSlipFluxoNovoEnvioAtivo_() && !smartSlipEhUltimoAnexoDoFluxo_();
+}
+
+function smartSlipAtualizarProgressoAnexos_() {
+  const progresso = document.getElementById("envioLoteProgresso");
+
+  if (!progresso) {
+    return;
+  }
+
+  if (!smartSlipFluxoNovoEnvioAtivo_()) {
+    progresso.classList.remove("show");
+    progresso.innerHTML = "";
+    return;
+  }
+
+  const atual = Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1);
+  const total = Number(SMARTSLIP_STATE.envio_lote_total_anexos || 1);
+  const protocoloLote = String(SMARTSLIP_STATE.protocolo_lote_ativo || "").trim();
+
+  progresso.classList.add("show");
+
+  progresso.innerHTML =
+    "<b>Anexo " + atual + " de " + total + "</b>" +
+    (protocoloLote ? "<br>Protocolo do lote: <b>" + escapeHtml(protocoloLote) + "</b>" : "") +
+    "<br>Informe os dados do movimento e anexe o arquivo correspondente a esta etapa.";
+}
+
+function smartSlipLimparApenasArquivoEnvio_() {
+  const arquivo = document.getElementById("arquivo");
+
+  if (arquivo) {
+    arquivo.value = "";
+  }
+
+  atualizarUploadInfo(null);
+  limparPreviewArquivoSmartSlip(false);
+  resetarPreValidacaoTotalIa();
+}
+
+function smartSlipAbrirPopupProximoAnexo_() {
+  const modal = document.getElementById("proximoAnexoPopup");
+
+  if (!modal) {
+    return;
+  }
+
+  const atual = Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1);
+  const total = Number(SMARTSLIP_STATE.envio_lote_total_anexos || 1);
+
+  const titulo = document.getElementById("proximoAnexoTitulo");
+  const texto = document.getElementById("proximoAnexoTexto");
+  const alerta = document.getElementById("proximoAnexoAlerta");
+
+  if (titulo) {
+    titulo.textContent = "Envie o anexo " + atual + " de " + total;
+  }
+
+  if (texto) {
+    texto.textContent =
+      "O anexo anterior foi recebido. Agora anexe o próximo arquivo deste mesmo movimento.";
+  }
+
+  if (alerta) {
+    alerta.innerHTML =
+      "Os dados de loja, período, retirada e valores diários foram mantidos.<br>" +
+      "Agora selecione o arquivo <b>" + atual + " de " + total + "</b>.";
+  }
+
+  modal.classList.add("show");
+  document.body.classList.add("proximo-anexo-lock");
+}
+
+function smartSlipFecharPopupProximoAnexo_(abrirArquivo) {
+  const modal = document.getElementById("proximoAnexoPopup");
+
+  if (modal) {
+    modal.classList.remove("show");
+  }
+
+  document.body.classList.remove("proximo-anexo-lock");
+
+  if (abrirArquivo !== false) {
+    const uploadBox = document.querySelector("#envioFormCard .upload-box");
+    const arquivo = document.getElementById("arquivo");
+
+    smartSlipScrollParaElemento_(uploadBox || arquivo, 120);
+
+    setTimeout(function() {
+      if (arquivo) {
+        arquivo.click();
+      }
+    }, 260);
+  }
+}
+
+/*
+  Mantida para compatibilidade com chamadas antigas.
+*/
+function smartSlipSincronizarUiLoteMovimento_() {
+  smartSlipAtualizarProgressoAnexos_();
 }
 
 function smartSlipGetCooldownRestanteEnvio_() {
@@ -9354,6 +9917,16 @@ function iniciarReenvioHistorico(protocolo) {
 function preencherFormularioReenvioHistorico(registro) {
   registro = registro || {};
 
+  smartSlipResetarFluxoNovoEnvio_();
+
+  SMARTSLIP_STATE.envio_lote_iniciado = true;
+  SMARTSLIP_STATE.envio_lote_total_anexos = 1;
+  SMARTSLIP_STATE.envio_lote_anexo_atual = 1;
+  SMARTSLIP_STATE.sequencia_lote_ativo = 1;
+  SMARTSLIP_STATE.protocolo_lote_ativo = "";
+
+  smartSlipMostrarFormularioEnvio_();
+
   const campos = registro.campos_reenvio || {};
 
   const loja = document.getElementById("loja");
@@ -10716,16 +11289,72 @@ if (!dados.length) {
         .replace(/'/g, "%27");
     }
 
+    function smartSlipScrollParaElemento_(elemento, offset) {
+  if (!elemento) {
+    return;
+  }
+
+  offset = Number(offset || 0);
+
+  setTimeout(function() {
+    try {
+      const rect = elemento.getBoundingClientRect();
+      const top = window.pageYOffset + rect.top - offset;
+
+      window.scrollTo({
+        top: Math.max(0, top),
+        behavior: "smooth"
+      });
+    } catch (e) {
+      try {
+        elemento.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+      } catch (err) {}
+    }
+  }, 120);
+}
+
+function smartSlipScrollParaCarregamentoEnvio_() {
+  const overlayBox = document.querySelector("#envioOverlay .envio-overlay-box");
+  const overlay = document.getElementById("envioOverlay");
+  const formCard = document.getElementById("envioFormCard");
+
+  smartSlipScrollParaElemento_(overlayBox || overlay || formCard, 140);
+}
+
+function smartSlipScrollParaBotaoEnviar_() {
+  const btn = document.getElementById("btn");
+  const actions = btn ? btn.closest(".actions") : null;
+
+  smartSlipScrollParaElemento_(actions || btn, 120);
+}
+
     function abrirSeletorArquivo() {
   document.getElementById("arquivo").click();
 }
 
 function onArquivoSelecionado() {
-  const file = document.getElementById("arquivo").files[0];
+  const input = document.getElementById("arquivo");
+  const file = input && input.files ? input.files[0] : null;
 
   atualizarUploadInfo(file);
   renderizarPreviewArquivoSmartSlip(file);
   resetarPreValidacaoTotalIa();
+
+  /*
+    No fluxo com mais de um anexo, após selecionar o segundo/terceiro/etc.,
+    leva o usuário direto para a área do botão Enviar comprovante.
+  */
+  if (
+    file &&
+    SMARTSLIP_STATE &&
+    SMARTSLIP_STATE.envio_lote_iniciado === true &&
+    Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1) > 1
+  ) {
+    smartSlipScrollParaBotaoEnviar_();
+  }
 }
 
 function atualizarUploadInfo(file) {
@@ -10884,12 +11513,21 @@ function onDataMovimentoFimChange() {
 }
 
 function renderizarCamposValoresDiariosMovimento(valoresPreenchidos) {
-  const inicio = document.getElementById("data_movimento_inicio").value;
-  const fim = document.getElementById("data_movimento_fim").value;
+  const inicioEl = document.getElementById("data_movimento_inicio");
+  const fimEl = document.getElementById("data_movimento_fim");
   const box = document.getElementById("boxValoresDiariosMovimento");
   const grid = document.getElementById("valoresDiariosGrid");
 
-  if (!box || !grid) return;
+  const inicio = inicioEl ? String(inicioEl.value || "").trim() : "";
+  const fim = fimEl ? String(fimEl.value || "").trim() : "";
+
+  if (!box || !grid) {
+    mostrarMensagem(
+      "erro",
+      "Estrutura de valores diários não encontrada na tela. Verifique os IDs boxValoresDiariosMovimento e valoresDiariosGrid."
+    );
+    return;
+  }
 
   if (!inicio || !fim || fim < inicio) {
     box.style.display = "none";
@@ -10899,6 +11537,13 @@ function renderizarCamposValoresDiariosMovimento(valoresPreenchidos) {
   }
 
   const datas = gerarRangeDatasISO_(inicio, fim);
+
+  if (!datas.length) {
+    box.style.display = "none";
+    grid.innerHTML = "";
+    atualizarTotalValoresDiariosMovimento();
+    return;
+  }
 
   if (datas.length > 31) {
     box.style.display = "none";
@@ -11234,6 +11879,20 @@ function executarPreValidacaoTotalIaParaEnvio_(arquivoBase64, mimeType) {
           return;
         }
 
+        if (resp.status_validacao === "DIVERGENTE_MULTIPLO_BLOQUEANTE") {
+            box.className = "ia-total-box ia-total-error";
+            setTextoPreValidacaoIa_("iaTotalTitulo", "Divergência no total");
+            setTextoPreValidacaoIa_(
+              "iaTotalMensagem",
+              resp.mensagem ||
+                "A IA leu múltiplos comprovantes com alta confiança, mas a soma informada está diferente do total lido. Revise os valores diários antes de enviar."
+            );
+            setTextoPreValidacaoIa_("iaTotalBadge", "BLOQ.");
+
+            resolve(resp);
+            return;
+          }
+
         if (resp.status_validacao === "DIVERGENTE_MULTIPLO_NAO_BLOQUEANTE") {
           box.className = "ia-total-box ia-total-warn";
           setTextoPreValidacaoIa_("iaTotalTitulo", "Revisão recomendada");
@@ -11420,6 +12079,7 @@ function travarTelaEnvio(texto) {
   });
 
   const campoLoja = document.getElementById("loja");
+
   if (campoLoja) {
     campoLoja.readOnly = true;
   }
@@ -11427,6 +12087,8 @@ function travarTelaEnvio(texto) {
   if (overlay) {
     overlay.classList.add("show");
   }
+
+  smartSlipScrollParaCarregamentoEnvio_();
 }
 
 function destravarTelaEnvio() {
@@ -11581,268 +12243,383 @@ function validarRegrasEnvioSmartSlip() {
   return true;
 }
 
-    function enviar() {
-      if (!validarRegrasEnvioSmartSlip()) {
+function smartSlipAplicarBloqueioMultiploConfiavel_(preValidacao, totalAnexosFluxo) {
+  if (!preValidacao) {
+    return preValidacao;
+  }
+
+  const status = String(preValidacao.status_validacao || "").trim().toUpperCase();
+  const mensagem = String(preValidacao.mensagem || "").trim().toLowerCase();
+
+  const confianca = Number(preValidacao.confianca || 0);
+  const diferenca = Math.abs(Number(preValidacao.diferenca || 0));
+
+  const ehFluxoComVariosAnexos = Number(totalAnexosFluxo || 1) > 1;
+
+  const pareceMultiplo =
+    status.indexOf("MULTIPLO") >= 0 ||
+    status.indexOf("MÚLTIPLO") >= 0 ||
+    mensagem.indexOf("múltiplos comprovantes") >= 0 ||
+    mensagem.indexOf("multiplos comprovantes") >= 0 ||
+    mensagem.indexOf("múltiplos") >= 0 ||
+    mensagem.indexOf("multiplos") >= 0;
+
+  /*
+    Não bloqueia por essa regra quando o usuário escolheu 2 a 5 anexos,
+    porque cada anexo pode conter só parte do total do movimento.
+  */
+  if (ehFluxoComVariosAnexos) {
+    return preValidacao;
+  }
+
+  /*
+    Arquivo único com múltiplos comprovantes:
+    se a IA leu o total com alta confiança, a divergência passa a ser bloqueante.
+  */
+  if (
+    pareceMultiplo &&
+    confianca >= 0.98 &&
+    diferenca > 0.01
+  ) {
+    const ajustada = Object.assign({}, preValidacao);
+
+    ajustada.status_validacao = "DIVERGENTE_MULTIPLO_BLOQUEANTE";
+    ajustada.bloquear_envio = true;
+    ajustada.mensagem =
+      "A IA identificou múltiplos comprovantes no arquivo e leu os valores com alta confiança, " +
+      "mas a soma informada está diferente do total lido. Revise os valores diários antes de enviar.";
+
+    return ajustada;
+  }
+
+  return preValidacao;
+}
+
+function enviar() {
+  try {
+    if (!smartSlipFluxoNovoEnvioAtivo_()) {
+      mostrarMensagem("erro", "Clique em Novo Envio e informe a quantidade de anexos antes de enviar.");
+      smartSlipMostrarSomenteNovoEnvio_();
+      return;
+    }
+
+    const inputArquivo = document.getElementById("arquivo");
+    const file = inputArquivo && inputArquivo.files ? inputArquivo.files[0] : null;
+
+    const loja = String(document.getElementById("loja").value || "").trim();
+    const tipoDeposito = String(document.getElementById("tipo_deposito_envio").value || "").trim();
+    const dataInicio = String(document.getElementById("data_movimento_inicio").value || "").trim();
+    const dataFim = String(document.getElementById("data_movimento_fim").value || "").trim();
+
+    const btn = document.getElementById("btn");
+
+    const anexoAtualFluxo = Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1);
+    const totalAnexosFluxo = Number(SMARTSLIP_STATE.envio_lote_total_anexos || 1);
+
+    const vaiEnviarMaisComprovantes = anexoAtualFluxo < totalAnexosFluxo;
+    const envioEmLote = totalAnexosFluxo > 1;
+
+    const ehContinuacaoLoteFront = !!SMARTSLIP_STATE.protocolo_lote_ativo;
+
+    const cooldownRestante = ehContinuacaoLoteFront
+      ? 0
+      : smartSlipGetCooldownRestanteEnvio_();
+
+    if (cooldownRestante > 0) {
+      mostrarMensagem(
+        "erro",
+        "Aguarde " +
+        Math.ceil(cooldownRestante / 1000) +
+        " segundo(s) para enviar um novo comprovante."
+      );
+
+      smartSlipAtualizarBotaoCooldownEnvio_();
+      return;
+    }
+
+    limparMensagem();
+
+    if (!file) {
+      mostrarMensagem("erro", "Selecione um comprovante.");
+      return;
+    }
+
+    const limiteMb = 10;
+    const limiteBytes = limiteMb * 1024 * 1024;
+
+    if (file.size > limiteBytes) {
+      mostrarMensagem("erro", "Arquivo muito grande. Envie uma imagem/PDF de até " + limiteMb + " MB.");
+      return;
+    }
+
+    if (!loja) {
+      mostrarMensagem("erro", "Configure sua loja padrão na página Configurações antes de enviar comprovantes.");
+      return;
+    }
+
+    if (!tipoDeposito) {
+      mostrarMensagem("erro", "Configure o tipo de depósito da loja na página Configurações antes de enviar comprovantes.");
+      return;
+    }
+
+    if (!dataInicio) {
+      mostrarMensagem("erro", "Informe a data de movimento inicial.");
+      return;
+    }
+
+    if (!validarDataInput(dataInicio)) {
+      mostrarMensagem("erro", "Data de movimento inicial inválida.");
+      return;
+    }
+
+    if (!dataFim) {
+      mostrarMensagem("erro", "Informe a data de movimento final. Se for uma única data, repita a data inicial.");
+      return;
+    }
+
+    if (!validarDataInput(dataFim)) {
+      mostrarMensagem("erro", "Data de movimento final inválida.");
+      return;
+    }
+
+    if (dataFim < dataInicio) {
+      mostrarMensagem("erro", "A data final do movimento não pode ser menor que a data inicial.");
+      return;
+    }
+
+    if (!validarPeriodoMovimentoTela()) {
+      return;
+    }
+
+    if (!validarValoresDiariosMovimento()) {
+      return;
+    }
+
+    const houveRetiradaTela = document.getElementById("houve_retirada").value === "true";
+    const valorRetiradaTextoTela = String(document.getElementById("valor_retirada").value || "").trim();
+    const valorRetiradaTela = smartSlipNumeroBR(valorRetiradaTextoTela);
+    const motivoRetiradaTela = String(document.getElementById("motivo_retirada").value || "").trim();
+
+    if (houveRetiradaTela) {
+      if (!valorRetiradaTextoTela || valorRetiradaTela <= 0) {
+        mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
         return;
       }
-      const inputArquivo = document.getElementById("arquivo");
-      const file = inputArquivo.files[0];
 
-      const loja = document.getElementById("loja").value.trim();
-      const tipoDeposito = String(document.getElementById("tipo_deposito_envio").value || "").trim();
-      const dataInicio = document.getElementById("data_movimento_inicio").value.trim();
-      const dataFim = document.getElementById("data_movimento_fim").value.trim();
-
-      const btn = document.getElementById("btn");
-
-      const cooldownRestante = smartSlipGetCooldownRestanteEnvio_();
-
-      if (cooldownRestante > 0) {
-        mostrarMensagem(
-          "erro",
-          "Aguarde " +
-          Math.ceil(cooldownRestante / 1000) +
-          " segundo(s) para enviar um novo comprovante."
-        );
-        smartSlipAtualizarBotaoCooldownEnvio_();
+      if (!motivoRetiradaTela) {
+        mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
         return;
       }
+    }
 
-      limparMensagem();
+    travarTelaEnvio("Lendo arquivo...");
 
-      if (!validarPeriodoMovimentoTela()) {
-        return;
-      }
-
-      if (!file) {
-        mostrarMensagem("erro", "Selecione um comprovante.");
-        return;
-      }
-
-      const limiteMb = 10;
-      const limiteBytes = limiteMb * 1024 * 1024;
-
-      if (file.size > limiteBytes) {
-        mostrarMensagem("erro", "Arquivo muito grande. Envie uma imagem/PDF de até " + limiteMb + " MB.");
-        return;
-      }
-
-     if (!loja) {
-        mostrarMensagem("erro", "Configure sua loja padrão na página Configurações antes de enviar comprovantes.");
-        return;
-      }
-
-      if (!tipoDeposito) {
-          mostrarMensagem("erro", "Configure o tipo de depósito da loja na página Configurações antes de enviar comprovantes.");
-          return;
-        }
-
-      if (!dataInicio) {
-        mostrarMensagem("erro", "Informe a data de movimento inicial.");
-        return;
-      }
-
-      if (!validarDataInput(dataInicio)) {
-        mostrarMensagem("erro", "Data de movimento inicial inválida.");
-        return;
-      }
-
-      if (!dataFim) {
-        mostrarMensagem("erro", "Informe a data de movimento final. Se for uma única data, repita a data inicial.");
-        return;
-      }
-
-      if (!validarDataInput(dataFim)) {
-        mostrarMensagem("erro", "Data de movimento final inválida.");
-        return;
-      }
-
-      if (!validarValoresDiariosMovimento()) {
-        return;
-      }
-
-      if (SMARTSLIP_PREVALIDACAO_TOTAL_EM_ANDAMENTO) {
-          mostrarMensagem("erro", "Aguarde a validação IA do total antes de enviar.");
-          return;
-        }
-
-        if (
-          SMARTSLIP_PREVALIDACAO_TOTAL_IA &&
-          SMARTSLIP_PREVALIDACAO_TOTAL_IA.bloquear_envio === true
-        ) {
-          mostrarMensagem(
-            "erro",
-            "A soma dos valores diários está diferente do total lido pela IA no comprovante.\n\n" +
-            "Soma informada: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.valor_total_usuario || 0) + "\n" +
-            "Total lido pela IA: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.valor_total_ia || 0) + "\n" +
-            "Diferença: " + formatBRL(SMARTSLIP_PREVALIDACAO_TOTAL_IA.diferenca || 0) + "\n\n" +
-            "Revise os valores diários antes de enviar."
-          );
-          return;
-        }
-
-      if (dataFim && dataFim < dataInicio) {
-        mostrarMensagem("erro", "A data final do movimento não pode ser menor que a data inicial.");
-        return;
-      }
-
-      const houveRetiradaTela = document.getElementById("houve_retirada").value === "true";
-      const valorRetiradaTextoTela = String(document.getElementById("valor_retirada").value || "").trim();
-      const valorRetiradaTela = smartSlipNumeroBR(valorRetiradaTextoTela);
-      const motivoRetiradaTela = String(document.getElementById("motivo_retirada").value || "").trim();
-
-      if (houveRetiradaTela) {
-        if (!valorRetiradaTextoTela || valorRetiradaTela <= 0) {
-          mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-          return;
-        }
-
-        if (!motivoRetiradaTela) {
-          mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-          return;
-        }
-      }
-
-      travarTelaEnvio("Lendo arquivo...");
+    if (btn) {
+      btn.disabled = true;
       btn.textContent = "Lendo arquivo...";
+    }
 
-      let finalizado = false;
+    let finalizado = false;
 
-      function finalizarBotao() {
-        finalizado = true;
-        destravarTelaEnvio();
+    function finalizarBotao() {
+      finalizado = true;
+      destravarTelaEnvio();
+
+      if (btn) {
         btn.disabled = false;
         btn.textContent = "Enviar comprovante";
       }
+    }
 
-      const timeoutEnvio = setTimeout(function() {
-        if (!finalizado) {
-          finalizarBotao();
-          mostrarMensagem(
-            "erro",
-            "O envio demorou demais e foi interrompido na tela. Verifique se o arquivo é muito grande ou tente novamente."
-          );
-        }
-      }, 120000);
-
-      const reader = new FileReader();
-
-      reader.onerror = function() {
-        clearTimeout(timeoutEnvio);
+    const timeoutEnvio = setTimeout(function() {
+      if (!finalizado) {
         finalizarBotao();
-        mostrarMensagem("erro", "Erro ao ler o arquivo selecionado. Tente anexar novamente.");
-      };
 
-      reader.onload = function(e) {
-  const arquivoBase64Envio = e.target.result;
+        mostrarMensagem(
+          "erro",
+          "O envio demorou demais e foi interrompido na tela. Verifique se o arquivo é muito grande ou tente novamente."
+        );
+      }
+    }, 120000);
 
-  btn.textContent = "Validando total...";
-  travarTelaEnvio("Validando valor total do comprovante...");
+    const reader = new FileReader();
 
-  const houveRetiradaSelecionado = document.getElementById("houve_retirada").value === "true";
-  const valorRetiradaTextoEnvio = String(document.getElementById("valor_retirada").value || "").trim();
-  const valorRetiradaEnvio = smartSlipNumeroBR(valorRetiradaTextoEnvio);
-  const motivoRetiradaEnvio = String(document.getElementById("motivo_retirada").value || "").trim();
-
-  const houveRetirada = houveRetiradaSelecionado;
-
-  if (houveRetirada) {
-    if (!valorRetiradaTextoEnvio || valorRetiradaEnvio <= 0) {
-      clearTimeout(timeoutEnvio);
-      finalizarBotao();
-      mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-      return;
-    }
-
-    if (!motivoRetiradaEnvio) {
-      clearTimeout(timeoutEnvio);
-      finalizarBotao();
-      mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-      return;
-    }
-  }
-
-  executarPreValidacaoTotalIaParaEnvio_(
-    arquivoBase64Envio,
-    file.type || "application/pdf"
-  ).then(function(preValidacaoTotalIa) {
-    if (
-      preValidacaoTotalIa &&
-      preValidacaoTotalIa.bloquear_envio === true
-    ) {
+    reader.onerror = function() {
       clearTimeout(timeoutEnvio);
       finalizarBotao();
 
-     mostrarMensagem(
-        "erro",
-        "A soma dos valores diários está diferente do total lido pela IA no comprovante.\n\n" +
-        "Soma informada: " + formatBRL(preValidacaoTotalIa.valor_total_usuario || 0) + "\n" +
-        "Total lido pela IA: " + formatBRL(preValidacaoTotalIa.valor_total_ia || 0) + "\n" +
-        "Diferença: " + formatBRL(preValidacaoTotalIa.diferenca || 0) + "\n\n" +
-        "Revise os valores diários antes de enviar."
-      );
-
-      return;
-    }
-
-    btn.textContent = "Enviando...";
-    travarTelaEnvio("Enviando comprovante...");
-
-    const payload = {
-      arquivoBase64: arquivoBase64Envio,
-      nomeArquivo: file.name,
-      mimeType: file.type || "application/pdf",
-      loja: loja,
-      tipo_deposito: tipoDeposito,
-      data_movimento_inicio: converterDataInputParaBR(dataInicio),
-      data_movimento_fim: converterDataInputParaBR(dataFim),
-      houve_retirada: String(houveRetirada),
-      valor_retirada: houveRetirada ? valorRetiradaEnvio : 0,
-      motivo_retirada: houveRetirada ? motivoRetiradaEnvio : "Não houve retirada",
-      valores_diarios_movimento: coletarValoresDiariosMovimento(),
-      pre_validacao_total_ia: preValidacaoTotalIa || null,
-      mais_comprovantes: "false"
+      mostrarMensagem("erro", "Erro ao ler o arquivo selecionado. Tente anexar novamente.");
     };
 
-    google.script.run
-      .withSuccessHandler(function(resp) {
-        clearTimeout(timeoutEnvio);
-        finalizarBotao();
+    reader.onload = function(e) {
+      const arquivoBase64Envio = e.target.result;
 
-        if (!resp || !resp.ok) {
-          mostrarMensagem("erro", resp && resp.erro ? resp.erro : "Erro ao enviar comprovante.");
+      if (btn) {
+        btn.textContent = "Validando total...";
+      }
+
+      travarTelaEnvio("Validando valor total do comprovante...");
+
+      executarPreValidacaoTotalIaParaEnvio_(
+        arquivoBase64Envio,
+        file.type || "application/pdf"
+      ).then(function(preValidacaoTotalIa) {
+        preValidacaoTotalIa = smartSlipAplicarBloqueioMultiploConfiavel_(
+        preValidacaoTotalIa,
+        totalAnexosFluxo
+          );
+        if (
+          preValidacaoTotalIa &&
+          preValidacaoTotalIa.bloquear_envio === true &&
+          !envioEmLote
+        ) {
+          clearTimeout(timeoutEnvio);
+          finalizarBotao();
+
+          mostrarMensagem(
+            "erro",
+            "A soma dos valores diários está diferente do total lido pela IA no comprovante.\n\n" +
+            "Soma informada: " + formatBRL(preValidacaoTotalIa.valor_total_usuario || 0) + "\n" +
+            "Total lido pela IA: " + formatBRL(preValidacaoTotalIa.valor_total_ia || 0) + "\n" +
+            "Diferença: " + formatBRL(preValidacaoTotalIa.diferenca || 0) + "\n\n" +
+            "Revise os valores diários antes de enviar."
+          );
+
           return;
         }
 
-        limparFormulario(false);
-        smartSlipRegistrarCooldownEnvio_();
+        const preValidacaoParaBackend = preValidacaoTotalIa
+          ? Object.assign({}, preValidacaoTotalIa)
+          : null;
 
-        mostrarMensagem(
-          "ok",
-          "Comprovante recebido para processamento.\n\n" +
-          "Protocolo: " + resp.protocolo + "\n" +
-          "Status: " + resp.status + "\n\n" +
-          "A validação será feita automaticamente."
-        );
+        if (
+          envioEmLote &&
+          preValidacaoParaBackend &&
+          preValidacaoParaBackend.bloquear_envio === true
+        ) {
+          preValidacaoParaBackend.bloquear_envio = false;
+          preValidacaoParaBackend.bloqueio_original_ignorado_por_lote = true;
+        }
 
-        carregarBootstrap();
-      })
-      .withFailureHandler(function(err) {
+        if (btn) {
+          btn.textContent = "Enviando...";
+        }
+
+        travarTelaEnvio("Enviando comprovante...");
+
+        const payload = {
+          arquivoBase64: arquivoBase64Envio,
+          nomeArquivo: file.name,
+          mimeType: file.type || "application/pdf",
+          loja: loja,
+          tipo_deposito: tipoDeposito,
+          data_movimento_inicio: converterDataInputParaBR(dataInicio),
+          data_movimento_fim: converterDataInputParaBR(dataFim),
+          houve_retirada: String(houveRetiradaTela),
+          valor_retirada: houveRetiradaTela ? valorRetiradaTela : 0,
+          motivo_retirada: houveRetiradaTela ? motivoRetiradaTela : "Não houve retirada",
+          valores_diarios_movimento: coletarValoresDiariosMovimento(),
+          pre_validacao_total_ia: preValidacaoParaBackend,
+
+          mais_comprovantes: String(vaiEnviarMaisComprovantes),
+          envio_lote: String(envioEmLote),
+          protocolo_lote: SMARTSLIP_STATE.protocolo_lote_ativo || "",
+          sequencia_lote: SMARTSLIP_STATE.sequencia_lote_ativo || anexoAtualFluxo,
+          total_anexos_lote: totalAnexosFluxo,
+          anexo_atual_lote: anexoAtualFluxo
+        };
+
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            clearTimeout(timeoutEnvio);
+            finalizarBotao();
+
+            if (!resp || !resp.ok) {
+              mostrarMensagem("erro", resp && resp.erro ? resp.erro : "Erro ao enviar comprovante.");
+              return;
+            }
+
+            if (resp.continuar_lote === true && smartSlipTemProximoAnexoNoFluxo_()) {
+              SMARTSLIP_STATE.protocolo_lote_ativo = resp.protocolo_lote || resp.protocolo || "";
+              SMARTSLIP_STATE.sequencia_lote_ativo = Number(resp.proxima_sequencia_lote || 1);
+              SMARTSLIP_STATE.envio_lote_anexo_atual =
+                Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1) + 1;
+
+              smartSlipLimparApenasArquivoEnvio_();
+              smartSlipAtualizarProgressoAnexos_();
+
+              mostrarMensagem(
+                "ok",
+                "Arquivo recebido para processamento.\n\n" +
+                "Protocolo do lote: " + (resp.protocolo_lote || "-") + "\n" +
+                "Protocolo deste envio: " + (resp.protocolo_envio || resp.protocolo || "-") + "\n" +
+                "Status: " + resp.status + "\n\n" +
+                "Agora anexe o arquivo " +
+                SMARTSLIP_STATE.envio_lote_anexo_atual +
+                " de " +
+                SMARTSLIP_STATE.envio_lote_total_anexos +
+                "."
+              );
+
+              carregarBootstrap();
+
+              setTimeout(function() {
+                smartSlipAbrirPopupProximoAnexo_();
+              }, 450);
+
+              return;
+            }
+
+            limparFormulario(false);
+            smartSlipRegistrarCooldownEnvio_();
+
+            mostrarMensagem(
+              "ok",
+              "Envio finalizado com sucesso.\n\n" +
+              "Protocolo: " + (resp.protocolo_lote || resp.protocolo || "-") + "\n" +
+              "Último envio: " + (resp.protocolo_envio || resp.protocolo || "-") + "\n" +
+              "Status: " + resp.status + "\n\n" +
+              "Todos os anexos informados foram recebidos. A tela já está pronta para um novo envio."
+            );
+
+            carregarBootstrap();
+          })
+          .withFailureHandler(function(err) {
+            clearTimeout(timeoutEnvio);
+            finalizarBotao();
+
+            mostrarMensagem("erro", err && err.message ? err.message : String(err));
+          })
+          .smartSlipEnviarComprovanteApp(payload);
+
+      }).catch(function(err) {
         clearTimeout(timeoutEnvio);
         finalizarBotao();
+
         mostrarMensagem("erro", err && err.message ? err.message : String(err));
-      })
-      .smartSlipEnviarComprovanteApp(payload);
+      });
+    };
 
-  }).catch(function(err) {
-    clearTimeout(timeoutEnvio);
-    finalizarBotao();
-    mostrarMensagem("erro", err && err.message ? err.message : String(err));
-  });
-};
+    reader.readAsDataURL(file);
 
-      reader.readAsDataURL(file);
+  } catch (err) {
+    destravarTelaEnvio();
+
+    const btn = document.getElementById("btn");
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Enviar comprovante";
     }
+
+    mostrarMensagem(
+      "erro",
+      "Erro inesperado ao iniciar o envio: " +
+      (err && err.message ? err.message : String(err))
+    );
+  }
+}
+
   </script>
 </body>
 </html>
