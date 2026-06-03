@@ -964,6 +964,290 @@ body.intro-lock {
   background: #ffffff;
 }
 
+/* =========================================================
+   SMARTSLIP - COMP HUB | MODAL DETALHE PROFISSIONAL
+   ========================================================= */
+
+.comp-modal-card {
+  width: min(760px, calc(100vw - 34px)) !important;
+  border-radius: 14px !important;
+}
+
+.comp-modal-head {
+  padding: 16px 20px !important;
+}
+
+.comp-modal-head h2 {
+  margin: 0 0 4px !important;
+  font-size: 16px !important;
+  font-weight: 950 !important;
+  color: #050807 !important;
+}
+
+.comp-modal-head p,
+#compModalSub {
+  font-size: 11px !important;
+  color: #475467 !important;
+  font-weight: 700 !important;
+}
+
+.comp-modal-body {
+  padding: 18px 20px 20px !important;
+}
+
+.comp-modal-tabs {
+  margin-bottom: 14px !important;
+  padding-bottom: 10px !important;
+}
+
+.comp-tab-btn {
+  min-height: 34px !important;
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+}
+
+.comp-detail-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 13px;
+  margin-bottom: 14px;
+  border-radius: 0;
+  background: #eaf7df;
+  border-top: 1px solid #c8e7b8;
+  border-bottom: 1px solid #c8e7b8;
+  color: #005E27;
+}
+
+.comp-detail-status-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #005E27;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.25;
+}
+
+.comp-detail-status-dot {
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 999px;
+  background: #16803c;
+}
+
+.comp-detail-status-bar.warn {
+  background: #fff7e6;
+  border-color: #fedf89;
+  color: #b54708;
+}
+
+.comp-detail-status-bar.warn .comp-detail-status-main {
+  color: #b54708;
+}
+
+.comp-detail-status-bar.warn .comp-detail-status-dot {
+  background: #f59e0b;
+}
+
+.comp-detail-status-bar.error {
+  background: #fff1f0;
+  border-color: #fecdca;
+  color: #b42318;
+}
+
+.comp-detail-status-bar.error .comp-detail-status-main {
+  color: #b42318;
+}
+
+.comp-detail-status-bar.error .comp-detail-status-dot {
+  background: #d92d20;
+}
+
+.comp-detail-confidence {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.comp-detail-confidence b {
+  color: #005E27;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.comp-detail-confidence .comp-conf {
+  min-width: 92px;
+}
+
+.comp-detail-section {
+  margin-top: 14px;
+}
+
+.comp-detail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 9px;
+  color: #050807;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.comp-detail-section-title::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: #d7e2d2;
+}
+
+.comp-detail-section-icon {
+  color: #005E27;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.comp-detail-prof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.comp-detail-prof-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.comp-detail-prof-card {
+  min-width: 0;
+  min-height: 62px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f7f6ef;
+  border: 1px solid #d8d7ce;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.comp-detail-prof-card.wide {
+  grid-column: 1 / -1;
+}
+
+.comp-detail-prof-card b {
+  display: block;
+  margin-bottom: 5px;
+  color: #005E27;
+  font-size: 9px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .25px;
+  line-height: 1.15;
+}
+
+.comp-detail-prof-card span {
+  display: block;
+  color: #050807;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.25;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.comp-detail-prof-card strong {
+  display: block;
+  color: #050807;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+.comp-detail-prof-card .comp-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+  font-size: 10px !important;
+  line-height: 1.35 !important;
+}
+
+.comp-detail-pill {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #005E27;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: lowercase;
+}
+
+.comp-detail-linkbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 0 0;
+  border-top: 1px solid #e6eee1;
+}
+
+.comp-detail-linkbar span {
+  color: #475467;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.comp-detail-open-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #050807;
+  border: 1px solid #cbd5c0;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.comp-detail-open-btn:hover {
+  background: #f7fbf4;
+  border-color: #005E27;
+}
+
+@media (max-width: 900px) {
+  .comp-modal-card {
+    width: calc(100vw - 20px) !important;
+  }
+
+  .comp-detail-status-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .comp-detail-prof-grid,
+  .comp-detail-prof-grid.two {
+    grid-template-columns: 1fr !important;
+  }
+
+  .comp-detail-linkbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .comp-detail-open-btn {
+    width: 100%;
+  }
+}
+
 .comp-json-box {
   margin-top: 16px;
   border-radius: 16px;
@@ -1733,6 +2017,314 @@ body.intro-lock {
   background: #28CFC0 !important;
   color: #050807 !important;
   transform: translateY(-1px);
+}
+
+/* =========================================================
+   SMARTSLIP - COMP HUB | POP-UP DE PROTOCOLOS
+   ========================================================= */
+
+.comp-protocolos-popup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 94000;
+  background: rgba(5, 8, 7, .68);
+  backdrop-filter: blur(5px);
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.comp-protocolos-popup.show {
+  display: flex;
+}
+
+body.comp-protocolos-lock {
+  overflow: hidden;
+}
+
+.comp-protocolos-card {
+  width: min(620px, 100%);
+  max-height: min(88vh, 760px);
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 8, 7, .18);
+  box-shadow: 0 28px 80px rgba(0,0,0,.42);
+  overflow: hidden;
+}
+
+.comp-protocolos-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 22px 24px;
+  background: #061f10;
+  color: #ffffff;
+}
+
+.comp-protocolos-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: rgba(16, 185, 129, .13);
+  border: 1px solid rgba(16, 185, 129, .55);
+  color: #34d399;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.comp-protocolos-head h2 {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 950;
+  line-height: 1.15;
+}
+
+.comp-protocolos-head p {
+  margin: 0;
+  color: rgba(255,255,255,.75);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.comp-protocolos-body {
+  padding: 20px 24px 18px;
+}
+
+.comp-protocolos-alert {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  padding: 13px 14px;
+  margin-bottom: 14px;
+  border-radius: 8px;
+  background: #fff7e6;
+  border: 1px solid #b7791f;
+  color: #5f370e;
+}
+
+.comp-protocolos-alert span {
+  font-size: 17px;
+  line-height: 1.1;
+}
+
+.comp-protocolos-alert p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 650;
+}
+
+.comp-protocolos-alert b {
+  font-weight: 950;
+}
+
+.comp-protocolos-loja {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.comp-protocolos-label {
+  margin: 0 0 8px !important;
+  color: #314238 !important;
+  font-size: 12px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: .25px !important;
+}
+
+.comp-protocolos-lista {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.comp-protocolo-option {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: #f8f7f0;
+  border: 1px solid #ddd9ca;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.comp-protocolo-option:hover {
+  border-color: rgba(0,94,39,.34);
+  background: #ffffff;
+}
+
+.comp-protocolo-option.active {
+  border-color: #22c55e;
+  background: #f0fff4;
+  box-shadow: 0 0 0 1px rgba(34,197,94,.22);
+}
+
+.comp-protocolo-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1.5px solid #cbd5c0;
+  display: grid;
+  place-items: center;
+}
+
+.comp-protocolo-option.active .comp-protocolo-radio {
+  border-color: #22c55e;
+}
+
+.comp-protocolo-option.active .comp-protocolo-radio::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #16a34a;
+}
+
+.comp-protocolo-main {
+  min-width: 0;
+}
+
+.comp-protocolo-id {
+  display: block;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.comp-protocolo-meta {
+  display: block;
+  margin-top: 3px;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.comp-protocolo-periodo {
+  display: block;
+  margin-top: 4px;
+  color: #005E27;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.comp-protocolo-tipo {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.comp-protocolo-valor {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.comp-protocolos-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  margin-top: 18px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.comp-protocolos-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.comp-protocolos-cancel,
+.comp-protocolos-apply {
+  width: auto !important;
+  min-height: 40px !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+}
+
+.comp-protocolos-cancel {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #cbd5c0 !important;
+}
+
+.comp-protocolos-apply {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #cbd5c0 !important;
+}
+
+.comp-protocolos-apply:hover,
+.comp-protocolos-cancel:hover {
+  background: #f7fbf4 !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .comp-protocolos-popup {
+    align-items: flex-end !important;
+    padding: 12px !important;
+  }
+
+  .comp-protocolos-card {
+    width: 100% !important;
+    max-height: 86dvh !important;
+    border-radius: 18px 18px 12px 12px !important;
+  }
+
+  .comp-protocolos-head,
+  .comp-protocolos-body {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  .comp-protocolo-option {
+    grid-template-columns: 22px 1fr auto !important;
+  }
+
+  .comp-protocolo-tipo {
+    display: none !important;
+  }
+
+  .comp-protocolos-foot {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .comp-protocolos-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
 }
 
 /* Ajuste refinado da tabela Comp Hub */
@@ -5008,6 +5600,101 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - COMP HUB | PADRONIZAÇÃO DE FONTES DO MODAL VER
+   ========================================================= */
+
+.comp-modal-card {
+  --comp-detail-title-size: 9.5px;
+  --comp-detail-value-size: 12.5px;
+  --comp-detail-mono-size: 11px;
+  --comp-detail-section-size: 11px;
+}
+
+/* Títulos das seções: IDENTIFICAÇÃO, ORIGEM, VALORES... */
+.comp-detail-section-title {
+  font-size: var(--comp-detail-section-size) !important;
+  font-weight: 950 !important;
+  line-height: 1.2 !important;
+}
+
+/* Título interno dos cards: DATA REGISTRO, LOJA, BANCO etc. */
+.comp-detail-prof-card b {
+  font-size: var(--comp-detail-title-size) !important;
+  font-weight: 950 !important;
+  line-height: 1.15 !important;
+  letter-spacing: .25px !important;
+  margin-bottom: 6px !important;
+  min-height: 11px !important;
+}
+
+/* Texto normal dos cards */
+.comp-detail-prof-card span,
+.comp-detail-prof-card strong {
+  font-size: var(--comp-detail-value-size) !important;
+  font-weight: 800 !important;
+  line-height: 1.28 !important;
+  color: #050807 !important;
+}
+
+/* Campos longos: protocolo, hash, ID comprovante */
+.comp-detail-prof-card .comp-mono {
+  font-size: var(--comp-detail-mono-size) !important;
+  font-weight: 750 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+}
+
+/* Pill do tipo de documento */
+.comp-detail-pill {
+  font-size: var(--comp-detail-value-size) !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  padding: 4px 9px !important;
+}
+
+/* Status superior: "Salvo — sem pendências..." */
+.comp-detail-status-main {
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+}
+
+/* Texto de confiança */
+.comp-detail-confidence b {
+  font-size: 9.5px !important;
+}
+
+/* =========================================================
+   SMARTSLIP - COMP HUB | AJUSTE DO CABEÇALHO DO MODAL VER
+   ========================================================= */
+
+.comp-modal-head > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+}
+
+/* Título: Detalhes do comprovante */
+.comp-modal-head h2 {
+  margin: 0 !important;
+  font-size: 17px !important; /* antes estava 16px */
+  line-height: 1.15 !important;
+  font-weight: 950 !important;
+}
+
+/* Linha do protocolo */
+#compModalSub {
+  display: block !important;
+  margin: 0 !important; /* anula o margin negativo herdado do chart-sub */
+  padding: 0 !important;
+  font-size: 12px !important; /* antes estava 11px */
+  line-height: 1.35 !important;
+  font-weight: 750 !important;
+  color: #475467 !important;
+}
+
   </style>
 </head>
 
@@ -5855,6 +6542,49 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
       <div id="compModalBody" class="comp-modal-body"></div>
     </div>
   </div>
+
+  <div id="compProtocolosPopup" class="comp-protocolos-popup">
+  <div class="comp-protocolos-card">
+    <div class="comp-protocolos-head">
+      <div class="comp-protocolos-icon">▧</div>
+      <div>
+        <h2>Múltiplos protocolos encontrados</h2>
+        <p>Selecione um protocolo para visualizar o valor total correto do movimento.</p>
+      </div>
+    </div>
+
+    <div class="comp-protocolos-body">
+      <div class="comp-protocolos-alert">
+        <span>⚠</span>
+        <p>
+          Cada linha da tabela representa um comprovante individual. Para conferir o
+          <b>valor total enviado em um movimento</b>, é necessário filtrar pelo protocolo.
+        </p>
+      </div>
+
+      <div id="compProtocolosLojaBadge" class="comp-protocolos-loja">Loja</div>
+
+      <label class="comp-protocolos-label">Protocolos disponíveis no período</label>
+
+      <div id="compProtocolosLista" class="comp-protocolos-lista"></div>
+
+      <div class="comp-protocolos-foot">
+        <span id="compProtocolosQtd">0 protocolos encontrados</span>
+
+        <div class="comp-protocolos-actions">
+          <button type="button" class="comp-protocolos-cancel" onclick="fecharPopupProtocolosCompHub()">
+            Cancelar
+          </button>
+
+          <button type="button" class="comp-protocolos-apply" onclick="aplicarProtocoloSelecionadoCompHub()">
+            ⌁ Aplicar filtro
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </section>
 
       <section id="view-custos" class="view">
@@ -6134,6 +6864,9 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
     const SMARTSLIP_COOLDOWN_ENVIO_KEY = "SMARTSLIP_ULTIMO_ENVIO_FINALIZADO_EM";
     let SMARTSLIP_COOLDOWN_TIMER = null;
     let SMARTSLIP_ARQUIVO_PREVIEW_URL = null;
+    let COMP_HUB_PROTOCOLO_POPUP_ABERTO_KEY = "";
+    let COMP_HUB_PROTOCOLO_SELECIONADO = "";
+    let COMP_HUB_SUPRIMIR_POPUP_PROTOCOLO = false;
 
     let COMP_HUB_SORT = {
       key: "",
@@ -10279,6 +11012,386 @@ function carregarCompHubComCallback(callback) {
   carregarCompHub(true, callback);
 }
 
+function normalizarBuscaCompHub_(valor) {
+  return String(valor || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function extrairLojaBuscaLivreCompHub_(busca) {
+  const txt = normalizarBuscaCompHub_(busca);
+
+  if (!txt) {
+    return "";
+  }
+
+  let m = txt.match(/(?:loja|lj)\s*0*(\d{1,4})\b/);
+
+  if (m && m[1]) {
+    return normalizarLojaFrontSmartSlip_(m[1]);
+  }
+
+  m = txt.match(/\b0*(\d{1,4})\b/);
+
+  if (m && m[1]) {
+    return normalizarLojaFrontSmartSlip_(m[1]);
+  }
+
+  return "";
+}
+
+function getLojaContextoCompHub_() {
+  const lojaSelect = document.getElementById("compFiltroLoja");
+  const buscaEl = document.getElementById("compBusca");
+
+  const lojaSelectNorm = lojaSelect && lojaSelect.value
+    ? normalizarLojaFrontSmartSlip_(lojaSelect.value)
+    : "";
+
+  if (lojaSelectNorm) {
+    return lojaSelectNorm;
+  }
+
+  const busca = buscaEl ? String(buscaEl.value || "") : "";
+  return extrairLojaBuscaLivreCompHub_(busca);
+}
+
+function formatarPeriodoMovimentoProtocoloCompHub_(valor) {
+  const txt = String(valor || "").trim();
+
+  if (!txt) {
+    return "";
+  }
+
+  const normalizado = txt
+    .replace(/\s+até\s+/i, " a ")
+    .replace(/\s+-\s+/g, " a ")
+    .replace(/\s+a\s+/i, " a ");
+
+  const partes = normalizado.split(/\s+a\s+/i);
+
+  if (partes.length >= 2) {
+    const inicio = String(partes[0] || "").trim();
+    const fim = String(partes[1] || "").trim();
+
+    if (inicio && fim && inicio !== fim) {
+      return "Mov.: " + inicio + " até " + fim;
+    }
+
+    if (inicio) {
+      return "Mov.: " + inicio;
+    }
+  }
+
+  return "Mov.: " + txt;
+}
+
+function montarProtocolosCompHub_(dados, lojaNorm) {
+  const mapa = {};
+
+  function formatarPeriodoMovimento_(item) {
+    item = item || {};
+
+    const inicio = String(
+      item.dataMovimentoInicio ||
+      item.data_movimento_inicio ||
+      ""
+    ).trim();
+
+    const fim = String(
+      item.dataMovimentoFim ||
+      item.data_movimento_fim ||
+      ""
+    ).trim();
+
+    if (inicio && fim && inicio !== fim) {
+      return "Mov.: " + inicio + " até " + fim;
+    }
+
+    if (inicio) {
+      return "Mov.: " + inicio;
+    }
+
+    const movimento = String(
+      item.dataMovimento ||
+      item.data_movimento ||
+      ""
+    ).trim();
+
+    if (!movimento) {
+      return "";
+    }
+
+    const normalizado = movimento
+      .replace(/\s+até\s+/i, " a ")
+      .replace(/\s+-\s+/g, " a ")
+      .replace(/\s+a\s+/i, " a ");
+
+    const partes = normalizado.split(/\s+a\s+/i);
+
+    if (partes.length >= 2) {
+      const movInicio = String(partes[0] || "").trim();
+      const movFim = String(partes[1] || "").trim();
+
+      if (movInicio && movFim && movInicio !== movFim) {
+        return "Mov.: " + movInicio + " até " + movFim;
+      }
+
+      if (movInicio) {
+        return "Mov.: " + movInicio;
+      }
+    }
+
+    return "Mov.: " + movimento;
+  }
+
+  (dados || []).forEach(function(item) {
+    const lojaItem = normalizarLojaFrontSmartSlip_(item.loja || "");
+
+    if (lojaNorm && lojaItem !== lojaNorm) {
+      return;
+    }
+
+    const protocolo = String(item.protocolo || "").trim();
+
+    if (!protocolo) {
+      return;
+    }
+
+    if (!mapa[protocolo]) {
+      mapa[protocolo] = {
+        protocolo: protocolo,
+        loja: lojaItem,
+        empresa: String(item.empresa || "").trim(),
+        data: "",
+        periodoMovimento: "",
+        qtd: 0,
+        valor: 0,
+        bancos: {},
+        tipos: {}
+      };
+    }
+
+    mapa[protocolo].qtd += 1;
+    mapa[protocolo].valor += Number(item.valorDeposito || 0);
+
+    const periodoMovimento = formatarPeriodoMovimento_(item);
+
+    if (periodoMovimento && !mapa[protocolo].periodoMovimento) {
+      mapa[protocolo].periodoMovimento = periodoMovimento;
+    }
+
+    const dataRef = String(
+      item.dataRegistro ||
+      item.dataDeposito ||
+      item.dataMovimento ||
+      ""
+    ).trim();
+
+    if (dataRef && !mapa[protocolo].data) {
+      mapa[protocolo].data = dataRef;
+    }
+
+    const banco = String(item.banco || "").trim();
+
+    if (banco) {
+      mapa[protocolo].bancos[banco] = true;
+    }
+
+    const tipo = String(item.tipoDocumento || "").trim();
+
+    if (tipo) {
+      mapa[protocolo].tipos[tipo] = true;
+    }
+  });
+
+  return Object.keys(mapa)
+    .map(function(k) {
+      const item = mapa[k];
+
+      item.bancoLabel = Object.keys(item.bancos).slice(0, 2).join(", ") || "-";
+      item.tipoLabel = Object.keys(item.tipos).slice(0, 1).join(", ") || "depósito";
+
+      return item;
+    })
+    .sort(function(a, b) {
+      return String(b.data || "").localeCompare(String(a.data || ""));
+    });
+}
+
+function deveAbrirPopupProtocolosCompHub_() {
+  if (COMP_HUB_SUPRIMIR_POPUP_PROTOCOLO === true) {
+    return false;
+  }
+
+  const lojaNorm = getLojaContextoCompHub_();
+
+  if (!lojaNorm) {
+    return false;
+  }
+
+  const buscaEl = document.getElementById("compBusca");
+  const busca = buscaEl ? String(buscaEl.value || "").trim() : "";
+
+  /*
+    Se o usuário já digitou um protocolo na busca livre, não precisa avisar.
+  */
+  if (/SS-\d{8}/i.test(busca)) {
+    return false;
+  }
+
+  const dados = SMARTSLIP_STATE.comp_hub_filtrado || [];
+  const protocolos = montarProtocolosCompHub_(dados, lojaNorm);
+
+  if (protocolos.length < 2) {
+    return false;
+  }
+
+  const dataDe = document.getElementById("compDataDe")
+    ? document.getElementById("compDataDe").value
+    : "";
+
+  const dataAte = document.getElementById("compDataAte")
+    ? document.getElementById("compDataAte").value
+    : "";
+
+  const key = [
+    lojaNorm,
+    dataDe,
+    dataAte,
+    protocolos.map(function(p) { return p.protocolo; }).join("|")
+  ].join("::");
+
+  if (COMP_HUB_PROTOCOLO_POPUP_ABERTO_KEY === key) {
+    return false;
+  }
+
+  return {
+    key: key,
+    loja: lojaNorm,
+    protocolos: protocolos
+  };
+}
+
+function verificarPopupProtocolosCompHub_() {
+  const check = deveAbrirPopupProtocolosCompHub_();
+
+  if (!check) {
+    return;
+  }
+
+  COMP_HUB_PROTOCOLO_POPUP_ABERTO_KEY = check.key;
+
+  setTimeout(function() {
+    abrirPopupProtocolosCompHub(check.loja, check.protocolos);
+  }, 120);
+}
+
+function abrirPopupProtocolosCompHub(lojaNorm, protocolos) {
+  const modal = document.getElementById("compProtocolosPopup");
+  const lista = document.getElementById("compProtocolosLista");
+  const badge = document.getElementById("compProtocolosLojaBadge");
+  const qtd = document.getElementById("compProtocolosQtd");
+
+  if (!modal || !lista) {
+    return;
+  }
+
+  COMP_HUB_PROTOCOLO_SELECIONADO = protocolos && protocolos[0]
+    ? protocolos[0].protocolo
+    : "";
+
+  if (badge) {
+    const empresa = protocolos && protocolos[0] && protocolos[0].empresa
+      ? " — " + protocolos[0].empresa
+      : "";
+
+    badge.textContent = "Loja " + String(Number(lojaNorm)) + empresa;
+  }
+
+  if (qtd) {
+    qtd.textContent = (protocolos || []).length + " protocolos encontrados";
+  }
+
+  let html = "";
+
+  (protocolos || []).forEach(function(item, idx) {
+    const active = idx === 0 ? " active" : "";
+    const qtdTexto = item.qtd === 1
+      ? "1 comprovante"
+      : item.qtd + " comprovantes";
+
+    html +=
+      "<div class='comp-protocolo-option" + active + "' data-protocolo='" + escapeAttr(item.protocolo) + "' onclick=\"selecionarProtocoloPopupCompHub('" + escapeAttr(item.protocolo) + "')\">" +
+        "<div class='comp-protocolo-radio'></div>" +
+        "<div class='comp-protocolo-main'>" +
+          "<span class='comp-protocolo-id'>" + escapeHtml(item.protocolo) + "</span>" +
+          "<span class='comp-protocolo-meta'>" +
+            escapeHtml(item.data || "-") +
+            " · " +
+            escapeHtml(qtdTexto) +
+            " · " +
+            escapeHtml(item.bancoLabel || "-") +
+          "</span>" +
+          "<span class='comp-protocolo-periodo'>" +
+            escapeHtml(item.periodoMovimento || "Mov.: não informado") +
+          "</span>" +
+        "</div>" +
+        "<span class='comp-protocolo-tipo'>" + escapeHtml(item.tipoLabel || "depósito") + "</span>" +
+        "<strong class='comp-protocolo-valor'>" + formatBRL(item.valor || 0) + "</strong>" +
+      "</div>";
+  });
+
+  lista.innerHTML = html || "<p class='page-sub'>Nenhum protocolo encontrado.</p>";
+
+  modal.classList.add("show");
+  document.body.classList.add("comp-protocolos-lock");
+}
+
+function selecionarProtocoloPopupCompHub(protocolo) {
+  COMP_HUB_PROTOCOLO_SELECIONADO = String(protocolo || "").trim();
+
+  document.querySelectorAll(".comp-protocolo-option").forEach(function(el) {
+    const ativo = String(el.dataset.protocolo || "") === COMP_HUB_PROTOCOLO_SELECIONADO;
+    el.classList.toggle("active", ativo);
+  });
+}
+
+function fecharPopupProtocolosCompHub() {
+  const modal = document.getElementById("compProtocolosPopup");
+
+  if (modal) {
+    modal.classList.remove("show");
+  }
+
+  document.body.classList.remove("comp-protocolos-lock");
+}
+
+function aplicarProtocoloSelecionadoCompHub() {
+  const protocolo = String(COMP_HUB_PROTOCOLO_SELECIONADO || "").trim();
+
+  if (!protocolo) {
+    return;
+  }
+
+  const buscaEl = document.getElementById("compBusca");
+
+  if (buscaEl) {
+    buscaEl.value = protocolo;
+  }
+
+  COMP_HUB_SUPRIMIR_POPUP_PROTOCOLO = true;
+
+  fecharPopupProtocolosCompHub();
+  aplicarFiltrosCompHub();
+
+  setTimeout(function() {
+    COMP_HUB_SUPRIMIR_POPUP_PROTOCOLO = false;
+  }, 250);
+}
+
 function popularFiltrosCompHub() {
   const dados = SMARTSLIP_STATE.comp_hub || [];
 
@@ -10611,13 +11724,18 @@ function aplicarFiltrosCompHub() {
     return true;
   });
 
-  COMP_HUB_PAGE = 1;
+    COMP_HUB_PAGE = 1;
   desenharCompHub();
+  verificarPopupProtocolosCompHub_();
 
   return SMARTSLIP_STATE.comp_hub_filtrado.length;
 }
 
 function limparFiltrosCompHub() {
+    COMP_HUB_PROTOCOLO_POPUP_ABERTO_KEY = "";
+    COMP_HUB_PROTOCOLO_SELECIONADO = "";
+    COMP_HUB_SUPRIMIR_POPUP_PROTOCOLO = false;
+  fecharPopupProtocolosCompHub();
   [
     "compDataDe",
     "compDataAte",
@@ -11004,6 +12122,143 @@ function abrirDetalheCompHubPorId(rowId) {
   abrirDetalheCompHubItem(item);
 }
 
+function compDetalheTemValor_(valor) {
+  if (valor === null || valor === undefined) {
+    return false;
+  }
+
+  const txt = String(valor).trim();
+
+  return txt !== "" && txt !== "-";
+}
+
+function compDetalheTemProblema_(valor) {
+  const txt = String(valor || "")
+    .trim()
+    .toLowerCase();
+
+  if (!txt || txt === "-") {
+    return false;
+  }
+
+  return ![
+    "sem_pendencias",
+    "sem pendencias",
+    "sem pendências",
+    "sem_divergencias",
+    "sem divergencias",
+    "sem divergências"
+  ].includes(txt);
+}
+
+function montarCardDetalheProfCompHub(label, valor, options) {
+  options = options || {};
+
+  const classes = [
+    "comp-detail-prof-card",
+    options.wide ? "wide" : ""
+  ].join(" ").trim();
+
+  let valorFinal = compDetalheTemValor_(valor) ? valor : "-";
+
+  if (options.money === true) {
+    valorFinal = formatBRL(valor || 0);
+  }
+
+  let conteudo = "";
+
+  if (options.html === true) {
+    conteudo = valorFinal;
+  } else if (options.strong === true) {
+    conteudo = "<strong>" + escapeHtml(valorFinal) + "</strong>";
+  } else if (options.mono === true) {
+    conteudo = "<span class='comp-mono'>" + escapeHtml(valorFinal) + "</span>";
+  } else if (options.pill === true) {
+    conteudo = "<span class='comp-detail-pill'>" + escapeHtml(valorFinal) + "</span>";
+  } else {
+    conteudo = "<span>" + escapeHtml(valorFinal) + "</span>";
+  }
+
+  return (
+    "<div class='" + classes + "'>" +
+      "<b>" + escapeHtml(label) + "</b>" +
+      conteudo +
+    "</div>"
+  );
+}
+
+function montarSecaoDetalheProfCompHub(titulo, icone, htmlInterno, colunas) {
+  const classeGrid = colunas === 2
+    ? "comp-detail-prof-grid two"
+    : "comp-detail-prof-grid";
+
+  return (
+    "<div class='comp-detail-section'>" +
+      "<div class='comp-detail-section-title'>" +
+        "<span class='comp-detail-section-icon'>" + escapeHtml(icone || "•") + "</span>" +
+        escapeHtml(titulo) +
+      "</div>" +
+      "<div class='" + classeGrid + "'>" +
+        htmlInterno +
+      "</div>" +
+    "</div>"
+  );
+}
+
+function montarResumoStatusDetalheCompHub(item) {
+  const status = String(item.statusProcessamento || "").trim();
+  const statusUpper = status.toUpperCase();
+
+  const temPendencias = compDetalheTemProblema_(item.pendencias);
+  const temDivergencias = compDetalheTemProblema_(item.divergencias);
+
+  let classe = "ok";
+  let texto = status || "Status não informado";
+
+  if (statusUpper.includes("ERRO") || statusUpper.includes("DIVERG") || temDivergencias) {
+    classe = "error";
+    texto = status || "Com divergência";
+  } else if (statusUpper.includes("PEND") || statusUpper.includes("PARCIAL") || temPendencias) {
+    classe = "warn";
+    texto = status || "Com pendência";
+  } else if (statusUpper.includes("SALVO") || statusUpper.includes("PRONTO")) {
+    classe = "ok";
+    texto = "Salvo — sem pendências ou divergências";
+  }
+
+  return (
+    "<div class='comp-detail-status-bar " + classe + "'>" +
+      "<div class='comp-detail-status-main'>" +
+        "<span class='comp-detail-status-dot'></span>" +
+        escapeHtml(texto) +
+      "</div>" +
+      "<div class='comp-detail-confidence'>" +
+        "<b>Confiança</b>" +
+        montarConfiancaCompHub(item.confiancaGeral) +
+      "</div>" +
+    "</div>"
+  );
+}
+
+function montarLinkComprovanteDetalheCompHub(item) {
+  if (!item.linkComprovante) {
+    return (
+      "<div class='comp-detail-linkbar'>" +
+        "<span>Link do comprovante não disponível</span>" +
+      "</div>"
+    );
+  }
+
+  return (
+    "<div class='comp-detail-linkbar'>" +
+      "<span>↗ Link do comprovante disponível</span>" +
+      "<a class='comp-detail-open-btn' target='_blank' href='" + escapeAttr(item.linkComprovante) + "'>" +
+        "↗ Abrir comprovante" +
+      "</a>" +
+    "</div>"
+  );
+}
+
 function abrirDetalheCompHubItem(item) {
   const modal = document.getElementById("compModal");
   const sub = document.getElementById("compModalSub");
@@ -11014,7 +12269,7 @@ function abrirDetalheCompHubItem(item) {
     return;
   }
 
-  sub.textContent = (item.idComprovante || "-") + " | " + (item.protocolo || "-");
+  sub.textContent = (item.idComprovante || "-") + " · protocolo " + (item.protocolo || "-");
 
   let html = "";
 
@@ -11024,41 +12279,71 @@ function abrirDetalheCompHubItem(item) {
   html += "</div>";
 
   html += "<div id='compTabDetalhes' class='comp-tab-panel active'>";
-  html += "<div class='comp-detail-grid'>";
-  html += montarItemDetalheCompHub("Data Registro", item.dataRegistro);
-  html += montarItemDetalheCompHub("ID Comprovante", item.idComprovante);
-  html += montarItemDetalheCompHub("Hash Comprovante", item.hashComprovante);
-  html += montarItemDetalheCompHub("Protocolo", item.protocolo);
-  html += montarItemDetalheCompHub("Índice Comprovante", item.indiceComprovante);
-  html += montarItemDetalheCompHub("Loja", item.loja);
-  html += montarItemDetalheCompHub("Empresa", item.empresa);
-  html += montarItemDetalheCompHub("Tipo Documento", item.tipoDocumento);
-  html += montarItemDetalheCompHub("Data Depósito", item.dataDeposito);
-  html += montarItemDetalheCompHub("Valor Depósito", formatBRL(item.valorDeposito));
-  html += montarItemDetalheCompHub("Banco", item.banco);
-  html += montarItemDetalheCompHub("Data Movimento", item.dataMovimento);
-  html += montarItemDetalheCompHub("Houve Retirada", item.houveRetirada);
-  html += montarItemDetalheCompHub("Valor Retirada", formatBRL(item.valorRetirada));
-  html += montarItemDetalheCompHub("Motivo Retirada", item.motivoRetirada);
-  html += montarItemDetalheCompHub("Data Geração Documento", item.dataGeracaoDocumento);
-  html += montarItemDetalheCompHub("Código Autenticação", item.codigoAutenticacao);
-  html += montarItemDetalheCompHub("Status Processamento", item.statusProcessamento);
-  html += montarItemDetalheCompHub("Pendências", item.pendencias || "-");
-  html += montarItemDetalheCompHub("Divergências", item.divergencias || "-");
-  html += montarItemDetalheCompHub("Confiança Geral", montarConfiancaCompHub(item.confiancaGeral), true);
 
-  if (item.linkComprovante) {
-    html += montarItemDetalheCompHub(
-      "Link Comprovante",
-      "<a class='comp-link' target='_blank' href='" + escapeAttr(item.linkComprovante) + "'>Abrir comprovante</a>",
-      true
+  html += montarResumoStatusDetalheCompHub(item);
+
+  html += montarSecaoDetalheProfCompHub(
+    "Identificação e datas",
+    "⌘",
+    montarCardDetalheProfCompHub("Data Registro", item.dataRegistro) +
+    montarCardDetalheProfCompHub("Data Depósito", item.dataDeposito) +
+    montarCardDetalheProfCompHub("Data Movimento", item.dataMovimento) +
+    montarCardDetalheProfCompHub("Data Geração Documento", item.dataGeracaoDocumento) +
+    montarCardDetalheProfCompHub("Índice Comprovante", item.indiceComprovante),
+    3
+  );
+
+  html += montarSecaoDetalheProfCompHub(
+    "Origem",
+    "▦",
+    montarCardDetalheProfCompHub("Loja", item.loja) +
+    montarCardDetalheProfCompHub("Empresa", item.empresa) +
+    montarCardDetalheProfCompHub("Tipo Documento", item.tipoDocumento, { pill: true }),
+    3
+  );
+
+  html += montarSecaoDetalheProfCompHub(
+    "Valores financeiros",
+    "⊙",
+    montarCardDetalheProfCompHub("Valor Depósito", formatBRL(item.valorDeposito), { strong: true }) +
+    montarCardDetalheProfCompHub("Banco", item.banco) +
+    montarCardDetalheProfCompHub("Houve Retirada", item.houveRetirada, { strong: true }) +
+    montarCardDetalheProfCompHub("Valor Retirada", formatBRL(item.valorRetirada)) +
+    montarCardDetalheProfCompHub("Motivo Retirada", item.motivoRetirada),
+    3
+  );
+
+  html += montarSecaoDetalheProfCompHub(
+    "Indicadores técnicos",
+    "⌁",
+    montarCardDetalheProfCompHub("ID Comprovante", item.idComprovante, { wide: true, mono: true }) +
+    montarCardDetalheProfCompHub("Protocolo", item.protocolo, { mono: true }) +
+    montarCardDetalheProfCompHub("Código Autenticação", item.codigoAutenticacao, { mono: true }) +
+    montarCardDetalheProfCompHub("Hash Comprovante", item.hashComprovante, { wide: true, mono: true }),
+    2
+  );
+
+  if (
+    compDetalheTemProblema_(item.pendencias) ||
+    compDetalheTemProblema_(item.divergencias)
+  ) {
+    html += montarSecaoDetalheProfCompHub(
+      "Pendências e divergências",
+      "!",
+      montarCardDetalheProfCompHub("Pendências", item.pendencias || "-", { wide: true }) +
+      montarCardDetalheProfCompHub("Divergências", item.divergencias || "-", { wide: true }),
+      2
     );
-  } else {
-    html += montarItemDetalheCompHub("Link Comprovante", "-");
   }
 
-  html += "</div>";
+  html += montarLinkComprovanteDetalheCompHub(item);
+
+  /*
+    Mantém o JSON exatamente como já era.
+    Não altera a parte técnica do modal.
+  */
   html += "<div class='comp-json-box'>" + escapeHtml(formatarJsonCompHub(item.jsonOriginal)) + "</div>";
+
   html += "</div>";
 
   html += "<div id='compTabValores' class='comp-tab-panel'>";
