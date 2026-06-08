@@ -5695,6 +5695,382 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
   color: #475467 !important;
 }
 
+/* =========================================================
+   SMARTSLIP - PERFORMANCE
+   ========================================================= */
+
+#view-performance {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+}
+
+.perf-flow-panel {
+  display: grid;
+  grid-template-columns: 1fr 38px 1fr 38px 1fr 38px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.perf-flow-step {
+  min-height: 132px;
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(181,255,32,.26), transparent 40%),
+    linear-gradient(135deg, #071E3D, #050807);
+  border: 1px solid rgba(181,255,32,.30);
+  color: #ffffff;
+  box-shadow: 0 18px 38px rgba(0,0,0,.20);
+}
+
+.perf-flow-step b {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #B5FF20;
+  color: #050807;
+  font-size: 15px;
+  font-weight: 950;
+  margin-bottom: 12px;
+}
+
+.perf-flow-step strong {
+  display: block;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 950;
+  margin-bottom: 6px;
+}
+
+.perf-flow-step span {
+  display: block;
+  color: rgba(255,255,255,.72);
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.perf-flow-line {
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #B5FF20, #40E0D0);
+}
+
+.perf-filter-panel {
+  display: grid;
+  grid-template-columns: 180px 140px 180px 220px;
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+.perf-filter-panel label {
+  margin-top: 0;
+}
+
+.perf-kpi-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.perf-kpi-grid .kpi-card {
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 38%),
+    linear-gradient(135deg, #071E3D, #050807);
+  border-color: rgba(181,255,32,.26);
+  color: #ffffff;
+}
+
+.perf-kpi-grid .kpi-card span {
+  color: #B5FF20;
+}
+
+.perf-kpi-grid .kpi-card strong {
+  color: #ffffff;
+  font-size: 24px;
+}
+
+.perf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.perf-chart-panel {
+  min-height: 390px;
+}
+
+.perf-svg-chart {
+  width: 100%;
+  min-height: 280px;
+}
+
+.perf-svg-chart svg {
+  width: 100%;
+  height: 300px;
+  display: block;
+}
+
+.legend-dot.perf-total {
+  background: #B5FF20;
+}
+
+.legend-dot.perf-ia {
+  background: #40E0D0;
+}
+
+.legend-dot.perf-fila {
+  background: #1D6FD1;
+}
+
+.legend-dot.perf-qtd {
+  background: #B5FF20;
+}
+
+.legend-dot.perf-lento {
+  background: #f97316;
+}
+
+.perf-diagnostico {
+  display: grid;
+  gap: 10px;
+}
+
+.perf-diagnostico-item {
+  padding: 13px 14px;
+  border-radius: 16px;
+  background: #f7fbf4;
+  border: 1px solid #dbe8d4;
+  color: #314238;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.perf-status-list {
+  display: grid;
+  gap: 10px;
+}
+
+.perf-status-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e1ecdc;
+}
+
+.perf-status-row b {
+  color: #111827;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.perf-status-row span {
+  color: #005E27;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.perf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.perf-table th {
+  background: #071E3D;
+  color: #ffffff;
+  text-align: left;
+  padding: 11px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .25px;
+}
+
+.perf-table td {
+  padding: 11px;
+  border-bottom: 1px solid #e6eee1;
+  color: #26352c;
+  font-weight: 700;
+  vertical-align: top;
+}
+
+.perf-flag {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.perf-flag.NORMAL {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.perf-flag.ATENCAO {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.perf-flag.LENTO,
+.perf-flag.CRITICO {
+  background: #fff1f0;
+  color: #b42318;
+}
+
+/* Performance somente desktop */
+body.smart-mobile #navPerformance,
+body.smart-mobile #view-performance {
+  display: none !important;
+}
+
+@media (max-width: 820px) {
+  #navPerformance,
+  #view-performance {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - PERFORMANCE | DARK THEME
+   ========================================================= */
+
+body.smart-home-dark #view-performance {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-performance h1,
+body.smart-home-dark #view-performance h2 {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-performance .page-sub,
+body.smart-home-dark #view-performance .chart-sub {
+  color: rgba(255,255,255,.62) !important;
+}
+
+body.smart-home-dark #view-performance .top-pill {
+  background: rgba(181,255,32,.12) !important;
+  border: 1px solid rgba(181,255,32,.35) !important;
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance .panel {
+  background:
+    radial-gradient(circle at top right, rgba(29,111,209,.12), transparent 36%),
+    linear-gradient(180deg, #101827 0%, #0B1220 100%) !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.28) !important;
+}
+
+body.smart-home-dark #view-performance label {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance select,
+body.smart-home-dark #view-performance input {
+  background: #071E3D !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(64,224,208,.28) !important;
+}
+
+body.smart-home-dark #view-performance select:focus,
+body.smart-home-dark #view-performance input:focus {
+  outline: 3px solid rgba(181,255,32,.22) !important;
+  border-color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance .kpi-card {
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.18), transparent 36%),
+    linear-gradient(135deg, #071E3D 0%, #0B3E78 54%, #082A5A 100%) !important;
+  border: 1px solid rgba(64,224,208,.34) !important;
+}
+
+body.smart-home-dark #view-performance .kpi-card span {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance .kpi-card strong {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance .chart-legend {
+  color: rgba(255,255,255,.72) !important;
+}
+
+body.smart-home-dark #view-performance .perf-diagnostico-item {
+  background: rgba(181,255,32,.10) !important;
+  border: 1px solid rgba(181,255,32,.24) !important;
+  color: rgba(255,255,255,.86) !important;
+}
+
+body.smart-home-dark #view-performance .perf-status-row {
+  background: #071E3D !important;
+  border: 1px solid rgba(64,224,208,.22) !important;
+}
+
+body.smart-home-dark #view-performance .perf-status-row b {
+  color: #ffffff !important;
+}
+
+body.smart-home-dark #view-performance .perf-status-row span {
+  color: #B5FF20 !important;
+}
+
+body.smart-home-dark #view-performance .perf-table th {
+  background: #071E3D !important;
+  color: #B5FF20 !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+body.smart-home-dark #view-performance .perf-table td {
+  color: rgba(255,255,255,.84) !important;
+  border-bottom: 1px solid rgba(255,255,255,.08) !important;
+}
+
+body.smart-home-dark #view-performance .perf-svg-chart svg {
+  background: transparent !important;
+}
+
+/* =========================================================
+   SMARTSLIP - MENU DESKTOP | ALINHAMENTO DOS ÍCONES
+   ========================================================= */
+
+@media (min-width: 1025px) {
+  .sidebar .nav-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .sidebar .nav-item .nav-ico {
+    width: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+    margin-right: 0 !important;
+    text-align: center !important;
+    line-height: 1 !important;
+    font-size: 13px !important;
+  }
+
+  .sidebar .nav-item .nav-label {
+    display: inline-block !important;
+    line-height: 1.2 !important;
+  }
+}
+
   </style>
 </head>
 
@@ -5826,6 +6202,11 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
           <button id="navCustosIa" data-nav="custos" class="nav-item" type="button" onclick="abrirView('custos', this)">
             <span class="nav-ico">◆</span>
             <span class="nav-label">Custos</span>
+          </button>
+
+          <button id="navPerformance" class="nav-item" data-nav="performance" onclick="abrirView('performance', this)" style="display:none;">
+            <span class="nav-ico">⚡</span>
+            <span class="nav-label">Performance</span>
           </button>
 
           <button data-nav="configuracoes" class="nav-item" type="button" onclick="abrirView('configuracoes', this)">
@@ -6698,6 +7079,164 @@ body.smart-mobile #view-inicio .kpi-lojas-utilizando-pct {
   </div>
 </section>
 
+      <div id="view-performance" class="view">
+  <div class="top-pill">⚡ Performance operacional</div>
+
+  <h1>Performance do SmartSlip</h1>
+
+  <p class="page-sub">
+    Acompanhe o tempo de fila, leitura da IA e tempo total do processamento,
+    desde o recebimento do comprovante até a finalização da leitura pelo Gemini.
+  </p>
+
+  <div class="perf-flow-panel">
+    <div class="perf-flow-step">
+      <b>1</b>
+      <strong>Envio</strong>
+      <span>Usuário anexa o comprovante e o SmartSlip grava o item na fila.</span>
+    </div>
+
+    <div class="perf-flow-line"></div>
+
+    <div class="perf-flow-step">
+      <b>2</b>
+      <strong>Fila</strong>
+      <span>O comprovante aguarda o trigger automático iniciar o processamento.</span>
+    </div>
+
+    <div class="perf-flow-line"></div>
+
+    <div class="perf-flow-step">
+      <b>3</b>
+      <strong>Gemini</strong>
+      <span>A IA lê, interpreta, valida e estrutura os dados do comprovante.</span>
+    </div>
+
+    <div class="perf-flow-line"></div>
+
+    <div class="perf-flow-step">
+      <b>4</b>
+      <strong>Conclusão</strong>
+      <span>O sistema salva, bloqueia ou sinaliza pendência conforme as regras internas.</span>
+    </div>
+  </div>
+
+  <div class="panel perf-filter-panel">
+    <div>
+      <label>Período</label>
+      <select id="perfTipoPeriodo" onchange="carregarPerformance(true)">
+        <option value="MENSAL">Mensal</option>
+        <option value="ANUAL">Anual</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Ano</label>
+      <select id="perfAno" onchange="carregarPerformance(true)"></select>
+    </div>
+
+    <div id="perfMesBox">
+      <label>Mês</label>
+      <select id="perfMes" onchange="carregarPerformance(true)"></select>
+    </div>
+
+    <button class="btn-primary" type="button" onclick="carregarPerformance(true)">
+      Atualizar
+    </button>
+  </div>
+
+  <div class="kpi-grid perf-kpi-grid">
+    <div class="kpi-card">
+      <span>Envios no período</span>
+      <strong id="perfKpiEnvios">-</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Tempo médio total</span>
+      <strong id="perfKpiTotalMedio">-</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Tempo médio IA</span>
+      <strong id="perfKpiIaMedia">-</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>Tempo médio fila</span>
+      <strong id="perfKpiFilaMedia">-</strong>
+    </div>
+
+    <div class="kpi-card">
+      <span>P95 total</span>
+      <strong id="perfKpiP95">-</strong>
+    </div>
+  </div>
+
+  <div class="perf-grid-2">
+    <div class="panel perf-chart-panel">
+      <div class="chart-head">
+        <div>
+          <h2>Tempo médio por período</h2>
+          <p class="chart-sub">
+            Barras com rótulos de dados para Total, IA e Fila.
+          </p>
+        </div>
+      </div>
+
+      <div id="perfChartTempo" class="perf-svg-chart"></div>
+
+      <div class="chart-legend">
+        <span><i class="legend-dot perf-total"></i>Total</span>
+        <span><i class="legend-dot perf-ia"></i>IA</span>
+        <span><i class="legend-dot perf-fila"></i>Fila</span>
+      </div>
+    </div>
+
+    <div class="panel perf-chart-panel">
+      <div class="chart-head">
+        <div>
+          <h2>Volume e lentidão</h2>
+          <p class="chart-sub">
+            Volume de envios e quantidade de ocorrências lentas/críticas.
+          </p>
+        </div>
+      </div>
+
+      <div id="perfChartVolume" class="perf-svg-chart"></div>
+
+      <div class="chart-legend">
+        <span><i class="legend-dot perf-qtd"></i>Envios</span>
+        <span><i class="legend-dot perf-lento"></i>Lentos + críticos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="perf-grid-2">
+    <div class="panel">
+      <h2>Diagnóstico operacional</h2>
+      <div id="perfDiagnostico" class="perf-diagnostico"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Status do processamento</h2>
+      <div id="perfStatusBox" class="perf-status-list"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="chart-head">
+      <div>
+        <h2>Top envios mais lentos</h2>
+        <p class="chart-sub">
+          Ranking dos comprovantes com maior tempo total no período selecionado.
+        </p>
+      </div>
+    </div>
+
+    <div id="perfTabelaLentos"></div>
+  </div>
+</div>
+
       <section id="view-configuracoes" class="view">
         <div class="top-pill">Configurações</div>
         <h1>Preferências</h1>
@@ -6934,6 +7473,8 @@ function aplicarModoMobileSmartSlip() {
   const viewCompHub = document.getElementById("view-comp-hub");
   const cfgCompHubRangeRow = document.getElementById("cfgCompHubRangeRow");
   const boxFiltroHistLoja = document.getElementById("boxFiltroHistLoja");
+  const navPerformance = document.getElementById("navPerformance");
+  const viewPerformance = document.getElementById("view-performance");
 
   if (mobile) {
     if (navCompHub) {
@@ -6953,12 +7494,32 @@ function aplicarModoMobileSmartSlip() {
       abrirView("inicio", btnInicio);
     }
 
+    if (navPerformance) {
+      navPerformance.style.display = "none";
+    }
+
+    if (viewPerformance && viewPerformance.classList.contains("active")) {
+      const btnInicio = document.querySelector('[data-nav="inicio"]');
+      abrirView("inicio", btnInicio);
+    }
+
     return;
   }
 
   if (cfgCompHubRangeRow) {
     cfgCompHubRangeRow.style.display = "";
   }
+
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  const podeVerPerformance =
+    (usuario.is_admin === true || usuario.is_analista_pro === true) &&
+    !isSmartSlipMobile();
+
+  if (navPerformance) {
+    navPerformance.style.display = podeVerPerformance ? "block" : "none";
+  }
+
 }
 
 window.onload = function() {
@@ -7662,6 +8223,22 @@ if (navCustosIa) {
   navCustosIa.style.display = podeVerCustosIa ? "block" : "none";
 }
 
+const navPerformance = document.getElementById("navPerformance");
+
+const podeVerPerformance =
+  (usuario.is_admin === true || usuario.is_analista_pro === true) &&
+  !isSmartSlipMobile();
+
+if (navPerformance) {
+  navPerformance.style.display = podeVerPerformance ? "block" : "none";
+}
+
+const viewPerformance = document.getElementById("view-performance");
+
+if (viewPerformance && !podeVerPerformance && viewPerformance.classList.contains("active")) {
+  abrirView("inicio", document.querySelector("[data-nav='inicio']"));
+}
+
 const viewCustos = document.getElementById("view-custos");
 
 if (viewCustos && !podeVerCustosIa && viewCustos.classList.contains("active")) {
@@ -8033,7 +8610,7 @@ function aplicarTemaHomeSmartSlip(nome) {
   const tela = String(nome || "").toLowerCase();
 
   const deveUsarTemaEscuro =
-    (tela === "inicio" || tela === "custos") &&
+    (tela === "inicio" || tela === "custos" || tela === "performance") &&
     !isSmartSlipMobile();
 
   document.body.classList.toggle("smart-home-dark", deveUsarTemaEscuro);
@@ -8376,13 +8953,482 @@ function renderTabelaOrigemCustosIa(lista, cfg) {
   box.innerHTML = html;
 }
 
-function abrirView(nome, btn) {
-  if (String(nome || "").toLowerCase() === "custos" && isSmartSlipMobile()) {
-  abrirView("inicio", document.querySelector("[data-nav='inicio']"));
-  return;
+function perfEscapeHtml(valor) {
+  return String(valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function perfFormatInt(valor) {
+  const n = Number(valor || 0);
+
+  return n.toLocaleString("pt-BR", {
+    maximumFractionDigits: 0
+  });
+}
+
+function formatTempoSmartSlip(segundos) {
+  const s = Math.round(Number(segundos || 0));
+
+  if (!s) {
+    return "-";
+  }
+
+  if (s < 60) {
+    return s + "s";
+  }
+
+  const min = Math.floor(s / 60);
+  const rest = s % 60;
+
+  if (min < 60) {
+    return rest ? (min + "m " + rest + "s") : (min + "m");
+  }
+
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+
+  return h + "h " + m + "m";
+}
+
+function inicializarFiltrosPerformance() {
+  if (SMARTSLIP_STATE.performance_filtros_iniciados) {
+    return;
+  }
+
+  const anoEl = document.getElementById("perfAno");
+  const mesEl = document.getElementById("perfMes");
+
+  if (!anoEl || !mesEl) {
+    return;
+  }
+
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtual = hoje.getMonth() + 1;
+
+  let htmlAno = "";
+
+  for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+    htmlAno +=
+      "<option value='" + ano + "'" + (ano === anoAtual ? " selected" : "") + ">" +
+        ano +
+      "</option>";
+  }
+
+  const meses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+  ];
+
+  let htmlMes = "";
+
+  meses.forEach(function(nome, idx) {
+    const mes = idx + 1;
+
+    htmlMes +=
+      "<option value='" + mes + "'" + (mes === mesAtual ? " selected" : "") + ">" +
+        nome +
+      "</option>";
+  });
+
+  anoEl.innerHTML = htmlAno;
+  mesEl.innerHTML = htmlMes;
+
+  SMARTSLIP_STATE.performance_filtros_iniciados = true;
+}
+
+function carregarPerformance(forcar) {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  if (!(usuario.is_admin === true || usuario.is_analista_pro === true)) {
+    return;
+  }
+
+  if (isSmartSlipMobile()) {
+    return;
+  }
+
+  inicializarFiltrosPerformance();
+
+  const tipoEl = document.getElementById("perfTipoPeriodo");
+  const anoEl = document.getElementById("perfAno");
+  const mesEl = document.getElementById("perfMes");
+  const mesBox = document.getElementById("perfMesBox");
+
+  const tipoPeriodo = String(tipoEl && tipoEl.value ? tipoEl.value : "MENSAL").toUpperCase();
+  const ano = Number(anoEl && anoEl.value ? anoEl.value : new Date().getFullYear());
+  const mes = Number(mesEl && mesEl.value ? mesEl.value : (new Date().getMonth() + 1));
+
+  if (mesBox) {
+    mesBox.style.display = tipoPeriodo === "ANUAL" ? "none" : "block";
+  }
+
+  const mesmaConsulta =
+    SMARTSLIP_STATE.performance_carregado === true &&
+    SMARTSLIP_STATE.performance &&
+    SMARTSLIP_STATE.performance_tipo_periodo === tipoPeriodo &&
+    Number(SMARTSLIP_STATE.performance_ano || 0) === ano &&
+    Number(SMARTSLIP_STATE.performance_mes || 0) === mes;
+
+  if (forcar !== true && mesmaConsulta) {
+    renderPerformance(SMARTSLIP_STATE.performance);
+    return;
+  }
+
+  const chartTempo = document.getElementById("perfChartTempo");
+  const chartVolume = document.getElementById("perfChartVolume");
+  const diag = document.getElementById("perfDiagnostico");
+  const tabela = document.getElementById("perfTabelaLentos");
+
+  if (chartTempo) chartTempo.innerHTML = "<p class='page-sub'>Carregando performance...</p>";
+  if (chartVolume) chartVolume.innerHTML = "<p class='page-sub'>Carregando volume...</p>";
+  if (diag) diag.innerHTML = "<p class='page-sub'>Gerando diagnóstico...</p>";
+  if (tabela) tabela.innerHTML = "";
+
+  google.script.run
+    .withSuccessHandler(function(txt) {
+      let envelope = {};
+
+      try {
+        envelope = typeof txt === "string" ? JSON.parse(txt || "{}") : (txt || {});
+      } catch (err) {
+        envelope = {
+          ok: false,
+          erro: "Resposta inválida ao carregar Performance."
+        };
+      }
+
+      if (!envelope.ok) {
+        if (chartTempo) {
+          chartTempo.innerHTML =
+            "<p class='erro'>Erro: " +
+            perfEscapeHtml(envelope.erro || "Falha ao carregar Performance.") +
+            "</p>";
+        }
+
+        return;
+      }
+
+      SMARTSLIP_STATE.performance = envelope.payload || {};
+      SMARTSLIP_STATE.performance_carregado = true;
+      SMARTSLIP_STATE.performance_tipo_periodo = tipoPeriodo;
+      SMARTSLIP_STATE.performance_ano = ano;
+      SMARTSLIP_STATE.performance_mes = mes;
+
+      renderPerformance(SMARTSLIP_STATE.performance);
+    })
+    .withFailureHandler(function(err) {
+      if (chartTempo) {
+        chartTempo.innerHTML =
+          "<p class='erro'>" +
+          perfEscapeHtml(err && err.message ? err.message : "Falha ao carregar Performance.") +
+          "</p>";
+      }
+    })
+    .smartSlipGetPerformanceJson(JSON.stringify({
+      tipo_periodo: tipoPeriodo,
+      ano: ano,
+      mes: mes
+    }));
+}
+
+function renderPerformance(payload) {
+  payload = payload || {};
+
+  const k = payload.kpis || {};
+
+  document.getElementById("perfKpiEnvios").textContent = perfFormatInt(k.total_envios || 0);
+  document.getElementById("perfKpiTotalMedio").textContent = formatTempoSmartSlip(k.total_media_seg || 0);
+  document.getElementById("perfKpiIaMedia").textContent = formatTempoSmartSlip(k.leitura_media_seg || 0);
+  document.getElementById("perfKpiFilaMedia").textContent = formatTempoSmartSlip(k.fila_media_seg || 0);
+  document.getElementById("perfKpiP95").textContent = formatTempoSmartSlip(k.total_p95_seg || 0);
+
+  renderPerformanceChartTempo(payload.serie || []);
+  renderPerformanceChartVolume(payload.serie || []);
+  renderPerformanceDiagnostico(payload.diagnostico || []);
+  renderPerformanceStatus(payload.status || []);
+  renderPerformanceTabelaLentos(payload.top_lentos || []);
+}
+
+function renderPerformanceChartTempo(serie) {
+  const box = document.getElementById("perfChartTempo");
+
+  if (!box) {
+    return;
+  }
+
+  const data = (serie || []).filter(function(item) {
+    return Number(item.qtd || 0) > 0;
+  });
+
+  if (!data.length) {
+    box.innerHTML = "<p class='page-sub'>Sem dados processados para o período selecionado.</p>";
+    return;
+  }
+
+  const w = 920;
+  const h = 300;
+  const padL = 42;
+  const padR = 22;
+  const padT = 34;
+  const padB = 46;
+  const areaW = w - padL - padR;
+  const areaH = h - padT - padB;
+
+  const max = Math.max.apply(null, data.map(function(d) {
+    return Math.max(
+      Number(d.total_media_seg || 0),
+      Number(d.leitura_media_seg || 0),
+      Number(d.fila_media_seg || 0)
+    );
+  })) || 1;
+
+  const step = areaW / Math.max(1, data.length);
+  const barW = Math.max(8, Math.min(22, step / 5));
+
+  function y(v) {
+    return padT + areaH - ((Number(v || 0) / max) * areaH);
+  }
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + w + " " + h + "' role='img'>";
+  svg += "<line x1='" + padL + "' y1='" + (padT + areaH) + "' x2='" + (w - padR) + "' y2='" + (padT + areaH) + "' stroke='rgba(255,255,255,.14)' />";
+
+  data.forEach(function(d, i) {
+    const x0 = padL + (i * step) + (step / 2);
+
+    const total = Number(d.total_media_seg || 0);
+    const ia = Number(d.leitura_media_seg || 0);
+    const fila = Number(d.fila_media_seg || 0);
+
+    const yTotal = y(total);
+    const yIa = y(ia);
+    const yFila = y(fila);
+
+    svg += "<rect x='" + (x0 - barW * 1.6) + "' y='" + yTotal + "' width='" + barW + "' height='" + Math.max(1, padT + areaH - yTotal) + "' rx='5' fill='#B5FF20'></rect>";
+    svg += "<rect x='" + (x0 - barW * 0.2) + "' y='" + yIa + "' width='" + barW + "' height='" + Math.max(1, padT + areaH - yIa) + "' rx='5' fill='#40E0D0'></rect>";
+    svg += "<rect x='" + (x0 + barW * 1.2) + "' y='" + yFila + "' width='" + barW + "' height='" + Math.max(1, padT + areaH - yFila) + "' rx='5' fill='#1D6FD1'></rect>";
+
+    if (total > 0) {
+      svg += "<text x='" + (x0 - barW * 1.1) + "' y='" + Math.max(14, yTotal - 7) + "' text-anchor='middle' fill='#ffffff' font-size='11' font-weight='900'>" +
+        perfEscapeHtml(formatTempoSmartSlip(total)) +
+        "</text>";
     }
+
+    if (ia > 0) {
+      svg += "<text x='" + (x0 + barW * 0.3) + "' y='" + Math.max(14, yIa - 7) + "' text-anchor='middle' fill='#ffffff' font-size='10' font-weight='900'>" +
+        perfEscapeHtml(formatTempoSmartSlip(ia)) +
+        "</text>";
+    }
+
+    if (fila > 0) {
+      svg += "<text x='" + (x0 + barW * 1.7) + "' y='" + Math.max(14, yFila - 7) + "' text-anchor='middle' fill='#ffffff' font-size='10' font-weight='900'>" +
+        perfEscapeHtml(formatTempoSmartSlip(fila)) +
+        "</text>";
+    }
+
+    svg += "<text x='" + x0 + "' y='" + (h - 18) + "' text-anchor='middle' fill='rgba(255,255,255,.72)' font-size='10' font-weight='800'>" +
+      perfEscapeHtml(d.label || "") +
+      "</text>";
+  });
+
+  svg += "</svg>";
+
+  box.innerHTML = svg;
+}
+
+function renderPerformanceChartVolume(serie) {
+  const box = document.getElementById("perfChartVolume");
+
+  if (!box) {
+    return;
+  }
+
+  const data = (serie || []).filter(function(item) {
+    return Number(item.qtd || 0) > 0;
+  });
+
+  if (!data.length) {
+    box.innerHTML = "<p class='page-sub'>Sem volume para o período selecionado.</p>";
+    return;
+  }
+
+  const w = 920;
+  const h = 300;
+  const padL = 42;
+  const padR = 22;
+  const padT = 34;
+  const padB = 46;
+  const areaW = w - padL - padR;
+  const areaH = h - padT - padB;
+
+  const max = Math.max.apply(null, data.map(function(d) {
+    return Math.max(
+      Number(d.qtd || 0),
+      Number(d.lentos || 0) + Number(d.criticos || 0)
+    );
+  })) || 1;
+
+  const step = areaW / Math.max(1, data.length);
+  const barW = Math.max(10, Math.min(26, step / 3.5));
+
+  function y(v) {
+    return padT + areaH - ((Number(v || 0) / max) * areaH);
+  }
+
+  let svg = "";
+
+  svg += "<svg viewBox='0 0 " + w + " " + h + "' role='img'>";
+  svg += "<line x1='" + padL + "' y1='" + (padT + areaH) + "' x2='" + (w - padR) + "' y2='" + (padT + areaH) + "' stroke='rgba(255,255,255,.14)' />";
+
+  data.forEach(function(d, i) {
+    const x0 = padL + (i * step) + (step / 2);
+
+    const qtd = Number(d.qtd || 0);
+    const lentos = Number(d.lentos || 0) + Number(d.criticos || 0);
+
+    const yQtd = y(qtd);
+    const yLentos = y(lentos);
+
+    svg += "<rect x='" + (x0 - barW - 3) + "' y='" + yQtd + "' width='" + barW + "' height='" + Math.max(1, padT + areaH - yQtd) + "' rx='5' fill='#B5FF20'></rect>";
+    svg += "<rect x='" + (x0 + 3) + "' y='" + yLentos + "' width='" + barW + "' height='" + Math.max(1, padT + areaH - yLentos) + "' rx='5' fill='#f97316'></rect>";
+
+    svg += "<text x='" + (x0 - barW / 2 - 3) + "' y='" + Math.max(14, yQtd - 7) + "' text-anchor='middle' fill='#ffffff' font-size='11' font-weight='900'>" +
+      perfEscapeHtml(String(qtd)) +
+      "</text>";
+
+    if (lentos > 0) {
+      svg += "<text x='" + (x0 + barW / 2 + 3) + "' y='" + Math.max(14, yLentos - 7) + "' text-anchor='middle' fill='#ffffff' font-size='11' font-weight='900'>" +
+        perfEscapeHtml(String(lentos)) +
+        "</text>";
+    }
+
+    svg += "<text x='" + x0 + "' y='" + (h - 18) + "' text-anchor='middle' fill='rgba(255,255,255,.72)' font-size='10' font-weight='800'>" +
+      perfEscapeHtml(d.label || "") +
+      "</text>";
+  });
+
+  svg += "</svg>";
+
+  box.innerHTML = svg;
+}
+
+function renderPerformanceDiagnostico(lista) {
+  const box = document.getElementById("perfDiagnostico");
+
+  if (!box) {
+    return;
+  }
+
+  if (!lista.length) {
+    box.innerHTML = "<div class='perf-diagnostico-item'>Sem diagnóstico disponível.</div>";
+    return;
+  }
+
+  box.innerHTML = lista.map(function(txt) {
+    return "<div class='perf-diagnostico-item'>⚠️ " + perfEscapeHtml(txt) + "</div>";
+  }).join("");
+}
+
+function renderPerformanceStatus(lista) {
+  const box = document.getElementById("perfStatusBox");
+
+  if (!box) {
+    return;
+  }
+
+  if (!lista.length) {
+    box.innerHTML = "<p class='page-sub'>Sem status no período.</p>";
+    return;
+  }
+
+  box.innerHTML = lista.map(function(item) {
+    return (
+      "<div class='perf-status-row'>" +
+        "<b>" + perfEscapeHtml(item.status || "-") + "</b>" +
+        "<span>" + perfFormatInt(item.qtd || 0) + "</span>" +
+      "</div>"
+    );
+  }).join("");
+}
+
+function renderPerformanceTabelaLentos(lista) {
+  const box = document.getElementById("perfTabelaLentos");
+
+  if (!box) {
+    return;
+  }
+
+  if (!lista.length) {
+    box.innerHTML = "<p class='page-sub'>Sem envios finalizados no período selecionado.</p>";
+    return;
+  }
+
+  let html = "";
+
+  html += "<table class='perf-table'>";
+  html += "<thead>";
+  html += "<tr>";
+  html += "<th>Protocolo</th>";
+  html += "<th>Loja</th>";
+  html += "<th>Status</th>";
+  html += "<th>Fila</th>";
+  html += "<th>IA</th>";
+  html += "<th>Total</th>";
+  html += "<th>Sinal</th>";
+  html += "</tr>";
+  html += "</thead>";
+  html += "<tbody>";
+
+  lista.forEach(function(item) {
+    const flag = String(item.flag || "NORMAL").toUpperCase();
+
+    html += "<tr>";
+    html += "<td class='comp-mono'>" + perfEscapeHtml(item.protocolo || "-") + "<br><small>" + perfEscapeHtml(item.data_registro || "") + "</small></td>";
+    html += "<td>" + perfEscapeHtml(item.loja || "-") + "</td>";
+    html += "<td>" + perfEscapeHtml(item.status || "-") + "</td>";
+    html += "<td>" + perfEscapeHtml(formatTempoSmartSlip(item.fila_seg || 0)) + "</td>";
+    html += "<td>" + perfEscapeHtml(formatTempoSmartSlip(item.leitura_ia_seg || 0)) + "</td>";
+    html += "<td><b>" + perfEscapeHtml(formatTempoSmartSlip(item.total_seg || 0)) + "</b></td>";
+    html += "<td><span class='perf-flag " + perfEscapeHtml(flag) + "'>" + perfEscapeHtml(flag) + "</span></td>";
+    html += "</tr>";
+  });
+
+  html += "</tbody>";
+  html += "</table>";
+
+  box.innerHTML = html;
+}
+
+function abrirView(nome, btn) {
+  nome = String(nome || "").toLowerCase();
+
+  if (nome === "performance" && isSmartSlipMobile()) {
+    abrirView("inicio", document.querySelector("[data-nav='inicio']"));
+    return;
+  }
+
+  if (nome === "custos" && isSmartSlipMobile()) {
+    abrirView("inicio", document.querySelector("[data-nav='inicio']"));
+    return;
+  }
+
   aplicarModoMobileSmartSlip();
-  aplicarTemaHomeSmartSlip(nome);
 
   if (nome === "comp-hub" && isSmartSlipMobile()) {
     const btnInicio = document.querySelector('[data-nav="inicio"]');
@@ -8395,6 +9441,19 @@ function abrirView(nome, btn) {
 
     if (usuario.can_comp_hub !== true) {
       alert("Acesso restrito. O Comp Hub está disponível apenas para Administrador ou Analista Pro.");
+      return;
+    }
+  }
+
+  if (nome === "performance") {
+    const usuario = SMARTSLIP_STATE.usuario || {};
+
+    const podeVerPerformance =
+      usuario.is_admin === true ||
+      usuario.is_analista_pro === true;
+
+    if (!podeVerPerformance) {
+      alert("Acesso restrito. A página Performance está disponível apenas para Administrador ou Analista Pro.");
       return;
     }
   }
@@ -8417,6 +9476,8 @@ function abrirView(nome, btn) {
     btn.classList.add("active");
   }
 
+  aplicarTemaHomeSmartSlip(nome);
+
   if (nome === "inicio" || nome === "historico") {
     carregarBootstrap({ silencioso: true });
   }
@@ -8433,15 +9494,18 @@ function abrirView(nome, btn) {
     }
   }
 
-  if (nome === "comprovantes") {
-  if (SMARTSLIP_STATE.envio_lote_iniciado === true) {
-    smartSlipMostrarFormularioEnvio_();
-    smartSlipAtualizarProgressoAnexos_();
-  } else {
-    smartSlipMostrarSomenteNovoEnvio_();
+  if (nome === "performance") {
+    carregarPerformance(false);
   }
-}
 
+  if (nome === "comprovantes") {
+    if (SMARTSLIP_STATE.envio_lote_iniciado === true) {
+      smartSlipMostrarFormularioEnvio_();
+      smartSlipAtualizarProgressoAnexos_();
+    } else {
+      smartSlipMostrarSomenteNovoEnvio_();
+    }
+  }
 }
 
 function toggleRetirada() {
