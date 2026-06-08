@@ -2609,6 +2609,160 @@ function smartSlipFinalizarBucketPerformance_(bucket) {
   return bucket;
 }
 
+function smartSlipInferirStatusGeminiPerformance_(kpis, statusRows) {
+  kpis = kpis || {};
+  statusRows = Array.isArray(statusRows) ? statusRows : [];
+
+  const totalEnvios = Number(kpis.total_envios || 0);
+  const processados = Number(kpis.processados || 0);
+  const pendentes = Number(kpis.pendentes || 0);
+  const leituraMediaSeg = Number(kpis.leitura_media_seg || 0);
+  const totalP95Seg = Number(kpis.total_p95_seg || 0);
+
+  let errosProcessamento = 0;
+
+  statusRows.forEach(function(item) {
+    const status = String(item.status || "").toUpperCase();
+    const qtd = Number(item.qtd || 0);
+
+    /*
+      Para medir saúde da chamada Gemini, considerar erro técnico.
+      Não considerar PENDENTE_INTERNO como erro de API, pois pode ser regra de validação/anti-alucinação.
+    */
+    if (
+      status.includes("ERRO_PROCESSAMENTO") ||
+      status.includes("ERRO") ||
+      status.includes("FALHA")
+    ) {
+      errosProcessamento += qtd;
+    }
+  });
+
+  if (!totalEnvios) {
+    return {
+      status: "NAO_MEDIDO",
+      label: "Não medido",
+      latencia_ms: 0,
+      latencia_operacional_seg: 0,
+      detalhe: "Sem envios no período selecionado para inferir status do Gemini."
+    };
+  }
+
+  if (!processados && pendentes > 0) {
+    return {
+      status: "ATENCAO",
+      label: "Sem conclusão",
+      latencia_ms: 0,
+      latencia_operacional_seg: 0,
+      detalhe: "Há envios no período, mas ainda sem Data Processamento."
+    };
+  }
+
+  const taxaErro = totalEnvios > 0
+    ? (errosProcessamento / totalEnvios) * 100
+    : 0;
+
+  if (taxaErro >= 20) {
+    return {
+      status: "ERRO",
+      label: "Instável",
+      latencia_ms: 0,
+      latencia_operacional_seg: leituraMediaSeg,
+      detalhe:
+        "Alta taxa de erro técnico nos processamentos reais do período: " +
+        taxaErro.toFixed(1).replace(".", ",") +
+        "%."
+    };
+  }
+
+  if (taxaErro > 0) {
+    return {
+      status: "ATENCAO",
+      label: "Atenção",
+      latencia_ms: 0,
+      latencia_operacional_seg: leituraMediaSeg,
+      detalhe:
+        "Foram identificados erros técnicos em processamentos reais do período: " +
+        taxaErro.toFixed(1).replace(".", ",") +
+        "%."
+    };
+  }
+
+  if (leituraMediaSeg >= 120 || totalP95Seg >= 300) {
+    return {
+      status: "ATENCAO",
+      label: "Lentidão parcial",
+      latencia_ms: 0,
+      latencia_operacional_seg: leituraMediaSeg,
+      detalhe:
+        "Sem erro técnico relevante, mas com lentidão operacional na leitura IA do período."
+    };
+  }
+
+  return {
+    status: "OK",
+    label: "Operacional",
+    latencia_ms: 0,
+    latencia_operacional_seg: leituraMediaSeg,
+    detalhe:
+      "Status inferido pelos processamentos reais da SMARTSLIP_FILA. Nenhuma chamada adicional ao Gemini foi feita."
+  };
+}
+
+function smartSlipGetStatusPlataformaPerformance_(kpis, statusRows) {
+  const google = smartSlipTestarGooglePerformance_();
+  const gemini = smartSlipInferirStatusGeminiPerformance_(kpis, statusRows);
+
+  return {
+    atualizado_em: smartSlipFormatarDataHora(new Date()),
+    google: google,
+    gemini: gemini,
+    modelo: {
+      nome: "Sem health check direto",
+      detalhe: "Modelo não consultado para evitar custo de tokens. Status do Gemini inferido pela fila real."
+    }
+  };
+}
+
+
+function smartSlipTestarGooglePerformance_() {
+  const inicio = Date.now();
+
+  try {
+    const resp = UrlFetchApp.fetch("https://www.google.com/generate_204", {
+      method: "get",
+      muteHttpExceptions: true
+    });
+
+    const code = resp.getResponseCode();
+    const latencia = Date.now() - inicio;
+
+    if (code === 204 || (code >= 200 && code < 300)) {
+      return {
+        status: "OK",
+        label: "Operacional",
+        latencia_ms: latencia,
+        detalhe: "Conectividade Google validada."
+      };
+    }
+
+    return {
+      status: "ATENCAO",
+      label: "Atenção",
+      latencia_ms: latencia,
+      detalhe: "Google retornou HTTP " + code + "."
+    };
+
+  } catch (err) {
+    return {
+      status: "ERRO",
+      label: "Erro",
+      latencia_ms: 0,
+      detalhe: String(err && err.message ? err.message : err)
+    };
+  }
+}
+
 function smartSlipGetPerformance_(options) {
   options = options || {};
 
@@ -2850,7 +3004,8 @@ function smartSlipGetPerformance_(options) {
     serie: serieFinal,
     status: statusRows,
     top_lentos: topLentos.slice(0, 15),
-    diagnostico: diagnostico
+    diagnostico: diagnostico,
+    plataforma: smartSlipGetStatusPlataformaPerformance_(kpis, statusRows)
   };
 }
 
