@@ -2763,6 +2763,16 @@ function smartSlipTestarGooglePerformance_() {
   }
 }
 
+function smartSlipDataIsoPerformance_(data) {
+  if (!(data instanceof Date)) {
+    return "";
+  }
+
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+
+  return Utilities.formatDate(data, tz, "yyyy-MM-dd");
+}
+
 function smartSlipGetPerformance_(options) {
   options = options || {};
 
@@ -2778,12 +2788,18 @@ function smartSlipGetPerformance_(options) {
   const anoAtual = Number(Utilities.formatDate(hoje, tz, "yyyy"));
   const mesAtual = Number(Utilities.formatDate(hoje, tz, "MM"));
 
-  const tipoPeriodo = String(options.tipo_periodo || "MENSAL").toUpperCase() === "ANUAL"
-    ? "ANUAL"
-    : "MENSAL";
+  let tipoPeriodo = String(options.tipo_periodo || "MENSAL").toUpperCase();
+
+  if (tipoPeriodo !== "DIARIO" && tipoPeriodo !== "MENSAL" && tipoPeriodo !== "ANUAL") {
+    tipoPeriodo = "MENSAL";
+  }
 
   const ano = Number(options.ano || anoAtual);
   const mes = Number(options.mes || mesAtual);
+  const diaSelecionado = String(
+    options.dia ||
+    Utilities.formatDate(hoje, tz, "yyyy-MM-dd")
+  ).trim();
 
   const sh = smartSlipGarantirCabecalhoFila();
 
@@ -2810,27 +2826,39 @@ function smartSlipGetPerformance_(options) {
   const serie = [];
   const mapaSerie = {};
 
-  if (tipoPeriodo === "ANUAL") {
-    for (let m = 1; m <= 12; m++) {
-      const chave = ano + "-" + smartSlipPad2_(m);
-      const label = smartSlipPad2_(m) + "/" + String(ano).slice(-2);
-      const bucket = smartSlipCriarBucketPerformance_(label, chave);
+if (tipoPeriodo === "DIARIO") {
+  for (let h = 0; h <= 23; h++) {
+    const hora = smartSlipPad2_(h);
+    const chave = diaSelecionado + " " + hora;
+    const label = hora + "h";
+    const bucket = smartSlipCriarBucketPerformance_(label, chave);
 
-      serie.push(bucket);
-      mapaSerie[chave] = bucket;
-    }
-  } else {
-    const diasMes = new Date(ano, mes, 0).getDate();
-
-    for (let d = 1; d <= diasMes; d++) {
-      const chave = ano + "-" + smartSlipPad2_(mes) + "-" + smartSlipPad2_(d);
-      const label = smartSlipPad2_(d);
-      const bucket = smartSlipCriarBucketPerformance_(label, chave);
-
-      serie.push(bucket);
-      mapaSerie[chave] = bucket;
-    }
+    serie.push(bucket);
+    mapaSerie[chave] = bucket;
   }
+
+} else if (tipoPeriodo === "ANUAL") {
+  for (let m = 1; m <= 12; m++) {
+    const chave = ano + "-" + smartSlipPad2_(m);
+    const label = smartSlipPad2_(m) + "/" + String(ano).slice(-2);
+    const bucket = smartSlipCriarBucketPerformance_(label, chave);
+
+    serie.push(bucket);
+    mapaSerie[chave] = bucket;
+  }
+
+} else {
+  const diasMes = new Date(ano, mes, 0).getDate();
+
+  for (let d = 1; d <= diasMes; d++) {
+    const chave = ano + "-" + smartSlipPad2_(mes) + "-" + smartSlipPad2_(d);
+    const label = smartSlipPad2_(d);
+    const bucket = smartSlipCriarBucketPerformance_(label, chave);
+
+    serie.push(bucket);
+    mapaSerie[chave] = bucket;
+  }
+}
 
   if (sh.getLastRow() >= 2) {
     const lastCol = Math.max(29, sh.getLastColumn());
@@ -2853,12 +2881,20 @@ function smartSlipGetPerformance_(options) {
       const rowMes = Number(Utilities.formatDate(dataRegistro, tz, "MM"));
       const rowDia = Number(Utilities.formatDate(dataRegistro, tz, "dd"));
 
-      if (rowAno !== ano) {
-        return;
-      }
+      const rowIso = smartSlipDataIsoPerformance_(dataRegistro);
 
-      if (tipoPeriodo === "MENSAL" && rowMes !== mes) {
-        return;
+      if (tipoPeriodo === "DIARIO") {
+        if (rowIso !== diaSelecionado) {
+          return;
+        }
+      } else {
+        if (rowAno !== ano) {
+          return;
+        }
+
+        if (tipoPeriodo === "MENSAL" && rowMes !== mes) {
+          return;
+        }
       }
 
       let filaSeg = Number(row[25] || 0);
@@ -2907,9 +2943,16 @@ function smartSlipGetPerformance_(options) {
         kpis.total_max_seg = totalSeg;
       }
 
-      const chaveSerie = tipoPeriodo === "ANUAL"
-        ? rowAno + "-" + smartSlipPad2_(rowMes)
-        : rowAno + "-" + smartSlipPad2_(rowMes) + "-" + smartSlipPad2_(rowDia);
+      let chaveSerie = "";
+
+      if (tipoPeriodo === "DIARIO") {
+        const rowHora = Utilities.formatDate(dataRegistro, tz, "HH");
+        chaveSerie = rowIso + " " + rowHora;
+      } else if (tipoPeriodo === "ANUAL") {
+        chaveSerie = rowAno + "-" + smartSlipPad2_(rowMes);
+      } else {
+        chaveSerie = rowAno + "-" + smartSlipPad2_(rowMes) + "-" + smartSlipPad2_(rowDia);
+      }
 
       const bucket = mapaSerie[chaveSerie];
 
@@ -3000,6 +3043,7 @@ function smartSlipGetPerformance_(options) {
     tipo_periodo: tipoPeriodo,
     ano: ano,
     mes: mes,
+    dia: diaSelecionado,
     kpis: kpis,
     serie: serieFinal,
     status: statusRows,
