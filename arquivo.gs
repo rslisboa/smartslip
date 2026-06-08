@@ -1977,40 +1977,7 @@ function smartSlipMontarPerguntasComplementares(pendencias) {
 }
 
 function smartSlipGarantirAbaFila() {
-  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
-  let sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
-
-  if (!sh) {
-    sh = ss.insertSheet(SMARTSLIP_ABA_FILA);
-    sh.appendRow([
-      "Data Registro",
-      "Protocolo",
-      "Email Usuário",
-      "Loja Informada",
-      "Banco Informado",
-      "Data Movimento",
-      "Houve Retirada",
-      "Valor Retirada",
-      "Motivo Retirada",
-      "Mais Comprovantes",
-      "File ID",
-      "Link Comprovante",
-      "Nome Arquivo",
-      "Status Fila",
-      "Mensagem",
-      "JSON Respostas",
-      "JSON Resultado",
-      "Data Processamento",
-      "Protocolo Lote",
-      "Protocolo Envio",
-      "Sequência Lote",
-      "Status Lote",
-      "Último Envio do Lote",
-      "Total Movimento Lote"
-    ]);
-  }
-
-  return sh;
+  return smartSlipGarantirCabecalhoFila();
 }
 
 function smartSlipTesteFila() {
@@ -2570,6 +2537,357 @@ function smartSlipGetCustosIaJson(optionsJson) {
   }
 }
 
+function smartSlipPercentilPerformance_(lista, percentil) {
+  const arr = (lista || [])
+    .map(function(v) {
+      return Number(v || 0);
+    })
+    .filter(function(v) {
+      return v > 0;
+    })
+    .sort(function(a, b) {
+      return a - b;
+    });
+
+  if (!arr.length) {
+    return 0;
+  }
+
+  const pos = Math.ceil((percentil / 100) * arr.length) - 1;
+
+  return arr[Math.max(0, Math.min(arr.length - 1, pos))];
+}
+
+function smartSlipMediaPerformance_(lista) {
+  const arr = (lista || [])
+    .map(function(v) {
+      return Number(v || 0);
+    })
+    .filter(function(v) {
+      return v > 0;
+    });
+
+  if (!arr.length) {
+    return 0;
+  }
+
+  const soma = arr.reduce(function(acc, v) {
+    return acc + v;
+  }, 0);
+
+  return soma / arr.length;
+}
+
+function smartSlipCriarBucketPerformance_(label, chave) {
+  return {
+    chave: chave,
+    label: label,
+    qtd: 0,
+    processados: 0,
+    lentos: 0,
+    criticos: 0,
+    fila_lista: [],
+    leitura_lista: [],
+    total_lista: [],
+    fila_media_seg: 0,
+    leitura_media_seg: 0,
+    total_media_seg: 0,
+    total_p95_seg: 0
+  };
+}
+
+function smartSlipFinalizarBucketPerformance_(bucket) {
+  bucket.fila_media_seg = smartSlipMediaPerformance_(bucket.fila_lista);
+  bucket.leitura_media_seg = smartSlipMediaPerformance_(bucket.leitura_lista);
+  bucket.total_media_seg = smartSlipMediaPerformance_(bucket.total_lista);
+  bucket.total_p95_seg = smartSlipPercentilPerformance_(bucket.total_lista, 95);
+
+  delete bucket.fila_lista;
+  delete bucket.leitura_lista;
+  delete bucket.total_lista;
+
+  return bucket;
+}
+
+function smartSlipGetPerformance_(options) {
+  options = options || {};
+
+  const usuario = smartSlipGetUsuarioAtual();
+
+  if (!(usuario.is_admin === true || usuario.is_analista_pro === true)) {
+    throw new Error("Acesso restrito. Performance disponível apenas para Administrador ou Analista Pro.");
+  }
+
+  const tz = Session.getScriptTimeZone() || "America/Sao_Paulo";
+  const hoje = new Date();
+
+  const anoAtual = Number(Utilities.formatDate(hoje, tz, "yyyy"));
+  const mesAtual = Number(Utilities.formatDate(hoje, tz, "MM"));
+
+  const tipoPeriodo = String(options.tipo_periodo || "MENSAL").toUpperCase() === "ANUAL"
+    ? "ANUAL"
+    : "MENSAL";
+
+  const ano = Number(options.ano || anoAtual);
+  const mes = Number(options.mes || mesAtual);
+
+  const sh = smartSlipGarantirCabecalhoFila();
+
+  const kpis = {
+    total_envios: 0,
+    processados: 0,
+    pendentes: 0,
+    lentos: 0,
+    criticos: 0,
+    fila_media_seg: 0,
+    leitura_media_seg: 0,
+    total_media_seg: 0,
+    total_p95_seg: 0,
+    total_max_seg: 0
+  };
+
+  const statusMap = {};
+  const topLentos = [];
+
+  const filaLista = [];
+  const leituraLista = [];
+  const totalLista = [];
+
+  const serie = [];
+  const mapaSerie = {};
+
+  if (tipoPeriodo === "ANUAL") {
+    for (let m = 1; m <= 12; m++) {
+      const chave = ano + "-" + smartSlipPad2_(m);
+      const label = smartSlipPad2_(m) + "/" + String(ano).slice(-2);
+      const bucket = smartSlipCriarBucketPerformance_(label, chave);
+
+      serie.push(bucket);
+      mapaSerie[chave] = bucket;
+    }
+  } else {
+    const diasMes = new Date(ano, mes, 0).getDate();
+
+    for (let d = 1; d <= diasMes; d++) {
+      const chave = ano + "-" + smartSlipPad2_(mes) + "-" + smartSlipPad2_(d);
+      const label = smartSlipPad2_(d);
+      const bucket = smartSlipCriarBucketPerformance_(label, chave);
+
+      serie.push(bucket);
+      mapaSerie[chave] = bucket;
+    }
+  }
+
+  if (sh.getLastRow() >= 2) {
+    const lastCol = Math.max(29, sh.getLastColumn());
+    const values = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+
+    values.forEach(function(row) {
+      const dataRegistro = row[0];
+      const protocolo = String(row[1] || "").trim();
+      const email = String(row[2] || "").trim();
+      const loja = String(row[3] || "").trim();
+      const status = String(row[13] || "SEM_STATUS").trim() || "SEM_STATUS";
+      const mensagem = String(row[14] || "").trim();
+      const dataProcessamento = row[17];
+
+      if (!(dataRegistro instanceof Date)) {
+        return;
+      }
+
+      const rowAno = Number(Utilities.formatDate(dataRegistro, tz, "yyyy"));
+      const rowMes = Number(Utilities.formatDate(dataRegistro, tz, "MM"));
+      const rowDia = Number(Utilities.formatDate(dataRegistro, tz, "dd"));
+
+      if (rowAno !== ano) {
+        return;
+      }
+
+      if (tipoPeriodo === "MENSAL" && rowMes !== mes) {
+        return;
+      }
+
+      let filaSeg = Number(row[25] || 0);
+      let leituraSeg = Number(row[26] || 0);
+      let totalSeg = Number(row[27] || 0);
+      let flag = String(row[28] || "").trim();
+
+      /*
+        Linhas antigas:
+        calcula apenas o total com Data Registro x Data Processamento.
+        Não inventa tempo de fila nem tempo Gemini.
+      */
+      if (!totalSeg && dataProcessamento instanceof Date) {
+        totalSeg = smartSlipDiffSegundos_(dataRegistro, dataProcessamento) || 0;
+      }
+
+      if (!flag && totalSeg) {
+        flag = smartSlipClassificarPerformance_(filaSeg, leituraSeg, totalSeg);
+      }
+
+      const processado = dataProcessamento instanceof Date;
+
+      kpis.total_envios += 1;
+
+      if (processado) {
+        kpis.processados += 1;
+      } else {
+        kpis.pendentes += 1;
+      }
+
+      if (flag === "LENTO") {
+        kpis.lentos += 1;
+      }
+
+      if (flag === "CRITICO") {
+        kpis.criticos += 1;
+      }
+
+      statusMap[status] = (statusMap[status] || 0) + 1;
+
+      if (filaSeg > 0) filaLista.push(filaSeg);
+      if (leituraSeg > 0) leituraLista.push(leituraSeg);
+      if (totalSeg > 0) totalLista.push(totalSeg);
+
+      if (totalSeg > kpis.total_max_seg) {
+        kpis.total_max_seg = totalSeg;
+      }
+
+      const chaveSerie = tipoPeriodo === "ANUAL"
+        ? rowAno + "-" + smartSlipPad2_(rowMes)
+        : rowAno + "-" + smartSlipPad2_(rowMes) + "-" + smartSlipPad2_(rowDia);
+
+      const bucket = mapaSerie[chaveSerie];
+
+      if (bucket) {
+        bucket.qtd += 1;
+
+        if (processado) {
+          bucket.processados += 1;
+        }
+
+        if (flag === "LENTO") {
+          bucket.lentos += 1;
+        }
+
+        if (flag === "CRITICO") {
+          bucket.criticos += 1;
+        }
+
+        if (filaSeg > 0) bucket.fila_lista.push(filaSeg);
+        if (leituraSeg > 0) bucket.leitura_lista.push(leituraSeg);
+        if (totalSeg > 0) bucket.total_lista.push(totalSeg);
+      }
+
+      if (totalSeg > 0) {
+        topLentos.push({
+          protocolo: protocolo,
+          data_registro: smartSlipFormatarDataHora(dataRegistro),
+          data_processamento: smartSlipFormatarDataHora(dataProcessamento),
+          loja: loja,
+          email_usuario: email,
+          status: status,
+          mensagem: mensagem,
+          fila_seg: filaSeg,
+          leitura_ia_seg: leituraSeg,
+          total_seg: totalSeg,
+          flag: flag || "NORMAL"
+        });
+      }
+    });
+  }
+
+  kpis.fila_media_seg = smartSlipMediaPerformance_(filaLista);
+  kpis.leitura_media_seg = smartSlipMediaPerformance_(leituraLista);
+  kpis.total_media_seg = smartSlipMediaPerformance_(totalLista);
+  kpis.total_p95_seg = smartSlipPercentilPerformance_(totalLista, 95);
+
+  const serieFinal = serie.map(smartSlipFinalizarBucketPerformance_);
+
+  const statusRows = Object.keys(statusMap)
+    .sort(function(a, b) {
+      return statusMap[b] - statusMap[a];
+    })
+    .map(function(status) {
+      return {
+        status: status,
+        qtd: statusMap[status]
+      };
+    });
+
+  topLentos.sort(function(a, b) {
+    return Number(b.total_seg || 0) - Number(a.total_seg || 0);
+  });
+
+  const diagnostico = [];
+
+  if (kpis.pendentes > 0) {
+    diagnostico.push("Existem envios ainda sem Data Processamento. Eles aparecem como pendentes e não entram nas médias finais.");
+  }
+
+  if (kpis.fila_media_seg >= 120) {
+    diagnostico.push("Tempo médio de fila elevado. Pode indicar acúmulo de itens, trigger atrasado ou limitação temporária do Apps Script.");
+  }
+
+  if (kpis.leitura_media_seg >= 90) {
+    diagnostico.push("Tempo médio de leitura IA elevado. Pode indicar lentidão na chamada Gemini, arquivo pesado ou comprovante complexo.");
+  }
+
+  if (kpis.total_p95_seg >= 300) {
+    diagnostico.push("P95 do tempo total acima de 5 minutos. Há cauda de lentidão relevante no período.");
+  }
+
+  if (!diagnostico.length) {
+    diagnostico.push("Performance operacional dentro do comportamento esperado para o período.");
+  }
+
+  return {
+    atualizado_em: smartSlipFormatarDataHora(new Date()),
+    tipo_periodo: tipoPeriodo,
+    ano: ano,
+    mes: mes,
+    kpis: kpis,
+    serie: serieFinal,
+    status: statusRows,
+    top_lentos: topLentos.slice(0, 15),
+    diagnostico: diagnostico
+  };
+}
+
+function smartSlipGetPerformanceJson(optionsJson) {
+  try {
+    smartSlipAssertUsuarioAutorizado_();
+
+    const usuario = smartSlipGetUsuarioAtual();
+
+    if (!(usuario.is_admin === true || usuario.is_analista_pro === true)) {
+      return JSON.stringify({
+        ok: false,
+        erro: "Acesso restrito. Performance disponível apenas para Administrador ou Analista Pro."
+      });
+    }
+
+    let options = {};
+
+    try {
+      options = optionsJson ? JSON.parse(optionsJson) : {};
+    } catch (e) {
+      options = {};
+    }
+
+    return JSON.stringify({
+      ok: true,
+      payload: smartSlipGetPerformance_(options)
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(err && err.message ? err.message : err)
+    });
+  }
+}
+
 function smartSlipGetRootFolderComprovantes() {
   const folderId = smartSlipGetScriptProperty("SMARTSLIP_FOLDER_ID");
   return DriveApp.getFolderById(folderId);
@@ -2975,14 +3293,28 @@ function smartSlipGarantirCabecalhoFila() {
     "JSON Resultado",
     "Data Processamento",
 
-    // Novas colunas de controle de lote - não alteram A:R
+    // Controle de lote - não alterar A:R
     "Protocolo Lote",
     "Protocolo Envio",
     "Sequência Lote",
     "Status Lote",
     "Último Envio do Lote",
-    "Total Movimento Lote"
+    "Total Movimento Lote",
+
+    // Performance - novas colunas Y:AC
+    "Data Início Processamento",
+    "Tempo Fila (seg)",
+    "Tempo Leitura IA (seg)",
+    "Tempo Total (seg)",
+    "Sinal Performance"
   ];
+
+  if (sh.getMaxColumns() < headers.length) {
+    sh.insertColumnsAfter(
+      sh.getMaxColumns(),
+      headers.length - sh.getMaxColumns()
+    );
+  }
 
   const primeiraCelula = String(sh.getRange(1, 1).getValue() || "").trim();
 
@@ -3467,13 +3799,20 @@ sh.appendRow([
   "",
   "",
 
-  // Novas colunas S:X
+  // Colunas S:X - lote
   controleLote.protocolo_lote,
   controleLote.protocolo_envio,
   controleLote.sequencia_lote,
   controleLote.status_lote,
   controleLote.ultimo_envio_lote ? "Sim" : "Não",
-  controleLote.total_movimento_lote
+  controleLote.total_movimento_lote,
+
+  // Colunas Y:AC - performance
+  "",
+  "",
+  "",
+  "",
+  ""
 ]);
 
 return {
@@ -3705,6 +4044,36 @@ function smartSlipValidarContinuidadeLote_(sh, controleLote, emailUsuario, loja4
   }
 }
 
+function smartSlipDiffSegundos_(inicio, fim) {
+  if (!(inicio instanceof Date) || !(fim instanceof Date)) {
+    return null;
+  }
+
+  const diff = Math.round((fim.getTime() - inicio.getTime()) / 1000);
+
+  return diff >= 0 ? diff : null;
+}
+
+function smartSlipClassificarPerformance_(filaSeg, leituraSeg, totalSeg) {
+  filaSeg = Number(filaSeg || 0);
+  leituraSeg = Number(leituraSeg || 0);
+  totalSeg = Number(totalSeg || 0);
+
+  if (filaSeg >= 300 || leituraSeg >= 180 || totalSeg >= 420) {
+    return "CRITICO";
+  }
+
+  if (filaSeg >= 120 || leituraSeg >= 90 || totalSeg >= 240) {
+    return "LENTO";
+  }
+
+  if (filaSeg >= 60 || leituraSeg >= 45 || totalSeg >= 120) {
+    return "ATENCAO";
+  }
+
+  return "NORMAL";
+}
+
 function smartSlipProcessarFila() {
   let itemProcessar = null;
 
@@ -3726,12 +4095,14 @@ function smartSlipProcessarFila() {
       return;
     }
 
-    const values = sh.getRange(2, 1, lastRow - 1, 18).getValues();
+    const lastCol = Math.max(29, sh.getLastColumn());
+    const values = sh.getRange(2, 1, lastRow - 1, lastCol).getValues();
 
     for (let i = 0; i < values.length; i++) {
       const rowIndex = i + 2;
       const row = values[i];
 
+      const dataRegistro = row[0];
       const protocolo = row[1];
       const fileId = row[10];
       const statusFila = String(row[13] || "").trim();
@@ -3741,15 +4112,20 @@ function smartSlipProcessarFila() {
         continue;
       }
 
+      const inicioProcessamento = new Date();
+
       sh.getRange(rowIndex, 14).setValue("PROCESSANDO");
-      sh.getRange(rowIndex, 15).setValue("Processando comprovante via Gemini...");
+      sh.getRange(rowIndex, 15).setValue("Processando comprovante via Gemini.");
+      sh.getRange(rowIndex, 25).setValue(inicioProcessamento); // Y
       SpreadsheetApp.flush();
 
       itemProcessar = {
         rowIndex: rowIndex,
         protocolo: protocolo,
         fileId: fileId,
-        jsonRespostas: jsonRespostas
+        jsonRespostas: jsonRespostas,
+        dataRegistro: dataRegistro instanceof Date ? dataRegistro : null,
+        inicioProcessamento: inicioProcessamento
       };
 
       break;
@@ -3765,10 +4141,6 @@ function smartSlipProcessarFila() {
     return;
   }
 
-  /*
-    Daqui para baixo não existe lock.
-    Isso evita travar envios no celular, desktop ou em outras lojas.
-  */
   try {
     const respostasUsuario = JSON.parse(itemProcessar.jsonRespostas || "{}");
 
@@ -3778,20 +4150,86 @@ function smartSlipProcessarFila() {
       itemProcessar.protocolo
     );
 
+    const fimProcessamento = new Date();
+
+    const filaSeg = smartSlipDiffSegundos_(
+      itemProcessar.dataRegistro,
+      itemProcessar.inicioProcessamento
+    );
+
+    const leituraSeg = smartSlipDiffSegundos_(
+      itemProcessar.inicioProcessamento,
+      fimProcessamento
+    );
+
+    const totalSeg = smartSlipDiffSegundos_(
+      itemProcessar.dataRegistro,
+      fimProcessamento
+    );
+
+    const sinalPerformance = smartSlipClassificarPerformance_(
+      filaSeg,
+      leituraSeg,
+      totalSeg
+    );
+
     const sh = smartSlipGarantirCabecalhoFila();
 
     sh.getRange(itemProcessar.rowIndex, 14).setValue(resultado.status_fila);
     sh.getRange(itemProcessar.rowIndex, 15).setValue(resultado.mensagem || "");
     sh.getRange(itemProcessar.rowIndex, 17).setValue(JSON.stringify(resultado));
-    sh.getRange(itemProcessar.rowIndex, 18).setValue(new Date());
+    sh.getRange(itemProcessar.rowIndex, 18).setValue(fimProcessamento);
+
+    sh.getRange(itemProcessar.rowIndex, 25, 1, 5).setValues([[
+      itemProcessar.inicioProcessamento,
+      filaSeg,
+      leituraSeg,
+      totalSeg,
+      sinalPerformance
+    ]]);
+
     SpreadsheetApp.flush();
 
   } catch (err) {
+    const fimErro = new Date();
+
+    const filaSeg = smartSlipDiffSegundos_(
+      itemProcessar.dataRegistro,
+      itemProcessar.inicioProcessamento
+    );
+
+    const leituraSeg = smartSlipDiffSegundos_(
+      itemProcessar.inicioProcessamento,
+      fimErro
+    );
+
+    const totalSeg = smartSlipDiffSegundos_(
+      itemProcessar.dataRegistro,
+      fimErro
+    );
+
+    const sinalPerformance = smartSlipClassificarPerformance_(
+      filaSeg,
+      leituraSeg,
+      totalSeg
+    );
+
     const sh = smartSlipGarantirCabecalhoFila();
 
     sh.getRange(itemProcessar.rowIndex, 14).setValue("ERRO_PROCESSAMENTO");
-    sh.getRange(itemProcessar.rowIndex, 15).setValue(String(err && err.message ? err.message : err));
-    sh.getRange(itemProcessar.rowIndex, 18).setValue(new Date());
+    sh.getRange(itemProcessar.rowIndex, 15).setValue(
+      String(err && err.message ? err.message : err)
+    );
+    sh.getRange(itemProcessar.rowIndex, 18).setValue(fimErro);
+
+    sh.getRange(itemProcessar.rowIndex, 25, 1, 5).setValues([[
+      itemProcessar.inicioProcessamento,
+      filaSeg,
+      leituraSeg,
+      totalSeg,
+      sinalPerformance
+    ]]);
+
     SpreadsheetApp.flush();
   }
 }
