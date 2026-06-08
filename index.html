@@ -6071,6 +6071,259 @@ body.smart-home-dark #view-performance .perf-svg-chart svg {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - PERFORMANCE | REALTIME MONITOR
+   ========================================================= */
+
+.perf-rt-wrap {
+  margin: 0 0 18px;
+  padding: 16px 20px 12px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(64,224,208,.14), transparent 38%),
+    linear-gradient(180deg, #101827 0%, #0B1220 100%);
+  border: 1px solid rgba(64,224,208,.28);
+  box-shadow:
+    0 18px 42px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.05);
+  overflow: hidden;
+}
+
+.perf-rt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.perf-rt-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #4ade80;
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .45px;
+}
+
+.perf-rt-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74,222,128,.55);
+  animation: perfRtPulse 1.8s ease-out infinite;
+}
+
+@keyframes perfRtPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74,222,128,.55);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(74,222,128,0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(74,222,128,0);
+  }
+}
+
+.perf-rt-stats {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.perf-rt-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,.54);
+  font-size: 12px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.perf-rt-stat i {
+  width: 12px;
+  height: 3px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.perf-rt-stat b {
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.perf-rt-total i {
+  background: #a3e635;
+}
+
+.perf-rt-total b {
+  color: #a3e635;
+}
+
+.perf-rt-ia i {
+  background: #38bdf8;
+}
+
+.perf-rt-ia b {
+  color: #38bdf8;
+}
+
+.perf-rt-fila i {
+  background: #818cf8;
+}
+
+.perf-rt-fila b {
+  color: #818cf8;
+}
+
+.perf-rt-erro i {
+  background: #f87171;
+}
+
+.perf-rt-erro b {
+  color: #f87171;
+}
+
+.perf-rt-canvas-wrap {
+  width: 100%;
+  height: 116px;
+  position: relative;
+}
+
+#perfRtCanvas {
+  width: 100% !important;
+  height: 116px !important;
+  display: block;
+  image-rendering: auto;
+}
+
+.perf-rt-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 4px;
+  color: rgba(255,255,255,.28);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+body.smart-mobile .perf-rt-wrap {
+  display: none !important;
+}
+
+@media (max-width: 820px) {
+  .perf-rt-wrap {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   SMARTSLIP - PERFORMANCE | GOOGLE/GEMINI NO MONITOR
+   ========================================================= */
+
+.perf-rt-platform {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 260px;
+}
+
+.perf-rt-chip {
+  min-height: 25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.68);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.perf-rt-chip-icon {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #1D6FD1;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.perf-rt-chip b {
+  color: rgba(255,255,255,.68);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.perf-rt-chip strong {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(181,255,32,.14);
+  color: #B5FF20;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.perf-rt-chip.status-ok strong {
+  background: rgba(34,197,94,.18);
+  color: #4ade80;
+}
+
+.perf-rt-chip.status-warn strong {
+  background: rgba(245,158,11,.18);
+  color: #fbbf24;
+}
+
+.perf-rt-chip.status-error strong {
+  background: rgba(248,113,113,.18);
+  color: #f87171;
+}
+
+.perf-rt-chip-latency strong {
+  color: #38bdf8;
+  background: rgba(56,189,248,.14);
+}
+
+.perf-rt-platform-time {
+  color: rgba(255,255,255,.32);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+  .perf-rt-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .perf-rt-platform {
+    justify-content: flex-start;
+  }
+
+  .perf-rt-stats {
+    justify-content: flex-start;
+  }
+}
+
   </style>
 </head>
 
@@ -7145,6 +7398,60 @@ body.smart-home-dark #view-performance .perf-svg-chart svg {
     </button>
   </div>
 
+  <div id="perfRealtimeMonitor" class="perf-rt-wrap">
+      <div class="perf-rt-head">
+        <div class="perf-rt-title">
+          <span class="perf-rt-pulse"></span>
+          <span>Monitoramento em tempo real</span>
+        </div>
+
+        <div class="perf-rt-platform">
+          <div class="perf-rt-chip">
+            <span class="perf-rt-chip-icon">G</span>
+            <b>Google</b>
+            <strong id="perfRtGoogleStatus">-</strong>
+          </div>
+
+          <div class="perf-rt-chip">
+            <span class="perf-rt-chip-icon">✦</span>
+            <b>Gemini API</b>
+            <strong id="perfRtGeminiStatus">-</strong>
+          </div>
+
+          <div class="perf-rt-chip perf-rt-chip-latency">
+            <b>Latência Gemini</b>
+            <strong id="perfRtGeminiLatencia">-</strong>
+          </div>
+
+          <span id="perfRtPlatformAtualizado" class="perf-rt-platform-time">-</span>
+        </div>
+
+        <div class="perf-rt-stats">
+      <div class="perf-rt-stat perf-rt-total">
+        <i></i>Total <b id="perfRtTotal">-</b>
+      </div>
+
+      <div class="perf-rt-stat perf-rt-ia">
+        <i></i>IA <b id="perfRtIa">-</b>
+      </div>
+
+      <div class="perf-rt-stat perf-rt-fila">
+        <i></i>Fila <b id="perfRtFila">-</b>
+      </div>
+
+      <div class="perf-rt-stat perf-rt-erro">
+        <i></i>Erros <b id="perfRtErro">-</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="perf-rt-canvas-wrap">
+    <canvas id="perfRtCanvas" width="1200" height="130"></canvas>
+  </div>
+
+  <div id="perfRtLabels" class="perf-rt-labels"></div>
+</div>
+
   <div class="kpi-grid perf-kpi-grid">
     <div class="kpi-card">
       <span>Envios no período</span>
@@ -7775,12 +8082,16 @@ function iniciarCargaInicialSmartSlip() {
     setTimeout(esconderSmartLoader, 350);
   }
 
-  function carregarCompHubOuFinalizar_(carregarCompHubDesktop) {
-    if (carregarCompHubDesktop) {
-      setSmartLoader(75, "Carregando Comp Hub no range configurado...");
+  function carregarPerformanceOuFinalizar_(carregarPerformanceDesktop) {
+    if (carregarPerformanceDesktop) {
+      setSmartLoader(93, "Carregando Performance...");
 
-      carregarCompHubComCallback(function() {
-        setSmartLoader(92, "Aplicando preferências...");
+      carregarPerformance(false, function(okPerformance) {
+        if (!okPerformance) {
+          setSmartLoader(98, "Performance indisponível.");
+        } else {
+          setSmartLoader(98, "Performance carregada.");
+        }
 
         setTimeout(function() {
           finalizarCargaInicialSmartSlip_();
@@ -7790,11 +8101,27 @@ function iniciarCargaInicialSmartSlip() {
       return;
     }
 
-    setSmartLoader(85, "Aplicando preferências...");
+    setSmartLoader(95, "Aplicando preferências...");
 
     setTimeout(function() {
       finalizarCargaInicialSmartSlip_();
     }, 250);
+  }
+
+  function carregarCompHubOuContinuar_(carregarCompHubDesktop, carregarPerformanceDesktop) {
+    if (carregarCompHubDesktop) {
+      setSmartLoader(75, "Carregando Comp Hub no range configurado...");
+
+      carregarCompHubComCallback(function() {
+        setSmartLoader(88, "Preparando Performance...");
+        carregarPerformanceOuFinalizar_(carregarPerformanceDesktop);
+      });
+
+      return;
+    }
+
+    setSmartLoader(85, "Preparando Performance...");
+    carregarPerformanceOuFinalizar_(carregarPerformanceDesktop);
   }
 
   setTimeout(function() {
@@ -7811,17 +8138,30 @@ function iniciarCargaInicialSmartSlip() {
         usuario.can_comp_hub === true &&
         !isSmartSlipMobile();
 
+      const carregarPerformanceDesktop =
+        (
+          usuario.is_admin === true ||
+          usuario.is_analista_pro === true
+        ) &&
+        !isSmartSlipMobile();
+
       if (carregarCustosDesktop) {
-        setSmartLoader(55, "Loading costs...");
+        setSmartLoader(55, "Carregando custos...");
 
         carregarCustosIa(false, function() {
-          carregarCompHubOuFinalizar_(carregarCompHubDesktop);
+          carregarCompHubOuContinuar_(
+            carregarCompHubDesktop,
+            carregarPerformanceDesktop
+          );
         });
 
         return;
       }
 
-      carregarCompHubOuFinalizar_(carregarCompHubDesktop);
+      carregarCompHubOuContinuar_(
+        carregarCompHubDesktop,
+        carregarPerformanceDesktop
+      );
     });
   }, 200);
 }
@@ -9051,14 +9391,18 @@ function inicializarFiltrosPerformance() {
   SMARTSLIP_STATE.performance_filtros_iniciados = true;
 }
 
-function carregarPerformance(forcar) {
+function carregarPerformance(forcar, callback) {
+  callback = typeof callback === "function" ? callback : null;
+
   const usuario = SMARTSLIP_STATE.usuario || {};
 
   if (!(usuario.is_admin === true || usuario.is_analista_pro === true)) {
+    if (callback) callback(false);
     return;
   }
 
   if (isSmartSlipMobile()) {
+    if (callback) callback(false);
     return;
   }
 
@@ -9067,14 +9411,26 @@ function carregarPerformance(forcar) {
   const tipoEl = document.getElementById("perfTipoPeriodo");
   const anoEl = document.getElementById("perfAno");
   const mesEl = document.getElementById("perfMes");
+  const diaEl = document.getElementById("perfDia");
+
   const mesBox = document.getElementById("perfMesBox");
+  const diaBox = document.getElementById("perfDiaBox");
 
   const tipoPeriodo = String(tipoEl && tipoEl.value ? tipoEl.value : "MENSAL").toUpperCase();
   const ano = Number(anoEl && anoEl.value ? anoEl.value : new Date().getFullYear());
   const mes = Number(mesEl && mesEl.value ? mesEl.value : (new Date().getMonth() + 1));
+  const dia = String(diaEl && diaEl.value ? diaEl.value : "").trim();
 
   if (mesBox) {
-    mesBox.style.display = tipoPeriodo === "ANUAL" ? "none" : "block";
+    mesBox.style.display = tipoPeriodo === "ANUAL" || tipoPeriodo === "DIARIO"
+      ? "none"
+      : "block";
+  }
+
+  if (diaBox) {
+    diaBox.style.display = tipoPeriodo === "DIARIO"
+      ? "block"
+      : "none";
   }
 
   const mesmaConsulta =
@@ -9082,10 +9438,16 @@ function carregarPerformance(forcar) {
     SMARTSLIP_STATE.performance &&
     SMARTSLIP_STATE.performance_tipo_periodo === tipoPeriodo &&
     Number(SMARTSLIP_STATE.performance_ano || 0) === ano &&
-    Number(SMARTSLIP_STATE.performance_mes || 0) === mes;
+    Number(SMARTSLIP_STATE.performance_mes || 0) === mes &&
+    String(SMARTSLIP_STATE.performance_dia || "") === dia;
 
   if (forcar !== true && mesmaConsulta) {
     renderPerformance(SMARTSLIP_STATE.performance);
+
+    if (callback) {
+      callback(true);
+    }
+
     return;
   }
 
@@ -9094,10 +9456,16 @@ function carregarPerformance(forcar) {
   const diag = document.getElementById("perfDiagnostico");
   const tabela = document.getElementById("perfTabelaLentos");
 
-  if (chartTempo) chartTempo.innerHTML = "<p class='page-sub'>Carregando performance...</p>";
-  if (chartVolume) chartVolume.innerHTML = "<p class='page-sub'>Carregando volume...</p>";
-  if (diag) diag.innerHTML = "<p class='page-sub'>Gerando diagnóstico...</p>";
-  if (tabela) tabela.innerHTML = "";
+  /*
+    Se veio do carregamento inicial, não fica escrevendo "Carregando..."
+    na página, porque a página ainda nem está aberta.
+  */
+  if (!callback) {
+    if (chartTempo) chartTempo.innerHTML = "<p class='page-sub'>Carregando performance...</p>";
+    if (chartVolume) chartVolume.innerHTML = "<p class='page-sub'>Carregando volume...</p>";
+    if (diag) diag.innerHTML = "<p class='page-sub'>Gerando diagnóstico...</p>";
+    if (tabela) tabela.innerHTML = "";
+  }
 
   google.script.run
     .withSuccessHandler(function(txt) {
@@ -9120,6 +9488,12 @@ function carregarPerformance(forcar) {
             "</p>";
         }
 
+        SMARTSLIP_STATE.performance_carregado = false;
+
+        if (callback) {
+          callback(false);
+        }
+
         return;
       }
 
@@ -9128,8 +9502,13 @@ function carregarPerformance(forcar) {
       SMARTSLIP_STATE.performance_tipo_periodo = tipoPeriodo;
       SMARTSLIP_STATE.performance_ano = ano;
       SMARTSLIP_STATE.performance_mes = mes;
+      SMARTSLIP_STATE.performance_dia = dia;
 
       renderPerformance(SMARTSLIP_STATE.performance);
+
+      if (callback) {
+        callback(true);
+      }
     })
     .withFailureHandler(function(err) {
       if (chartTempo) {
@@ -9138,12 +9517,590 @@ function carregarPerformance(forcar) {
           perfEscapeHtml(err && err.message ? err.message : "Falha ao carregar Performance.") +
           "</p>";
       }
+
+      SMARTSLIP_STATE.performance_carregado = false;
+
+      if (callback) {
+        callback(false);
+      }
     })
     .smartSlipGetPerformanceJson(JSON.stringify({
       tipo_periodo: tipoPeriodo,
       ano: ano,
-      mes: mes
+      mes: mes,
+      dia: dia
     }));
+}
+
+function perfRtCalcularTaxaErro(payload) {
+  payload = payload || {};
+
+  const k = payload.kpis || {};
+  const total = Number(k.total_envios || 0);
+
+  if (!total) {
+    return 0;
+  }
+
+  const statusRows = Array.isArray(payload.status) ? payload.status : [];
+  let erros = 0;
+
+  statusRows.forEach(function(item) {
+    const status = String(item.status || "").toUpperCase();
+    const qtd = Number(item.qtd || 0);
+
+    if (
+      status.includes("ERRO") ||
+      status.includes("FALHA")
+    ) {
+      erros += qtd;
+    }
+  });
+
+  return (erros / total) * 100;
+}
+
+function perfRtCriarPontoInicial(base, amplitude, fase) {
+  return {
+    base: Number(base || 0),
+    valor: Number(base || 0),
+    alvo: Number(base || 0),
+    fase: Number(fase || 0),
+    amplitude: Number(amplitude || 1)
+  };
+}
+
+function perfRtAtualizarBaselines(payload) {
+  payload = payload || {};
+
+  const k = payload.kpis || {};
+
+  const total = Number(k.total_media_seg || 0);
+  const ia = Number(k.leitura_media_seg || 0);
+  const fila = Number(k.fila_media_seg || 0);
+  const erro = perfRtCalcularTaxaErro(payload);
+
+  const baseTotal = total > 0 ? total : 1;
+  const baseIa = ia > 0 ? ia : Math.max(1, baseTotal * 0.55);
+  const baseFila = fila > 0 ? fila : Math.max(1, baseTotal * 0.35);
+
+  SMARTSLIP_STATE.perf_rt_base = {
+    total: baseTotal,
+    ia: baseIa,
+    fila: baseFila,
+    erro: erro
+  };
+
+  if (!SMARTSLIP_STATE.perf_rt_series) {
+    const qtd = 58;
+
+    SMARTSLIP_STATE.perf_rt_series = {
+      total: [],
+      ia: [],
+      fila: [],
+      erro: []
+    };
+
+    for (let i = 0; i < qtd; i++) {
+      SMARTSLIP_STATE.perf_rt_series.total.push(
+        perfRtCriarPontoInicial(baseTotal, Math.max(1, baseTotal * 0.045), i * 0.18)
+      );
+
+      SMARTSLIP_STATE.perf_rt_series.ia.push(
+        perfRtCriarPontoInicial(baseIa, Math.max(1, baseIa * 0.045), i * 0.19)
+      );
+
+      SMARTSLIP_STATE.perf_rt_series.fila.push(
+        perfRtCriarPontoInicial(baseFila, Math.max(1, baseFila * 0.045), i * 0.2)
+      );
+
+      SMARTSLIP_STATE.perf_rt_series.erro.push(
+        perfRtCriarPontoInicial(erro, 0.18, i * 0.21)
+      );
+    }
+  }
+}
+
+function perfRtPrepararCanvas(canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+  const width = Math.max(600, Math.floor(rect.width || 1200));
+  const height = Math.max(96, Math.floor(rect.height || 112));
+
+  const realWidth = Math.floor(width * dpr);
+  const realHeight = Math.floor(height * dpr);
+
+  if (canvas.width !== realWidth || canvas.height !== realHeight) {
+    canvas.width = realWidth;
+    canvas.height = realHeight;
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  return {
+    ctx: ctx,
+    width: width,
+    height: height,
+    dpr: dpr
+  };
+}
+
+function perfRtAtualizarSerieContinua(lista, base, amplitude, tempo, velocidade, maximo) {
+  lista.forEach(function(ponto, idx) {
+    const onda1 = Math.sin((tempo * velocidade) + ponto.fase) * amplitude;
+    const onda2 = Math.sin((tempo * velocidade * 0.47) + (ponto.fase * 1.8)) * amplitude * 0.38;
+
+    const alvo = Math.max(0, Number(base || 0) + onda1 + onda2);
+
+    ponto.alvo = typeof maximo === "number"
+      ? Math.min(maximo, alvo)
+      : alvo;
+
+    /*
+      Interpolação suave.
+      Quanto menor esse fator, mais fluido e menos nervoso.
+    */
+    ponto.valor += (ponto.alvo - ponto.valor) * 0.035;
+  });
+}
+
+function perfRtExtrairValores(lista) {
+  return (lista || []).map(function(p) {
+    return Number(p.valor || 0);
+  });
+}
+
+function perfRtDesenharLinhaSuave(ctx, pontos, cfg) {
+  if (!pontos || pontos.length < 2) {
+    return;
+  }
+
+  const w = cfg.w;
+  const h = cfg.h;
+  const padL = cfg.padL;
+  const padR = cfg.padR;
+  const padT = cfg.padT;
+  const padB = cfg.padB;
+  const max = Math.max(1, Number(cfg.max || 1));
+
+  const areaW = w - padL - padR;
+  const areaH = h - padT - padB;
+
+  function x(i) {
+    return padL + (i / Math.max(1, pontos.length - 1)) * areaW;
+  }
+
+  function y(v) {
+    return padT + areaH - ((Number(v || 0) / max) * areaH);
+  }
+
+  ctx.save();
+
+  /*
+    1) Desenha a linha suavizada.
+  */
+  ctx.beginPath();
+  ctx.moveTo(x(0), y(pontos[0]));
+
+  for (let i = 1; i < pontos.length - 1; i++) {
+    const xc = (x(i) + x(i + 1)) / 2;
+    const yc = (y(pontos[i]) + y(pontos[i + 1])) / 2;
+
+    ctx.quadraticCurveTo(x(i), y(pontos[i]), xc, yc);
+  }
+
+  ctx.quadraticCurveTo(
+    x(pontos.length - 2),
+    y(pontos[pontos.length - 2]),
+    x(pontos.length - 1),
+    y(pontos[pontos.length - 1])
+  );
+
+  ctx.strokeStyle = cfg.cor;
+  ctx.lineWidth = cfg.largura || 1.35;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.globalAlpha = cfg.alpha || 1;
+
+  if (cfg.dash) {
+    ctx.setLineDash(cfg.dash);
+  } else {
+    ctx.setLineDash([]);
+  }
+
+  if (cfg.glow) {
+    ctx.shadowColor = cfg.cor;
+    ctx.shadowBlur = cfg.glow;
+  }
+
+  ctx.stroke();
+
+  /*
+    2) Desenha marcadores redondos em cada ponto.
+    Por padrão, o marcador é um anel: borda na cor da linha
+    e centro escuro, para ficar nítido no fundo preto.
+  */
+  if (cfg.marcadores !== false) {
+    ctx.setLineDash([]);
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = cfg.alphaMarcador || cfg.alpha || 1;
+
+    const raio = Number(cfg.marcadorRaio || 2.7);
+    const borda = Number(cfg.marcadorBorda || 1.15);
+    const passo = Math.max(1, Number(cfg.marcadorPasso || 1));
+
+    for (let i = 0; i < pontos.length; i += passo) {
+      const px = x(i);
+      const py = y(pontos[i]);
+
+      ctx.beginPath();
+      ctx.arc(px, py, raio, 0, Math.PI * 2);
+      ctx.fillStyle = cfg.marcadorFill || "#0B1220";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(px, py, raio, 0, Math.PI * 2);
+      ctx.strokeStyle = cfg.cor;
+      ctx.lineWidth = borda;
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function perfRtDesenharCanvasFrame(timestamp) {
+  const view = document.getElementById("view-performance");
+
+  if (!view || !view.classList.contains("active") || isSmartSlipMobile()) {
+    SMARTSLIP_STATE.perf_rt_raf = requestAnimationFrame(perfRtDesenharCanvasFrame);
+    return;
+  }
+
+  const canvas = document.getElementById("perfRtCanvas");
+
+  if (!canvas) {
+    SMARTSLIP_STATE.perf_rt_raf = requestAnimationFrame(perfRtDesenharCanvasFrame);
+    return;
+  }
+
+  const preparado = perfRtPrepararCanvas(canvas);
+  const ctx = preparado.ctx;
+  const w = preparado.width;
+  const h = preparado.height;
+
+  const base = SMARTSLIP_STATE.perf_rt_base || {
+    total: 1,
+    ia: 1,
+    fila: 1,
+    erro: 0
+  };
+
+  if (!SMARTSLIP_STATE.perf_rt_series) {
+    perfRtAtualizarBaselines({
+      kpis: {
+        total_media_seg: base.total,
+        leitura_media_seg: base.ia,
+        fila_media_seg: base.fila,
+        total_envios: 0
+      },
+      status: []
+    });
+  }
+
+  const serie = SMARTSLIP_STATE.perf_rt_series;
+  const t = timestamp / 1000;
+
+  perfRtAtualizarSerieContinua(
+    serie.total,
+    base.total,
+    Math.max(0.7, base.total * 0.045),
+    t,
+    1.15
+  );
+
+  perfRtAtualizarSerieContinua(
+    serie.ia,
+    base.ia,
+    Math.max(0.6, base.ia * 0.045),
+    t,
+    1.08
+  );
+
+  perfRtAtualizarSerieContinua(
+    serie.fila,
+    base.fila,
+    Math.max(0.6, base.fila * 0.045),
+    t,
+    1.02
+  );
+
+  perfRtAtualizarSerieContinua(
+    serie.erro,
+    base.erro,
+    0.10,
+    t,
+    1.25,
+    100
+  );
+
+  ctx.clearRect(0, 0, w, h);
+
+  /*
+    Grid muito sutil para dar profundidade, sem poluir.
+  */
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,0.035)";
+  ctx.lineWidth = 1;
+
+  for (let i = 1; i <= 3; i++) {
+    const y = Math.round((h / 4) * i) + 0.5;
+
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  const valoresTotal = perfRtExtrairValores(serie.total);
+  const valoresIa = perfRtExtrairValores(serie.ia);
+  const valoresFila = perfRtExtrairValores(serie.fila);
+  const valoresErro = perfRtExtrairValores(serie.erro);
+
+  const maxTempo = Math.max(
+    10,
+    Math.max.apply(null, valoresTotal),
+    Math.max.apply(null, valoresIa),
+    Math.max.apply(null, valoresFila)
+  ) * 1.18;
+
+  const cfgBase = {
+    w: w,
+    h: h,
+    padL: 5,
+    padR: 5,
+    padT: 9,
+    padB: 9,
+    max: maxTempo
+  };
+
+  /*
+    Linhas mais finas, sem bolinhas grandes.
+    Glow pequeno só para dar nitidez visual.
+  */
+  perfRtDesenharLinhaSuave(ctx, valoresTotal, Object.assign({}, cfgBase, {
+  cor: "#a3e635",
+  largura: 1.45,
+  glow: 2.5,
+  alpha: 0.96,
+  marcadorRaio: 3,
+  marcadorBorda: 1.15,
+  marcadorFill: "#0B1220"
+  }));
+
+  perfRtDesenharLinhaSuave(ctx, valoresIa, Object.assign({}, cfgBase, {
+    cor: "#38bdf8",
+    largura: 1.25,
+    glow: 2,
+    alpha: 0.90,
+    marcadorRaio: 2.8,
+    marcadorBorda: 1.1,
+    marcadorFill: "#0B1220"
+  }));
+
+  perfRtDesenharLinhaSuave(ctx, valoresFila, Object.assign({}, cfgBase, {
+    cor: "#818cf8",
+    largura: 1.25,
+    glow: 2,
+    alpha: 0.88,
+    marcadorRaio: 2.8,
+    marcadorBorda: 1.1,
+    marcadorFill: "#0B1220"
+  }));
+
+  perfRtDesenharLinhaSuave(ctx, valoresErro, Object.assign({}, cfgBase, {
+    cor: "#f87171",
+    largura: 1.05,
+    glow: 1.5,
+    alpha: 0.90,
+    max: 10,
+    dash: [5, 5],
+    marcadorRaio: 2.6,
+    marcadorBorda: 1.05,
+    marcadorFill: "#0B1220"
+  }));
+
+  const ultimoTotal = valoresTotal[valoresTotal.length - 1] || 0;
+  const ultimoIa = valoresIa[valoresIa.length - 1] || 0;
+  const ultimoFila = valoresFila[valoresFila.length - 1] || 0;
+  const ultimoErro = valoresErro[valoresErro.length - 1] || 0;
+
+  const totalEl = document.getElementById("perfRtTotal");
+  const iaEl = document.getElementById("perfRtIa");
+  const filaEl = document.getElementById("perfRtFila");
+  const erroEl = document.getElementById("perfRtErro");
+
+  if (totalEl) totalEl.textContent = formatTempoSmartSlip(ultimoTotal);
+  if (iaEl) iaEl.textContent = formatTempoSmartSlip(ultimoIa);
+  if (filaEl) filaEl.textContent = formatTempoSmartSlip(ultimoFila);
+  if (erroEl) erroEl.textContent = ultimoErro.toFixed(1).replace(".", ",") + "%";
+
+  perfRtAtualizarLabelsTempo();
+
+  SMARTSLIP_STATE.perf_rt_raf = requestAnimationFrame(perfRtDesenharCanvasFrame);
+}
+
+function perfRtAtualizarLabelsTempo() {
+  const box = document.getElementById("perfRtLabels");
+
+  if (!box) {
+    return;
+  }
+
+  /*
+    Atualiza visualmente, mas sem forçar DOM a cada frame.
+  */
+  const agoraMs = Date.now();
+
+  if (
+    SMARTSLIP_STATE.perf_rt_labels_ts &&
+    agoraMs - SMARTSLIP_STATE.perf_rt_labels_ts < 4000
+  ) {
+    return;
+  }
+
+  SMARTSLIP_STATE.perf_rt_labels_ts = agoraMs;
+
+  const agora = new Date();
+  const labels = [];
+
+  for (let i = 4; i >= 0; i--) {
+    const d = new Date(agora.getTime() - (i * 10000));
+
+    labels.push(d.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    }));
+  }
+
+  box.innerHTML = labels.map(function(label) {
+    return "<span>" + perfEscapeHtml(label) + "</span>";
+  }).join("");
+}
+
+function renderPerformanceRealtime(payload) {
+  const monitor = document.getElementById("perfRealtimeMonitor");
+
+  if (!monitor) {
+    return;
+  }
+
+  /*
+    Atualiza somente a base da animação.
+    Não chama carregarPerformance(true) aqui.
+    Isso evita recarregar gráficos, tabelas e KPIs enquanto o usuário está na página.
+  */
+  perfRtAtualizarBaselines(payload || {});
+
+  const view = document.getElementById("view-performance");
+
+  /*
+    Se a Performance foi carregada em segundo plano durante a abertura inicial,
+    não inicia a animação ainda.
+  */
+  if (!view || !view.classList.contains("active") || isSmartSlipMobile()) {
+    return;
+  }
+
+  if (!SMARTSLIP_STATE.perf_rt_raf) {
+    SMARTSLIP_STATE.perf_rt_raf = requestAnimationFrame(perfRtDesenharCanvasFrame);
+  }
+}
+
+function renderPerformancePlataformaMonitor(plataforma) {
+  plataforma = plataforma || {};
+
+  const google = plataforma.google || {};
+  const gemini = plataforma.gemini || {};
+
+  const googleEl = document.getElementById("perfRtGoogleStatus");
+  const geminiEl = document.getElementById("perfRtGeminiStatus");
+  const latenciaEl = document.getElementById("perfRtGeminiLatencia");
+  const atualizadoEl = document.getElementById("perfRtPlatformAtualizado");
+
+  const googleChip = googleEl ? googleEl.closest(".perf-rt-chip") : null;
+  const geminiChip = geminiEl ? geminiEl.closest(".perf-rt-chip") : null;
+
+  function limparStatusChip(el) {
+    if (!el) return;
+
+    el.classList.remove("status-ok");
+    el.classList.remove("status-warn");
+    el.classList.remove("status-error");
+  }
+
+  function aplicarStatusChip(el, status) {
+    limparStatusChip(el);
+
+    status = String(status || "").toUpperCase();
+
+    if (status === "OK") {
+      el.classList.add("status-ok");
+      return;
+    }
+
+    if (
+      status === "ATENCAO" ||
+      status === "NAO_MEDIDO" ||
+      status === "LIMITADO"
+    ) {
+      el.classList.add("status-warn");
+      return;
+    }
+
+    if (
+      status === "ERRO" ||
+      status === "INDISPONIVEL"
+    ) {
+      el.classList.add("status-error");
+    }
+  }
+
+  if (googleEl) {
+    googleEl.textContent = google.label || "Não medido";
+  }
+
+  if (geminiEl) {
+    geminiEl.textContent = gemini.label || "Não medido";
+  }
+
+  if (latenciaEl) {
+    const latenciaOperacionalSeg = Number(gemini.latencia_operacional_seg || 0);
+    const latenciaMs = Number(gemini.latencia_ms || 0);
+
+    if (latenciaOperacionalSeg > 0) {
+      latenciaEl.textContent = formatTempoSmartSlip(latenciaOperacionalSeg);
+    } else if (latenciaMs > 0) {
+      latenciaEl.textContent = latenciaMs + "ms";
+    } else {
+      latenciaEl.textContent = "-";
+    }
+  }
+
+  if (atualizadoEl) {
+    atualizadoEl.textContent = plataforma.atualizado_em
+      ? "atualizado às " + String(plataforma.atualizado_em).split(" ").pop()
+      : "-";
+  }
+
+  aplicarStatusChip(googleChip, google.status);
+  aplicarStatusChip(geminiChip, gemini.status);
 }
 
 function renderPerformance(payload) {
@@ -9156,6 +10113,9 @@ function renderPerformance(payload) {
   document.getElementById("perfKpiIaMedia").textContent = formatTempoSmartSlip(k.leitura_media_seg || 0);
   document.getElementById("perfKpiFilaMedia").textContent = formatTempoSmartSlip(k.fila_media_seg || 0);
   document.getElementById("perfKpiP95").textContent = formatTempoSmartSlip(k.total_p95_seg || 0);
+
+  renderPerformanceRealtime(payload);
+  renderPerformancePlataformaMonitor(payload.plataforma || {});
 
   renderPerformanceChartTempo(payload.serie || []);
   renderPerformanceChartVolume(payload.serie || []);
@@ -9415,6 +10375,54 @@ function renderPerformanceTabelaLentos(lista) {
   box.innerHTML = html;
 }
 
+function ativarViewSmartSlip_(nome, btn) {
+  document.querySelectorAll(".view").forEach(function(v) {
+    v.classList.remove("active");
+  });
+
+  document.querySelectorAll(".nav-item").forEach(function(b) {
+    b.classList.remove("active");
+  });
+
+  const view = document.getElementById("view-" + nome);
+
+  if (view) {
+    view.classList.add("active");
+  }
+
+  if (btn) {
+    btn.classList.add("active");
+  }
+
+  aplicarTemaHomeSmartSlip(nome);
+}
+
+function preCarregarPerformanceSmartSlip_() {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  const podeVerPerformance =
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true;
+
+  if (!podeVerPerformance || isSmartSlipMobile()) {
+    return;
+  }
+
+  if (SMARTSLIP_STATE.performance_carregado === true) {
+    return;
+  }
+
+  if (SMARTSLIP_STATE.performance_preload_iniciado === true) {
+    return;
+  }
+
+  SMARTSLIP_STATE.performance_preload_iniciado = true;
+
+  carregarPerformance(false, function() {
+    SMARTSLIP_STATE.performance_preload_iniciado = false;
+  });
+}
+
 function abrirView(nome, btn) {
   nome = String(nome || "").toLowerCase();
 
@@ -9445,38 +10453,30 @@ function abrirView(nome, btn) {
     }
   }
 
-  if (nome === "performance") {
-    const usuario = SMARTSLIP_STATE.usuario || {};
+    if (nome === "performance") {
+      const usuario = SMARTSLIP_STATE.usuario || {};
 
-    const podeVerPerformance =
-      usuario.is_admin === true ||
-      usuario.is_analista_pro === true;
+      const podeVerPerformance =
+        usuario.is_admin === true ||
+        usuario.is_analista_pro === true;
 
-    if (!podeVerPerformance) {
-      alert("Acesso restrito. A página Performance está disponível apenas para Administrador ou Analista Pro.");
+      if (!podeVerPerformance) {
+        alert("Acesso restrito. A página Performance está disponível apenas para Administrador ou Analista Pro.");
+        return;
+      }
+
+      ativarViewSmartSlip_("performance", btn);
+
+      if (SMARTSLIP_STATE.performance_carregado === true && SMARTSLIP_STATE.performance) {
+        renderPerformance(SMARTSLIP_STATE.performance);
+      } else {
+        carregarPerformance(false);
+      }
+
       return;
     }
-  }
 
-  document.querySelectorAll(".view").forEach(function(v) {
-    v.classList.remove("active");
-  });
-
-  document.querySelectorAll(".nav-item").forEach(function(b) {
-    b.classList.remove("active");
-  });
-
-  const view = document.getElementById("view-" + nome);
-
-  if (view) {
-    view.classList.add("active");
-  }
-
-  if (btn) {
-    btn.classList.add("active");
-  }
-
-  aplicarTemaHomeSmartSlip(nome);
+  ativarViewSmartSlip_(nome, btn);
 
   if (nome === "inicio" || nome === "historico") {
     carregarBootstrap({ silencioso: true });
@@ -9492,10 +10492,6 @@ function abrirView(nome, btn) {
     } else {
       carregarCustosIa(false);
     }
-  }
-
-  if (nome === "performance") {
-    carregarPerformance(false);
   }
 
   if (nome === "comprovantes") {
@@ -12284,6 +13280,7 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
         loja: lojaItem,
         empresa: String(item.empresa || "").trim(),
         data: "",
+        dataEnvioMs: 0,
         periodoMovimento: "",
         qtd: 0,
         valor: 0,
@@ -12301,15 +13298,37 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
       mapa[protocolo].periodoMovimento = periodoMovimento;
     }
 
-    const dataRef = String(
-      item.dataRegistro ||
-      item.dataDeposito ||
-      item.dataMovimento ||
-      ""
-    ).trim();
+    /*
+      Regra correta:
+      ordenar o protocolo pela data do envio, ou seja, Data Registro.
+      Não usar Data Depósito nem Data Movimento como critério principal.
+    */
+    const dataRegistroTexto = String(item.dataRegistro || "").trim();
+    const dataRegistroMs = converterDataOrdenacaoCompHub(dataRegistroTexto);
 
-    if (dataRef && !mapa[protocolo].data) {
-      mapa[protocolo].data = dataRef;
+    /*
+      Se o mesmo protocolo tiver mais de uma linha/comprovante,
+      mantém a data de envio mais recente dentro daquele protocolo.
+    */
+    if (dataRegistroMs > Number(mapa[protocolo].dataEnvioMs || 0)) {
+      mapa[protocolo].dataEnvioMs = dataRegistroMs;
+      mapa[protocolo].data = dataRegistroTexto;
+    }
+
+    /*
+      Fallback apenas para exibição, caso algum registro antigo venha sem Data Registro.
+      Não deve mandar na ordenação principal.
+    */
+    if (!mapa[protocolo].data) {
+      const dataFallback = String(
+        item.dataDeposito ||
+        item.dataMovimento ||
+        ""
+      ).trim();
+
+      if (dataFallback) {
+        mapa[protocolo].data = dataFallback;
+      }
     }
 
     const banco = String(item.banco || "").trim();
@@ -12335,7 +13354,14 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
       return item;
     })
     .sort(function(a, b) {
-      return String(b.data || "").localeCompare(String(a.data || ""));
+      const dataA = Number(a.dataEnvioMs || 0);
+      const dataB = Number(b.dataEnvioMs || 0);
+
+      if (dataA !== dataB) {
+        return dataB - dataA;
+      }
+
+      return String(b.protocolo || "").localeCompare(String(a.protocolo || ""));
     });
 }
 
