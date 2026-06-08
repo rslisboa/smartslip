@@ -3407,6 +3407,30 @@ respostasUsuario.ultimo_envio_lote = controleLote.ultimo_envio_lote;
 respostasUsuario.total_movimento_lote = controleLote.total_movimento_lote;
 respostasUsuario.envio_lote = controleLote.eh_lote;
 
+const reenvioAtivo = String(form.reenvio_ativo || "").toLowerCase() === "true";
+
+const protocoloReenvioOrigem = String(form.protocolo_reenvio_origem || "").trim();
+const protocoloRaizForm = String(
+  form.protocolo_raiz ||
+  form.protocolo_reenvio_origem ||
+  ""
+).trim();
+
+const emailUsuarioOriginal = String(
+  form.email_usuario_original ||
+  emailUsuario ||
+  ""
+).trim().toLowerCase();
+
+respostasUsuario.reenvio_ativo = reenvioAtivo;
+respostasUsuario.tipo_envio = reenvioAtivo ? "REENVIO_CORRECAO" : "ORIGINAL";
+respostasUsuario.protocolo_reenvio_origem = protocoloReenvioOrigem;
+respostasUsuario.protocolo_original = protocoloReenvioOrigem || protocolo;
+respostasUsuario.protocolo_raiz = protocoloRaizForm || protocolo;
+respostasUsuario.email_usuario_original = emailUsuarioOriginal;
+respostasUsuario.reenviado_por = emailUsuario;
+respostasUsuario.reenvio_origem_status = String(form.reenvio_origem_status || "").trim();
+
 const sh = smartSlipGarantirCabecalhoFila();
 
 smartSlipValidarContinuidadeLote_(
@@ -4144,47 +4168,9 @@ function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
 
   const valor = Number(item.valor_deposito || 0);
   const dataDeposito = String(item.data_deposito || "").trim();
-
-  /*
-    Regra:
-    - Código de autenticação inferido NÃO bloqueia.
-    - Valor/data/documento inferidos ou sem evidência bloqueiam.
-  */
-  const falaDeCodigoAutenticacao =
-    obsNorm.includes("codigo de autenticacao") ||
-    obsNorm.includes("autenticacao") ||
-    obsNorm.includes("tipo de pagamento") ||
-    obsNorm.includes("via do cliente");
-
-  const falaDeValorOuDataOuDocumento =
-    obsNorm.includes("valor") ||
-    obsNorm.includes("data") ||
-    obsNorm.includes("deposito") ||
-    obsNorm.includes("pagamento") ||
-    obsNorm.includes("comprovante") ||
-    obsNorm.includes("boleto") ||
-    obsNorm.includes("documento");
-
-  const temTextoInferenciaCritica =
-    (
-      obsNorm.includes("inferid") ||
-      obsNorm.includes("parcialmente visivel") ||
-      obsNorm.includes("parcialmente visiveis") ||
-      obsNorm.includes("trechos parcialmente") ||
-      obsNorm.includes("nao esta claro") ||
-      obsNorm.includes("não está claro") ||
-      obsNorm.includes("duvida") ||
-      obsNorm.includes("dúvida")
-    ) &&
-    falaDeValorOuDataOuDocumento &&
-    !falaDeCodigoAutenticacao;
-
-  if (temTextoInferenciaCritica) {
-    return {
-      bloquear: true,
-      motivo: "Item possui observação de inferência ou leitura parcial em campo crítico."
-    };
-  }
+  const dataGeracao = String(item.data_geracao_documento || "").trim();
+  const tipoDocumento = String(item.tipo_documento || "").trim();
+  const confiancaItem = Number(item.confianca_item || 0);
 
   if (!valor || valor <= 0) {
     return {
@@ -4214,11 +4200,115 @@ function smartSlipItemTemInferenciaOuBaixaEvidencia_(item) {
     };
   }
 
+  if (!tipoDocumento || tipoDocumento === "nao_identificado") {
+    return {
+      bloquear: true,
+      motivo: "Tipo de documento ausente ou não identificado."
+    };
+  }
+
   if (!blocoTexto || blocoTexto.length < 40) {
     return {
       bloquear: true,
       motivo: "Sem bloco textual suficiente do comprovante."
     };
+  }
+
+  const temEvidenciaForte =
+    valor > 0 &&
+    valorTexto.length >= 3 &&
+    dataDeposito.length >= 8 &&
+    dataTexto.length >= 6 &&
+    blocoTexto.length >= 40;
+
+  const confiancaForte =
+    !confiancaItem || confiancaItem >= 0.95;
+
+  /*
+    Caso permitido:
+    A IA ajustou somente o ANO da data de geração/documento
+    por coerência com a data de pagamento e período de movimento.
+    Isso não deve bloquear quando valor e data de pagamento estão claros.
+  */
+  const ajusteAnoDataGeracaoPermitido =
+    (
+      obsNorm.includes("ano da data de geracao") ||
+      obsNorm.includes("ano da data de geração") ||
+      obsNorm.includes("data de geracao do documento") ||
+      obsNorm.includes("data de geração do documento")
+    ) &&
+    (
+      obsNorm.includes("foi ajustado") ||
+      obsNorm.includes("ano foi ajustado") ||
+      obsNorm.includes("consistencia") ||
+      obsNorm.includes("consistência")
+    ) &&
+    (
+      obsNorm.includes("data de pagamento") ||
+      obsNorm.includes("periodo de movimento") ||
+      obsNorm.includes("período de movimento")
+    );
+
+  if (
+    ajusteAnoDataGeracaoPermitido &&
+    temEvidenciaForte &&
+    confiancaForte &&
+    dataGeracao
+  ) {
+    return {
+      bloquear: false,
+      motivo: ""
+    };
+  }
+
+  const falaDeCodigoAutenticacao =
+    obsNorm.includes("codigo de autenticacao") ||
+    obsNorm.includes("autenticacao") ||
+    obsNorm.includes("via do cliente");
+
+  const falaDeCampoCriticoReal =
+    obsNorm.includes("valor do deposito") ||
+    obsNorm.includes("valor de deposito") ||
+    obsNorm.includes("valor do pagamento") ||
+    obsNorm.includes("valor_deposito") ||
+    obsNorm.includes("data do deposito") ||
+    obsNorm.includes("data de deposito") ||
+    obsNorm.includes("data_deposito") ||
+    obsNorm.includes("data do pagamento") ||
+    obsNorm.includes("data de pagamento") ||
+    obsNorm.includes("tipo de documento") ||
+    obsNorm.includes("tipo_documento");
+
+  const sinalInferenciaForte =
+    obsNorm.includes("inferid") ||
+    obsNorm.includes("nao esta claro") ||
+    obsNorm.includes("não está claro") ||
+    obsNorm.includes("duvida") ||
+    obsNorm.includes("dúvida");
+
+  const sinalLeituraParcial =
+    obsNorm.includes("parcialmente visivel") ||
+    obsNorm.includes("parcialmente visiveis") ||
+    obsNorm.includes("trechos parcialmente");
+
+  if (!falaDeCodigoAutenticacao) {
+    if (sinalInferenciaForte && falaDeCampoCriticoReal) {
+      return {
+        bloquear: true,
+        motivo: "Item possui observação de inferência ou dúvida em campo crítico."
+      };
+    }
+
+    if (
+      sinalLeituraParcial &&
+      falaDeCampoCriticoReal &&
+      !(temEvidenciaForte && confiancaForte)
+    ) {
+      return {
+        bloquear: true,
+        motivo: "Item possui leitura parcial em campo crítico sem evidência suficiente."
+      };
+    }
   }
 
   return {
@@ -5132,20 +5222,52 @@ function smartSlipGetHistorico(usuario) {
     return [];
   }
 
-  const values = sh.getRange(2, 1, sh.getLastRow() - 1, 18).getValues();
-  const historico = [];
+  const lastCol = Math.max(24, sh.getLastColumn());
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
 
+  const historico = [];
+  const chavesJaExibidas = {};
+
+  /*
+    Percorre de baixo para cima.
+    Como a planilha recebe appendRow, a última linha é sempre a versão mais recente.
+    Isso permite mostrar só a última versão quando houver reenvio/correção.
+  */
   for (let i = values.length - 1; i >= 0; i--) {
     const row = values[i];
 
-  const lojaRow = smartSlipNormalizarLoja4(row[3] || "");
+    const respostas = smartSlipParseJsonSeguro_(row[15]);
 
-  if (!smartSlipUsuarioPodeVerLoja_(usuario, lojaRow)) {
-    continue;
-  }
+    /*
+      Regra nova do Histórico:
+      - Admin/Analista Pro: podem ver todos.
+      - Usuário comum: vê somente o que ele enviou pelo próprio e-mail.
+      - Reenvio por admin: o usuário original vê se email_usuario_original bater com o e-mail dele.
+    */
+    if (!smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas)) {
+      continue;
+    }
+
+    /*
+      Agrupamento:
+      Se houver reenvio, usa protocolo_raiz/protocolo_original para mostrar só a versão mais recente.
+      Se não houver reenvio, usa o protocolo da própria linha.
+    */
+    const chaveHistorico = smartSlipMontarChaveHistorico_(row, respostas);
+
+    if (chavesJaExibidas[chaveHistorico]) {
+      continue;
+    }
+
+    chavesJaExibidas[chaveHistorico] = true;
 
     const statusFila = String(row[13] || "").trim();
     const camposReenvio = smartSlipMontarCamposReenvioHistorico_(row);
+
+    const ehReenvio =
+      respostas.reenvio_ativo === true ||
+      String(respostas.tipo_envio || "").toUpperCase() === "REENVIO_CORRECAO" ||
+      String(respostas.protocolo_reenvio_origem || "").trim() !== "";
 
     historico.push({
       data_registro: smartSlipFormatarDataHora(row[0]),
@@ -5158,17 +5280,166 @@ function smartSlipGetHistorico(usuario) {
       status_fila: statusFila,
       mensagem: row[14] || "",
 
-      // Controle do botão REENVIAR?
-      reenviar_permitido: smartSlipStatusPermiteReenvio_(statusFila),
+      protocolo_raiz: respostas.protocolo_raiz || respostas.protocolo_original || respostas.protocolo_reenvio_origem || row[1] || "",
+      protocolo_original: respostas.protocolo_original || respostas.protocolo_reenvio_origem || "",
+      protocolo_reenvio_origem: respostas.protocolo_reenvio_origem || "",
+      email_usuario_original: respostas.email_usuario_original || row[2] || "",
+      reenviado_por: respostas.reenviado_por || row[2] || "",
+      tipo_envio: respostas.tipo_envio || (ehReenvio ? "REENVIO_CORRECAO" : "ORIGINAL"),
+      eh_reenvio: ehReenvio,
 
-      // Campos usados para preencher automaticamente a tela de Envio
+      reenviar_permitido: smartSlipStatusPermiteReenvio_(statusFila),
       campos_reenvio: camposReenvio
     });
 
-    if (historico.length >= 50) break;
+    if (historico.length >= 50) {
+      break;
+    }
   }
 
   return historico;
+}
+
+function smartSlipParseJsonSeguro_(valor) {
+  try {
+    if (!valor) {
+      return {};
+    }
+
+    return JSON.parse(String(valor || "{}"));
+  } catch (err) {
+    return {};
+  }
+}
+
+function smartSlipMontarChaveHistorico_(row, respostas) {
+  row = row || [];
+  respostas = respostas || {};
+
+  /*
+    Se for reenvio/correção, a chave precisa ser o protocolo original.
+    Assim:
+    - linha antiga PENDENTE_INTERNO
+    - linha nova SALVO
+
+    aparecem como uma única linha no Histórico, mostrando só a mais recente.
+  */
+  const protocoloRaiz = String(
+    respostas.protocolo_raiz ||
+    respostas.protocolo_original ||
+    respostas.protocolo_reenvio_origem ||
+    ""
+  ).trim();
+
+  if (protocoloRaiz) {
+    return "PROTOCOLO_RAIZ|" + protocoloRaiz;
+  }
+
+  return "PROTOCOLO|" + String(row[1] || "").trim();
+}
+
+function smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas) {
+  usuario = usuario || {};
+  row = row || [];
+  respostas = respostas || {};
+
+  /*
+    Gestão:
+    Mantém Admin e Analista Pro com visão ampla.
+    Não usar loja para usuário comum.
+  */
+  if (usuario.is_admin === true || usuario.is_analista_pro === true) {
+    return true;
+  }
+
+  const emailAtual = smartSlipNormalizarEmail_(usuario.email || "");
+  const emailLinha = smartSlipNormalizarEmail_(row[2] || "");
+
+  const emailOriginal = smartSlipNormalizarEmail_(
+    respostas.email_usuario_original ||
+    respostas.email_original ||
+    ""
+  );
+
+  if (!emailAtual) {
+    return false;
+  }
+
+  /*
+    Caso normal:
+    usuário vê o que ele mesmo enviou.
+  */
+  if (emailAtual === emailLinha) {
+    return true;
+  }
+
+  /*
+    Caso correção por admin:
+    a linha nova terá Email Usuário = e-mail do admin,
+    mas email_usuario_original = e-mail da loja que enviou originalmente.
+  */
+  if (emailOriginal && emailAtual === emailOriginal) {
+    return true;
+  }
+
+  return false;
+}
+
+function smartSlipParseJsonSeguro_(valor) {
+  try {
+    if (!valor) return {};
+    return JSON.parse(String(valor || "{}"));
+  } catch (err) {
+    return {};
+  }
+}
+
+function smartSlipMontarChaveHistorico_(row, respostas) {
+  row = row || [];
+  respostas = respostas || {};
+
+  /*
+    Se for reenvio, agrupa pelo protocolo raiz/original.
+    Assim o histórico mostra só a versão mais recente.
+  */
+  const protocoloRaiz = String(
+    respostas.protocolo_raiz ||
+    respostas.protocolo_original ||
+    respostas.protocolo_reenvio_origem ||
+    ""
+  ).trim();
+
+  if (protocoloRaiz) {
+    return "PROTOCOLO_RAIZ|" + protocoloRaiz;
+  }
+
+  /*
+    Envio normal: mantém protocolo próprio.
+    Não agrupar por loja+data+valor aqui, porque isso pode esconder
+    dois comprovantes legítimos da mesma loja no mesmo dia.
+  */
+  return "PROTOCOLO|" + String(row[1] || "").trim();
+}
+
+function smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas) {
+  usuario = usuario || {};
+  row = row || [];
+  respostas = respostas || {};
+
+  const emailUsuarioAtual = smartSlipNormalizarEmail_(usuario.email || "");
+  const emailLinha = smartSlipNormalizarEmail_(row[2] || "");
+  const emailOriginal = smartSlipNormalizarEmail_(respostas.email_usuario_original || "");
+  const lojaRow = smartSlipNormalizarLoja4(row[3] || "");
+
+  if (emailUsuarioAtual && emailUsuarioAtual === emailLinha) {
+    return true;
+  }
+
+  if (emailUsuarioAtual && emailOriginal && emailUsuarioAtual === emailOriginal) {
+    return true;
+  }
+
+  return smartSlipUsuarioPodeVerLoja_(usuario, lojaRow);
 }
 
 function smartSlipStatusPermiteReenvio_(status) {
