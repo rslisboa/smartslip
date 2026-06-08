@@ -8486,6 +8486,14 @@ function toggleRetirada() {
       msg.textContent = "";
     }
 
+    function smartSlipLimparContextoReenvio_() {
+      SMARTSLIP_STATE.reenvio_ativo = false;
+      SMARTSLIP_STATE.protocolo_reenvio_origem = "";
+      SMARTSLIP_STATE.protocolo_raiz = "";
+      SMARTSLIP_STATE.email_usuario_original = "";
+      SMARTSLIP_STATE.reenvio_origem_status = "";
+    }
+
 function limparFormulario(limparLoja) {
   document.getElementById("arquivo").value = "";
   atualizarUploadInfo(null);
@@ -8505,6 +8513,7 @@ function limparFormulario(limparLoja) {
 
   resetarPreValidacaoTotalIa();
   smartSlipResetarFluxoNovoEnvio_();
+  smartSlipLimparContextoReenvio_();
 
   if (limparLoja) {
     document.getElementById("loja").value = "";
@@ -10650,13 +10659,56 @@ function iniciarReenvioHistorico(protocolo) {
 function preencherFormularioReenvioHistorico(registro) {
   registro = registro || {};
 
+  /*
+    Primeiro reseta o fluxo de novo envio.
+    Importante: qualquer marcação de reenvio precisa vir DEPOIS disso,
+    senão pode ser apagada por reset de estado.
+  */
   smartSlipResetarFluxoNovoEnvio_();
+
+  /*
+    Limpa validações/previews do envio anterior, se essas funções existirem.
+    Mantém seguro caso alguma delas não exista em alguma versão do HTML.
+  */
+  if (typeof resetarPreValidacaoTotalIa === "function") {
+    resetarPreValidacaoTotalIa();
+  }
+
+  if (typeof limparPreviewArquivoSmartSlip === "function") {
+    limparPreviewArquivoSmartSlip(false);
+  }
+
+  /*
+    Marca este envio como reenvio/correção.
+    Esses campos serão enviados no payload e gravados no JSON Respostas.
+  */
+  const protocoloAtual = String(registro.protocolo || "").trim();
+
+  const protocoloRaiz = String(
+    registro.protocolo_raiz ||
+    registro.protocolo_original ||
+    registro.protocolo_reenvio_origem ||
+    protocoloAtual ||
+    ""
+  ).trim();
+
+  const emailOriginal = String(
+    registro.email_usuario_original ||
+    registro.email_usuario ||
+    ""
+  ).trim().toLowerCase();
 
   SMARTSLIP_STATE.envio_lote_iniciado = true;
   SMARTSLIP_STATE.envio_lote_total_anexos = 1;
   SMARTSLIP_STATE.envio_lote_anexo_atual = 1;
   SMARTSLIP_STATE.sequencia_lote_ativo = 1;
   SMARTSLIP_STATE.protocolo_lote_ativo = "";
+
+  SMARTSLIP_STATE.reenvio_ativo = true;
+  SMARTSLIP_STATE.protocolo_reenvio_origem = protocoloAtual;
+  SMARTSLIP_STATE.protocolo_raiz = protocoloRaiz;
+  SMARTSLIP_STATE.email_usuario_original = emailOriginal;
+  SMARTSLIP_STATE.reenvio_origem_status = String(registro.status_fila || "").trim();
 
   smartSlipMostrarFormularioEnvio_();
 
@@ -10709,9 +10761,11 @@ function preencherFormularioReenvioHistorico(registro) {
   toggleRetirada();
   validarPeriodoMovimentoTela();
 
-  // Novo: gera os campos de valores diários com base nas datas preenchidas.
-  // Se o envio original já tiver valores_diarios_movimento, preenche os valores.
-  // Se não tiver, gera os campos vazios para o usuário preencher.
+  /*
+    Gera os campos de valores diários com base nas datas preenchidas.
+    Se o envio original já tiver valores_diarios_movimento, preenche os valores.
+    Se não tiver, gera os campos vazios para o usuário preencher.
+  */
   renderizarCamposValoresDiariosMovimento(campos.valores_diarios_movimento || null);
   atualizarTotalValoresDiariosMovimento();
 }
@@ -13811,7 +13865,12 @@ function enviar() {
           protocolo_lote: SMARTSLIP_STATE.protocolo_lote_ativo || "",
           sequencia_lote: SMARTSLIP_STATE.sequencia_lote_ativo || anexoAtualFluxo,
           total_anexos_lote: totalAnexosFluxo,
-          anexo_atual_lote: anexoAtualFluxo
+          anexo_atual_lote: anexoAtualFluxo,
+          reenvio_ativo: SMARTSLIP_STATE.reenvio_ativo === true ? "true" : "false",
+          protocolo_reenvio_origem: SMARTSLIP_STATE.protocolo_reenvio_origem || "",
+          protocolo_raiz: SMARTSLIP_STATE.protocolo_raiz || "",
+          email_usuario_original: SMARTSLIP_STATE.email_usuario_original || "",
+          reenvio_origem_status: SMARTSLIP_STATE.reenvio_origem_status || ""
         };
 
         google.script.run
