@@ -2370,7 +2370,7 @@ body.comp-protocolos-lock {
 
 /* Destaque mais visível para Valor Depósito e Valor Retirada */
 #view-comp-hub .comp-table th.comp-th-money {
-  background: #1D6FD1 !important;
+  background: #FF2C2C !important;
   color: #ffffff !important;
 }
 
@@ -6324,6 +6324,96 @@ body.smart-mobile .perf-rt-wrap {
   }
 }
 
+/* =========================================================
+   SMARTSLIP - ENVIO | OVERRIDE ADMIN IA
+   ========================================================= */
+
+.envio-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-ia-override {
+  margin: 0 !important;
+  width: fit-content;
+  max-width: 360px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: 16px;
+  background: #050807;
+  color: #ffffff;
+  border: 1px solid rgba(181,255,32,.38);
+  box-shadow: 0 12px 26px rgba(0,0,0,.16);
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-ia-override input {
+  width: auto !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  accent-color: #B5FF20;
+}
+
+.admin-ia-override b {
+  display: block;
+  color: #B5FF20;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.15;
+  text-transform: uppercase;
+  letter-spacing: .25px;
+}
+
+.admin-ia-override small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255,255,255,.72);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+body.smart-mobile .admin-ia-override {
+  display: none !important;
+}
+
+/* =========================================================
+   SMARTSLIP - BADGE NÃO LIDO COMP HUB
+   ========================================================= */
+
+.nav-item {
+  position: relative;
+}
+
+.nav-badge {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 950;
+  box-shadow: 0 8px 18px rgba(239,68,68,.32);
+}
+
+body.smart-mobile .nav-badge {
+  display: none !important;
+}
+
   </style>
 </head>
 
@@ -6450,6 +6540,7 @@ body.smart-mobile .perf-rt-wrap {
           <button data-nav="comp-hub" id="navCompHub" class="nav-item" type="button" style="display:none;" onclick="abrirView('comp-hub', this)">
             <span class="nav-ico">▦</span>
             <span class="nav-label">Comp Hub</span>
+            <span id="compHubUnreadBadge" class="nav-badge" style="display:none;">0</span>
           </button>
 
           <button id="navCustosIa" data-nav="custos" class="nav-item" type="button" onclick="abrirView('custos', this)">
@@ -6708,9 +6799,25 @@ body.smart-mobile .perf-rt-wrap {
       </section>
 
 <section id="view-comprovantes" class="view">
-  <div class="top-pill">Novo envio</div>
-  <h1>Enviar comprovante</h1>
-  <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
+  <div class="envio-page-head">
+    <div>
+      <div class="top-pill">Novo envio</div>
+      <h1>Enviar comprovante</h1>
+      <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
+    </div>
+
+    <label id="boxOverrideIaAdmin" class="admin-ia-override" style="display:none;">
+      <input
+        id="ignorar_travas_ia_admin"
+        type="checkbox"
+        onchange="onToggleOverrideIaAdmin()"
+      >
+      <span>
+        <b>Desabilitar travas de IA</b>
+        <small>Modo admin: não bloquear por leitura automática.</small>
+      </span>
+    </label>
+  </div>
 
   <div id="novoEnvioPanel" class="novo-envio-panel">
     <div class="novo-envio-head">
@@ -6754,6 +6861,7 @@ body.smart-mobile .perf-rt-wrap {
   </div>
 
   <div id="envioFormCard" class="form-card" style="display:none;">
+
     <div id="envioLoteProgresso" class="envio-lote-progresso"></div>
 
     <label>Comprovante</label>
@@ -8807,6 +8915,9 @@ document.getElementById("histSub").textContent = usuario.is_admin || usuario.is_
   if (cfgCompHubRangeRow) {
     cfgCompHubRangeRow.style.display = !isSmartSlipMobile() ? "" : "none";
   }
+
+  aplicarVisibilidadeOverrideIaAdmin_();
+  renderizarBadgeCompHubNaoLido_();
 }
 
     function popularSelectLojasConfiguracao(lojas, lojaSelecionada) {
@@ -10890,13 +11001,23 @@ function toggleRetirada() {
       msg.textContent = "";
     }
 
-    function smartSlipLimparContextoReenvio_() {
-      SMARTSLIP_STATE.reenvio_ativo = false;
-      SMARTSLIP_STATE.protocolo_reenvio_origem = "";
-      SMARTSLIP_STATE.protocolo_raiz = "";
-      SMARTSLIP_STATE.email_usuario_original = "";
-      SMARTSLIP_STATE.reenvio_origem_status = "";
-    }
+function smartSlipLimparContextoReenvio_() {
+  SMARTSLIP_STATE.reenvio_ativo = false;
+  SMARTSLIP_STATE.protocolo_reenvio_origem = "";
+  SMARTSLIP_STATE.protocolo_raiz = "";
+  SMARTSLIP_STATE.email_usuario_original = "";
+  SMARTSLIP_STATE.reenvio_origem_status = "";
+
+  const envioFormCard = document.getElementById("envioFormCard");
+
+  if (envioFormCard) {
+    delete envioFormCard.dataset.reenvioAtivo;
+    delete envioFormCard.dataset.protocoloReenvioOrigem;
+    delete envioFormCard.dataset.protocoloRaiz;
+    delete envioFormCard.dataset.emailUsuarioOriginal;
+    delete envioFormCard.dataset.reenvioOrigemStatus;
+  }
+}
 
 function limparFormulario(limparLoja) {
   document.getElementById("arquivo").value = "";
@@ -13041,7 +13162,13 @@ function iniciarReenvioHistorico(protocolo) {
     return;
   }
 
+  /*
+    Sem chamada ao backend aqui.
+    O preenchimento precisa ser imediato.
+    A validação profissional será feita no Code.gs quando o usuário clicar em Enviar.
+  */
   const btnEnvio = document.querySelector('[data-nav="comprovantes"]');
+
   abrirView("comprovantes", btnEnvio);
 
   setTimeout(function() {
@@ -13057,7 +13184,7 @@ function iniciarReenvioHistorico(protocolo) {
       "ok",
       "Dados do envio anterior preenchidos automaticamente.\n\nRevise os valores diários, anexe um novo comprovante e clique em Enviar comprovante."
     );
-  }, 120);
+  }, 80);
 }
 
 function preencherFormularioReenvioHistorico(registro) {
@@ -13072,7 +13199,6 @@ function preencherFormularioReenvioHistorico(registro) {
 
   /*
     Limpa validações/previews do envio anterior, se essas funções existirem.
-    Mantém seguro caso alguma delas não exista em alguma versão do HTML.
   */
   if (typeof resetarPreValidacaoTotalIa === "function") {
     resetarPreValidacaoTotalIa();
@@ -13083,8 +13209,11 @@ function preencherFormularioReenvioHistorico(registro) {
   }
 
   /*
-    Marca este envio como reenvio/correção.
-    Esses campos serão enviados no payload e gravados no JSON Respostas.
+    Reenvio pelo Histórico:
+    - não usa mais id_reenvio_contexto;
+    - não usa SMARTSLIP_REENVIOS_CTX;
+    - o clique em Reenviar continua rápido;
+    - o backend valida o protocolo_reenvio_origem diretamente na SMARTSLIP_FILA.
   */
   const protocoloAtual = String(registro.protocolo || "").trim();
 
@@ -13102,6 +13231,10 @@ function preencherFormularioReenvioHistorico(registro) {
     ""
   ).trim().toLowerCase();
 
+  /*
+    Reenvio sempre deve ser tratado como um envio único.
+    Não deixe continuar protocolo de lote antigo.
+  */
   SMARTSLIP_STATE.envio_lote_iniciado = true;
   SMARTSLIP_STATE.envio_lote_total_anexos = 1;
   SMARTSLIP_STATE.envio_lote_anexo_atual = 1;
@@ -13113,6 +13246,16 @@ function preencherFormularioReenvioHistorico(registro) {
   SMARTSLIP_STATE.protocolo_raiz = protocoloRaiz;
   SMARTSLIP_STATE.email_usuario_original = emailOriginal;
   SMARTSLIP_STATE.reenvio_origem_status = String(registro.status_fila || "").trim();
+
+  const envioFormCard = document.getElementById("envioFormCard");
+
+    if (envioFormCard) {
+      envioFormCard.dataset.reenvioAtivo = "true";
+      envioFormCard.dataset.protocoloReenvioOrigem = protocoloAtual;
+      envioFormCard.dataset.protocoloRaiz = protocoloRaiz;
+      envioFormCard.dataset.emailUsuarioOriginal = emailOriginal;
+      envioFormCard.dataset.reenvioOrigemStatus = String(registro.status_fila || "").trim();
+    }
 
   smartSlipMostrarFormularioEnvio_();
 
@@ -13358,6 +13501,125 @@ function converterDataHoraBRParaInput(valor) {
   return ano + "-" + mes + "-" + dia;
 }
 
+function getCompHubNaoLidosStorageKey_() {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+  const email = String(usuario.email || "anon").trim().toLowerCase();
+
+  return "SMARTSLIP_COMP_HUB_LIDO_ATE_" + email;
+}
+
+function getCompHubUltimoRegistroMs_() {
+  const rows = SMARTSLIP_STATE.comp_hub || [];
+
+  return rows.reduce(function(max, item) {
+    return Math.max(
+      max,
+      converterDataOrdenacaoCompHub(item.dataRegistro)
+    );
+  }, 0);
+}
+
+function getCompHubUltimoLidoMs_() {
+  try {
+    return Number(localStorage.getItem(getCompHubNaoLidosStorageKey_()) || 0);
+  } catch (err) {
+    return 0;
+  }
+}
+
+function setCompHubUltimoLidoMs_(valor) {
+  try {
+    localStorage.setItem(getCompHubNaoLidosStorageKey_(), String(valor || 0));
+  } catch (err) {
+    console.warn("Não foi possível gravar leitura do Comp Hub.", err);
+  }
+}
+
+function garantirBaselineCompHubNaoLidos_() {
+  /*
+    Evita que, no primeiro uso da funcionalidade, todo o histórico apareça como não lido.
+    A partir do primeiro carregamento, só novas linhas entram no badge.
+  */
+  try {
+    const key = getCompHubNaoLidosStorageKey_();
+
+    if (localStorage.getItem(key) !== null) {
+      return;
+    }
+
+    const ultimo = getCompHubUltimoRegistroMs_();
+
+    if (ultimo) {
+      localStorage.setItem(key, String(ultimo));
+    }
+  } catch (err) {
+    console.warn("Não foi possível criar baseline do Comp Hub.", err);
+  }
+}
+
+function calcularCompHubNaoLidos_() {
+  const ultimoLido = getCompHubUltimoLidoMs_();
+
+  return (SMARTSLIP_STATE.comp_hub || []).filter(function(item) {
+    return converterDataOrdenacaoCompHub(item.dataRegistro) > ultimoLido;
+  }).length;
+}
+
+function renderizarBadgeCompHubNaoLido_() {
+  const badge = document.getElementById("compHubUnreadBadge");
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  if (!badge) {
+    return;
+  }
+
+  if (
+    usuario.can_comp_hub !== true ||
+    usuario.is_regional === true ||
+    isSmartSlipMobile()
+  ) {
+    badge.style.display = "none";
+    return;
+  }
+
+  const qtd = calcularCompHubNaoLidos_();
+
+  if (qtd > 0) {
+    badge.textContent = qtd > 99 ? "99+" : String(qtd);
+    badge.style.display = "inline-flex";
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function marcarCompHubComoLido_() {
+  const ultimo = getCompHubUltimoRegistroMs_();
+
+  if (ultimo) {
+    setCompHubUltimoLidoMs_(ultimo);
+  }
+
+  renderizarBadgeCompHubNaoLido_();
+}
+
+function vincularScrollLeituraCompHub_() {
+  const box = document.getElementById("compHubTabela");
+
+  if (!box || box.dataset.unreadScrollBound === "true") {
+    return;
+  }
+
+  box.dataset.unreadScrollBound = "true";
+
+  ["scroll", "wheel", "touchmove"].forEach(function(evt) {
+    box.addEventListener(evt, function() {
+      marcarCompHubComoLido_();
+    }, {
+      passive: true
+    });
+  });
+}
+
 function carregarCompHub(forcar, callback) {
   const usuario = SMARTSLIP_STATE.usuario || {};
 
@@ -13426,6 +13688,9 @@ function carregarCompHub(forcar, callback) {
         return item;
       });
 
+      garantirBaselineCompHubNaoLidos_();
+      renderizarBadgeCompHubNaoLido_();
+
       SMARTSLIP_STATE.comp_hub_filtrado = SMARTSLIP_STATE.comp_hub.slice();
 
       COMP_HUB_PAGE = 1;
@@ -13448,6 +13713,8 @@ function carregarCompHub(forcar, callback) {
       renderizarSeletorColunasCompHub();
       vincularFiltrosCompHub();
       aplicarFiltrosCompHub();
+      vincularScrollLeituraCompHub_();
+      renderizarBadgeCompHubNaoLido_();
 
       finalizarCallback(true);
     })
@@ -14326,6 +14593,9 @@ pagina.forEach(function(item) {
   html += "</tbody></table>";
 
   box.innerHTML = html;
+
+  vincularScrollLeituraCompHub_();
+  renderizarBadgeCompHubNaoLido_();
 }
 
 function ordenarCompHubPorColuna(key) {
@@ -15573,6 +15843,89 @@ function requisitosPreValidacaoTotalIa_() {
   };
 }
 
+function usuarioPodeIgnorarTravasIaAdmin_() {
+  const usuario = SMARTSLIP_STATE.usuario || {};
+
+  return usuario.is_admin === true && !isSmartSlipMobile();
+}
+
+function aplicarVisibilidadeOverrideIaAdmin_() {
+  const box = document.getElementById("boxOverrideIaAdmin");
+  const chk = document.getElementById("ignorar_travas_ia_admin");
+
+  if (!box) {
+    return;
+  }
+
+  const podeVer = usuarioPodeIgnorarTravasIaAdmin_();
+
+  box.style.display = podeVer ? "inline-flex" : "none";
+
+  if (!podeVer && chk) {
+    chk.checked = false;
+  }
+}
+
+function isOverrideIaAdminAtivo_() {
+  const chk = document.getElementById("ignorar_travas_ia_admin");
+
+  /*
+    A visibilidade do checkbox continua controlada por aplicarVisibilidadeOverrideIaAdmin_().
+    Aqui, no momento do envio, a fonte de verdade deve ser o estado real do checkbox.
+    A segurança final continua no backend: se não for admin, o Code.gs bloqueia.
+  */
+  return !!(chk && chk.checked === true);
+}
+
+function montarPreValidacaoOverrideIaAdmin_() {
+  return {
+    ok: true,
+    status_validacao: "ADMIN_OVERRIDE_IA",
+    bloquear_envio: false,
+    valor_total_usuario: null,
+    valor_total_ia: null,
+    diferenca: null,
+    confianca: 0,
+    mensagem: "Modo administrativo ativo. Travas de IA desabilitadas para este envio.",
+    override_admin: true
+  };
+}
+
+function onToggleOverrideIaAdmin() {
+  if (!isOverrideIaAdminAtivo_()) {
+    resetarPreValidacaoTotalIa();
+    agendarPreValidacaoTotalIa();
+    return;
+  }
+
+  SMARTSLIP_PREVALIDACAO_TOTAL_IA = montarPreValidacaoOverrideIaAdmin_();
+
+  const box = document.getElementById("boxValidacaoIaTotal");
+
+  if (box) {
+    box.style.display = "block";
+    box.className = "ia-total-box ia-total-warn";
+  }
+
+  setTextoPreValidacaoIa_("iaTotalTitulo", "Modo administrativo ativo");
+  setTextoPreValidacaoIa_(
+    "iaTotalMensagem",
+    "O comprovante será salvo usando os dados informados na tela como fonte de verdade. A IA poderá registrar o que conseguir, mas não bloqueará o envio."
+  );
+  setTextoPreValidacaoIa_("iaTotalBadge", "ADMIN");
+  setTextoPreValidacaoIa_("iaTotalUsuario", "-");
+  setTextoPreValidacaoIa_("iaTotalLido", "-");
+  setTextoPreValidacaoIa_("iaTotalDiferenca", "-");
+}
+
+function obterPreValidacaoTotalParaEnvio_(arquivoBase64, mimeType) {
+  if (isOverrideIaAdminAtivo_()) {
+    return Promise.resolve(montarPreValidacaoOverrideIaAdmin_());
+  }
+
+  return executarPreValidacaoTotalIaParaEnvio_(arquivoBase64, mimeType);
+}
+
 function executarPreValidacaoTotalIaParaEnvio_(arquivoBase64, mimeType) {
   const req = requisitosPreValidacaoTotalIa_();
   const box = document.getElementById("boxValidacaoIaTotal");
@@ -16227,21 +16580,37 @@ function enviar() {
     reader.onload = function(e) {
       const arquivoBase64Envio = e.target.result;
 
+      const overrideIaAdminAtivo = isOverrideIaAdminAtivo_();
+
       if (btn) {
-        btn.textContent = "Validando total...";
+        btn.textContent = overrideIaAdminAtivo
+          ? "Preparando envio..."
+          : "Validando total...";
       }
 
-      travarTelaEnvio("Validando valor total do comprovante...");
+      travarTelaEnvio(
+        overrideIaAdminAtivo
+          ? "Preparando envio administrativo sem travas da IA..."
+          : "Validando valor total do comprovante..."
+      );
 
-      executarPreValidacaoTotalIaParaEnvio_(
-        arquivoBase64Envio,
-        file.type || "application/pdf"
-      ).then(function(preValidacaoTotalIa) {
-        preValidacaoTotalIa = smartSlipAplicarBloqueioMultiploConfiavel_(
-        preValidacaoTotalIa,
-        totalAnexosFluxo
+      const promessaPreValidacaoTotalIa = overrideIaAdminAtivo
+        ? Promise.resolve(montarPreValidacaoOverrideIaAdmin_())
+        : executarPreValidacaoTotalIaParaEnvio_(
+            arquivoBase64Envio,
+            file.type || "application/pdf"
           );
+
+      promessaPreValidacaoTotalIa.then(function(preValidacaoTotalIa) {
+        if (!overrideIaAdminAtivo) {
+          preValidacaoTotalIa = smartSlipAplicarBloqueioMultiploConfiavel_(
+            preValidacaoTotalIa,
+            totalAnexosFluxo
+          );
+        }
+
         if (
+          !overrideIaAdminAtivo &&
           preValidacaoTotalIa &&
           preValidacaoTotalIa.bloquear_envio === true &&
           !envioEmLote
@@ -16266,6 +16635,16 @@ function enviar() {
           : null;
 
         if (
+          overrideIaAdminAtivo &&
+          preValidacaoParaBackend
+        ) {
+          preValidacaoParaBackend.bloquear_envio = false;
+          preValidacaoParaBackend.bloqueio_ignorado_por_admin = true;
+          preValidacaoParaBackend.override_admin = true;
+        }
+
+        if (
+          !overrideIaAdminAtivo &&
           envioEmLote &&
           preValidacaoParaBackend &&
           preValidacaoParaBackend.bloquear_envio === true
@@ -16279,6 +16658,40 @@ function enviar() {
         }
 
         travarTelaEnvio("Enviando comprovante...");
+
+        const overrideIaAdminAtivoFinal = isOverrideIaAdminAtivo_();
+
+          const envioFormCard = document.getElementById("envioFormCard");
+
+          const protocoloReenvioOrigemPayload = String(
+            SMARTSLIP_STATE.protocolo_reenvio_origem ||
+            (envioFormCard && envioFormCard.dataset.protocoloReenvioOrigem) ||
+            ""
+          ).trim();
+
+          const protocoloRaizPayload = String(
+            SMARTSLIP_STATE.protocolo_raiz ||
+            (envioFormCard && envioFormCard.dataset.protocoloRaiz) ||
+            protocoloReenvioOrigemPayload ||
+            ""
+          ).trim();
+
+          const emailUsuarioOriginalPayload = String(
+            SMARTSLIP_STATE.email_usuario_original ||
+            (envioFormCard && envioFormCard.dataset.emailUsuarioOriginal) ||
+            ""
+          ).trim().toLowerCase();
+
+          const reenvioOrigemStatusPayload = String(
+            SMARTSLIP_STATE.reenvio_origem_status ||
+            (envioFormCard && envioFormCard.dataset.reenvioOrigemStatus) ||
+            ""
+          ).trim();
+
+          const reenvioAtivoPayload =
+            SMARTSLIP_STATE.reenvio_ativo === true ||
+            (envioFormCard && envioFormCard.dataset.reenvioAtivo === "true") ||
+            !!protocoloReenvioOrigemPayload;
 
         const payload = {
           arquivoBase64: arquivoBase64Envio,
@@ -16294,17 +16707,21 @@ function enviar() {
           valores_diarios_movimento: coletarValoresDiariosMovimento(),
           pre_validacao_total_ia: preValidacaoParaBackend,
 
+          ignorar_travas_ia_admin: overrideIaAdminAtivoFinal ? "true" : "false",
+          modo_processamento_admin: overrideIaAdminAtivoFinal ? "SEM_TRAVAS_IA" : "",
+
           mais_comprovantes: String(vaiEnviarMaisComprovantes),
           envio_lote: String(envioEmLote),
           protocolo_lote: SMARTSLIP_STATE.protocolo_lote_ativo || "",
           sequencia_lote: SMARTSLIP_STATE.sequencia_lote_ativo || anexoAtualFluxo,
           total_anexos_lote: totalAnexosFluxo,
           anexo_atual_lote: anexoAtualFluxo,
-          reenvio_ativo: SMARTSLIP_STATE.reenvio_ativo === true ? "true" : "false",
-          protocolo_reenvio_origem: SMARTSLIP_STATE.protocolo_reenvio_origem || "",
-          protocolo_raiz: SMARTSLIP_STATE.protocolo_raiz || "",
-          email_usuario_original: SMARTSLIP_STATE.email_usuario_original || "",
-          reenvio_origem_status: SMARTSLIP_STATE.reenvio_origem_status || ""
+
+          reenvio_ativo: reenvioAtivoPayload ? "true" : "false",
+          protocolo_reenvio_origem: protocoloReenvioOrigemPayload,
+          protocolo_raiz: protocoloRaizPayload,
+          email_usuario_original: emailUsuarioOriginalPayload,
+          reenvio_origem_status: reenvioOrigemStatusPayload
         };
 
         google.script.run
