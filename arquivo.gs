@@ -3753,10 +3753,134 @@ function smartSlipValidarCooldownEnvio_(emailUsuario) {
   }
 }
 
-function smartSlipEnviarComprovanteApp(form) {
+function smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+  row = row || [];
+  respostas = respostas || {};
 
+  const emailUsuario = String(usuario.email || "").trim().toLowerCase();
+  const emailLinha = String(row[2] || "").trim().toLowerCase();
+
+  const emailOriginal = String(
+    respostas.email_usuario_original ||
+    row[2] ||
+    ""
+  ).trim().toLowerCase();
+
+  const lojaRow = smartSlipNormalizarLoja4(row[3] || "");
+
+  if (usuario.is_admin === true || usuario.is_analista_pro === true) {
+    return true;
+  }
+
+  if (usuario.is_regional === true) {
+    return smartSlipUsuarioPodeVerLoja_(usuario, lojaRow);
+  }
+
+  /*
+    Usuário comum:
+    - vê o que ele mesmo enviou;
+    - vê correção feita por admin se email_usuario_original for o e-mail dele.
+  */
+  return emailLinha === emailUsuario || emailOriginal === emailUsuario;
+}
+
+function smartSlipValidarContextoReenvioOrigem_(usuario, emailUsuario, protocoloOrigem) {
+  usuario = usuario || smartSlipGetUsuarioAtual();
+
+  emailUsuario = String(
+    emailUsuario ||
+    usuario.email ||
+    Session.getActiveUser().getEmail() ||
+    ""
+  ).trim().toLowerCase();
+
+  protocoloOrigem = String(protocoloOrigem || "").trim();
+
+  if (!protocoloOrigem) {
+    throw new Error("Reenvio inválido: protocolo de origem não informado.");
+  }
+
+  const ss = SpreadsheetApp.openById(SMARTSLIP_DB_SPREADSHEET_ID);
+  const sh = ss.getSheetByName(SMARTSLIP_ABA_FILA);
+
+  if (!sh || sh.getLastRow() < 2) {
+    throw new Error("Reenvio inválido: fila de comprovantes vazia.");
+  }
+
+  const encontrado = smartSlipBuscarLinhaFilaPorProtocolo_(sh, protocoloOrigem);
+
+  if (!encontrado) {
+    throw new Error("Reenvio inválido: protocolo de origem não encontrado na SMARTSLIP_FILA.");
+  }
+
+  const row = encontrado.row;
+  const respostas = smartSlipParseJsonSeguro_(row[15]);
+  const statusFila = String(row[13] || "").trim();
+
+  if (!smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas)) {
+    throw new Error("Reenvio não permitido: o envio de origem não pertence ao usuário/perfil atual.");
+  }
+
+  if (!smartSlipStatusPermiteReenvio_(statusFila)) {
+    throw new Error("Reenvio não permitido para o status atual: " + statusFila);
+  }
+
+  const protocoloRaiz = String(
+    respostas.protocolo_raiz ||
+    respostas.protocolo_original ||
+    respostas.protocolo_reenvio_origem ||
+    protocoloOrigem ||
+    ""
+  ).trim();
+
+  const emailOriginal = String(
+    respostas.email_usuario_original ||
+    row[2] ||
+    emailUsuario ||
+    ""
+  ).trim().toLowerCase();
+
+  return {
+    row_index: encontrado.row_index,
+    row_origem: row,
+    protocolo_reenvio_origem: protocoloOrigem,
+    protocolo_original: protocoloOrigem,
+    protocolo_raiz: protocoloRaiz || protocoloOrigem,
+    email_usuario_original: emailOriginal,
+    reenvio_origem_status: statusFila
+  };
+}
+
+function smartSlipBuscarLinhaFilaPorProtocolo_(sh, protocolo) {
+  protocolo = String(protocolo || "").trim();
+
+  if (!sh || !protocolo || sh.getLastRow() < 2) {
+    return null;
+  }
+
+  const lastCol = Math.max(29, sh.getLastColumn());
+  const values = sh.getRange(2, 1, sh.getLastRow() - 1, lastCol).getValues();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+    const protocoloLinha = String(row[1] || "").trim();
+
+    if (protocoloLinha === protocolo) {
+      return {
+        row_index: i + 2,
+        row: row
+      };
+    }
+  }
+
+  return null;
+}
+
+function smartSlipEnviarComprovanteApp(form) {
   try {
-        smartSlipAssertUsuarioAutorizado_();
+    smartSlipAssertUsuarioAutorizado_();
+
     if (!form) {
       throw new Error("Formulário não recebido.");
     }
@@ -3818,12 +3942,39 @@ function smartSlipEnviarComprovanteApp(form) {
       form
     );
 
+    const usuarioAtual = smartSlipGetUsuarioAtual();
+
+    const emailUsuario = String(
+      usuarioAtual.email ||
+      Session.getActiveUser().getEmail() ||
+      ""
+    ).trim().toLowerCase();
+
+    const ignorarTravasIaAdminSolicitado =
+      String(form.ignorar_travas_ia_admin || "").toLowerCase() === "true" ||
+      String(form.modo_processamento_admin || "").toUpperCase() === "SEM_TRAVAS_IA";
+
+    if (ignorarTravasIaAdminSolicitado && usuarioAtual.is_admin !== true) {
+      throw new Error("A opção administrativa de ignorar travas da IA é permitida apenas para administradores.");
+    }
+
+    const ignorarTravasIaAdmin =
+      ignorarTravasIaAdminSolicitado && usuarioAtual.is_admin === true;
+
+    if (ignorarTravasIaAdmin && preValidacaoTotalIa) {
+      preValidacaoTotalIa.bloquear_envio = false;
+      preValidacaoTotalIa.bloqueio_ignorado_por_admin = true;
+      preValidacaoTotalIa.override_admin = true;
+      preValidacaoTotalIa.admin_override_por = emailUsuario;
+    }
+
     const envioEmLoteForm =
       String(form.envio_lote || "") === "true" ||
       String(form.mais_comprovantes || "") === "true" ||
       String(form.protocolo_lote || "").trim() !== "";
 
     if (
+      !ignorarTravasIaAdmin &&
       preValidacaoTotalIa &&
       preValidacaoTotalIa.bloquear_envio === true &&
       !envioEmLoteForm
@@ -3854,22 +4005,13 @@ function smartSlipEnviarComprovanteApp(form) {
       throw new Error("Se houver valor de retirada, marque 'Houve retirada?' como Sim.");
     }
 
-    const usuarioAtual = smartSlipGetUsuarioAtual();
-    const emailUsuario = String(usuarioAtual.email || Session.getActiveUser().getEmail() || "").trim().toLowerCase();
-
     const ehContinuacaoLoteForm = String(form.protocolo_lote || "").trim() !== "";
 
-    /*
-      O cooldown continua valendo para iniciar um novo envio.
-      Mas não deve travar a continuidade do mesmo lote,
-      senão a loja teria que esperar entre uma foto e outra.
-    */
     if (!ehContinuacaoLoteForm) {
       smartSlipValidarCooldownEnvio_(emailUsuario);
     }
 
     const lojaForm = smartSlipNormalizarLoja4(form.loja);
-
     const lojaPadraoUsuario = smartSlipNormalizarLoja4(usuarioAtual.loja_padrao || "");
 
     if (!usuarioAtual.is_admin) {
@@ -3917,15 +4059,52 @@ function smartSlipEnviarComprovanteApp(form) {
         : "Não houve retirada",
       valores_diarios_movimento: valoresDiariosMovimento,
       pre_validacao_total_ia: preValidacaoTotalIa,
-      mais_comprovantes: String(form.mais_comprovantes) === "true"
+      mais_comprovantes: String(form.mais_comprovantes) === "true",
+
+      ignorar_travas_ia_admin: ignorarTravasIaAdmin,
+      modo_processamento_admin: ignorarTravasIaAdmin ? "SEM_TRAVAS_IA" : "",
+      admin_override_por: ignorarTravasIaAdmin ? emailUsuario : "",
+      admin_override_em: ignorarTravasIaAdmin ? new Date().toISOString() : ""
     };
 
-      const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
+    const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
 
-const controleLote = smartSlipMontarControleLoteEnvio_(
-  form,
-  valoresDiariosMovimento
-);
+const sh = smartSlipGarantirCabecalhoFila();
+
+const protocoloReenvioOrigemForm = String(
+  form.protocolo_reenvio_origem || ""
+).trim();
+
+const reenvioSolicitado =
+  String(form.reenvio_ativo || "").toLowerCase() === "true" ||
+  !!protocoloReenvioOrigemForm;
+
+let contextoReenvio = null;
+
+if (reenvioSolicitado) {
+  contextoReenvio = smartSlipValidarContextoReenvioOrigem_(
+    usuarioAtual,
+    emailUsuario,
+    protocoloReenvioOrigemForm
+  );
+}
+
+const controleLote = contextoReenvio
+  ? {
+      eh_lote: false,
+      eh_continuacao_lote: false,
+      protocolo_lote: contextoReenvio.protocolo_reenvio_origem,
+      protocolo_envio: contextoReenvio.protocolo_reenvio_origem,
+      sequencia_lote: 1,
+      proxima_sequencia_lote: 2,
+      status_lote: "FECHADO",
+      ultimo_envio_lote: true,
+      total_movimento_lote: Number(valoresDiariosMovimento.total || 0)
+    }
+  : smartSlipMontarControleLoteEnvio_(
+      form,
+      valoresDiariosMovimento
+    );
 
 const protocolo = controleLote.protocolo_envio;
 
@@ -3938,39 +4117,39 @@ respostasUsuario.ultimo_envio_lote = controleLote.ultimo_envio_lote;
 respostasUsuario.total_movimento_lote = controleLote.total_movimento_lote;
 respostasUsuario.envio_lote = controleLote.eh_lote;
 
-const reenvioAtivo = String(form.reenvio_ativo || "").toLowerCase() === "true";
+respostasUsuario.reenvio_ativo = !!contextoReenvio;
+respostasUsuario.tipo_envio = contextoReenvio ? "REENVIO_CORRECAO" : "ORIGINAL";
+respostasUsuario.protocolo_reenvio_origem = contextoReenvio
+  ? contextoReenvio.protocolo_reenvio_origem
+  : "";
 
-const protocoloReenvioOrigem = String(form.protocolo_reenvio_origem || "").trim();
-const protocoloRaizForm = String(
-  form.protocolo_raiz ||
-  form.protocolo_reenvio_origem ||
-  ""
-).trim();
+respostasUsuario.protocolo_original = contextoReenvio
+  ? contextoReenvio.protocolo_original
+  : protocolo;
 
-const emailUsuarioOriginal = String(
-  form.email_usuario_original ||
-  emailUsuario ||
-  ""
-).trim().toLowerCase();
+respostasUsuario.protocolo_raiz = contextoReenvio
+  ? contextoReenvio.protocolo_raiz
+  : protocolo;
 
-respostasUsuario.reenvio_ativo = reenvioAtivo;
-respostasUsuario.tipo_envio = reenvioAtivo ? "REENVIO_CORRECAO" : "ORIGINAL";
-respostasUsuario.protocolo_reenvio_origem = protocoloReenvioOrigem;
-respostasUsuario.protocolo_original = protocoloReenvioOrigem || protocolo;
-respostasUsuario.protocolo_raiz = protocoloRaizForm || protocolo;
-respostasUsuario.email_usuario_original = emailUsuarioOriginal;
+respostasUsuario.email_usuario_original = contextoReenvio
+  ? contextoReenvio.email_usuario_original
+  : emailUsuario;
+
 respostasUsuario.reenviado_por = emailUsuario;
-respostasUsuario.reenvio_origem_status = String(form.reenvio_origem_status || "").trim();
 
-const sh = smartSlipGarantirCabecalhoFila();
+respostasUsuario.reenvio_origem_status = contextoReenvio
+  ? contextoReenvio.reenvio_origem_status
+  : "";
 
-smartSlipValidarContinuidadeLote_(
-  sh,
-  controleLote,
-  emailUsuario,
-  loja4,
-  dataMovimentoTexto
-);
+if (!contextoReenvio) {
+  smartSlipValidarContinuidadeLote_(
+    sh,
+    controleLote,
+    emailUsuario,
+    loja4,
+    dataMovimentoTexto
+  );
+}
 
 const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
   form,
@@ -3978,7 +4157,7 @@ const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
   protocolo
 );
 
-sh.appendRow([
+const linhaFila = [
   new Date(),
   protocolo,
   emailUsuario,
@@ -3993,12 +4172,15 @@ sh.appendRow([
   arquivo.link_comprovante,
   arquivo.nome_arquivo,
   "RECEBIDO",
-  "Comprovante recebido e aguardando processamento.",
+  ignorarTravasIaAdmin
+    ? "Comprovante recebido em modo administrativo sem travas da IA."
+    : contextoReenvio
+      ? "Comprovante reenviado para nova leitura e aguardando processamento."
+      : "Comprovante recebido e aguardando processamento.",
   JSON.stringify(respostasUsuario),
   "",
   "",
 
-  // Colunas S:X - lote
   controleLote.protocolo_lote,
   controleLote.protocolo_envio,
   controleLote.sequencia_lote,
@@ -4006,26 +4188,33 @@ sh.appendRow([
   controleLote.ultimo_envio_lote ? "Sim" : "Não",
   controleLote.total_movimento_lote,
 
-  // Colunas Y:AC - performance
   "",
   "",
   "",
   "",
   ""
-]);
+];
 
-return {
-  ok: true,
-  protocolo: protocolo,
-  protocolo_lote: controleLote.protocolo_lote,
-  protocolo_envio: controleLote.protocolo_envio,
-  sequencia_lote: controleLote.sequencia_lote,
-  proxima_sequencia_lote: controleLote.proxima_sequencia_lote,
-  continuar_lote: controleLote.ultimo_envio_lote !== true,
-  status: "RECEBIDO",
-  status_lote: controleLote.status_lote,
-  mensagem: "Comprovante recebido com sucesso."
-};
+if (contextoReenvio) {
+  sh.getRange(contextoReenvio.row_index, 1, 1, linhaFila.length).setValues([linhaFila]);
+} else {
+  sh.appendRow(linhaFila);
+}
+
+    return {
+      ok: true,
+      protocolo: protocolo,
+      protocolo_lote: controleLote.protocolo_lote,
+      protocolo_envio: controleLote.protocolo_envio,
+      sequencia_lote: controleLote.sequencia_lote,
+      proxima_sequencia_lote: controleLote.proxima_sequencia_lote,
+      continuar_lote: controleLote.ultimo_envio_lote !== true,
+      status: "RECEBIDO",
+      status_lote: controleLote.status_lote,
+      mensagem: ignorarTravasIaAdmin
+        ? "Comprovante recebido com sucesso em modo administrativo sem travas da IA."
+        : "Comprovante recebido com sucesso."
+    };
 
   } catch (err) {
     return {
@@ -4434,6 +4623,8 @@ function smartSlipProcessarFila() {
 }
 
 function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) {
+  respostasUsuario = respostasUsuario || {};
+
   const file = DriveApp.getFileById(fileId);
   const linkComprovante = file.getUrl();
   const blob = file.getBlob();
@@ -4441,11 +4632,50 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
   const base64 = Utilities.base64Encode(blob.getBytes());
   const mimeType = blob.getContentType();
 
-  const resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
-
   const loja4 = smartSlipNormalizarLoja4(respostasUsuario.loja);
   const dataMovimentoTexto = smartSlipMontarDataMovimentoTexto(respostasUsuario);
   const valoresDiariosMovimento = respostasUsuario.valores_diarios_movimento || null;
+
+  const ignorarTravasIaAdmin = respostasUsuario.ignorar_travas_ia_admin === true;
+
+  let resultado = null;
+
+  try {
+    resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+  } catch (errGemini) {
+    if (!ignorarTravasIaAdmin) {
+      throw errGemini;
+    }
+
+    resultado = {
+      status: "PRONTO_PARA_SALVAR",
+      qtd_comprovantes_detectados: 1,
+      alerta_qualidade_imagem: "IA falhou, mas o modo administrativo sem travas permitiu fallback manual.",
+      criterio_contagem: "Fallback administrativo",
+      dados_arquivo: {
+        loja: loja4,
+        empresa: "Nao identificado",
+        data_movimento: dataMovimentoTexto,
+        data_movimento_inicio: respostasUsuario.data_movimento_inicio || "",
+        data_movimento_fim: respostasUsuario.data_movimento_fim || "",
+        houve_retirada: respostasUsuario.houve_retirada === true,
+        valor_retirada: Number(respostasUsuario.valor_retirada || 0),
+        motivo_retirada: respostasUsuario.motivo_retirada || "Não houve retirada",
+        link_comprovante: linkComprovante
+      },
+      comprovantes: [
+        smartSlipMontarComprovanteAdminFallback_(
+          respostasUsuario,
+          dataMovimentoTexto
+        )
+      ],
+      pendencias: [],
+      divergencias: [],
+      perguntas_complementares: [],
+      confianca_geral: 0,
+      erro_ia_original: String(errGemini && errGemini.message ? errGemini.message : errGemini)
+    };
+  }
 
   const protocoloLote = String(respostasUsuario.protocolo_lote || protocolo || "").trim();
   const protocoloEnvio = String(respostasUsuario.protocolo_envio || protocolo || "").trim();
@@ -4473,9 +4703,18 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
     ? respostasUsuario.motivo_retirada || ""
     : "Não houve retirada";
 
-  const comprovantes = smartSlipExtrairComprovantesDoResultado(resultado);
+  let comprovantes = smartSlipExtrairComprovantesDoResultado(resultado);
 
-  if (!comprovantes.length) {
+  if (ignorarTravasIaAdmin && (!comprovantes || comprovantes.length === 0)) {
+    comprovantes = [
+      smartSlipMontarComprovanteAdminFallback_(
+        respostasUsuario,
+        dataMovimentoTexto
+      )
+    ];
+  }
+
+  if (!ignorarTravasIaAdmin && !comprovantes.length) {
     return {
       ok: false,
       status_fila: "PENDENTE_INTERNO",
@@ -4484,29 +4723,49 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
     };
   }
 
-  if (comprovantes.length > 10) {
-  return {
-    ok: false,
-    status_fila: "PENDENTE_INTERNO",
-    mensagem:
-      "Validação anti-alucinação bloqueou o lote. A IA retornou " +
-      comprovantes.length +
-      " comprovantes, acima do limite operacional de 10 por arquivo. Nenhum item foi salvo na BASE_SMARTSLIP.",
-    resultado: resultado
-  };
-}
+  if (!ignorarTravasIaAdmin && comprovantes.length > 10) {
+    return {
+      ok: false,
+      status_fila: "PENDENTE_INTERNO",
+      mensagem:
+        "Validação anti-alucinação bloqueou o lote. A IA retornou " +
+        comprovantes.length +
+        " comprovantes, acima do limite operacional de 10 por arquivo. Nenhum item foi salvo na BASE_SMARTSLIP.",
+      resultado: resultado
+    };
+  }
 
-const validacaoDuplicidadeEvidencia = smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes);
+  if (ignorarTravasIaAdmin && comprovantes.length > 10) {
+    comprovantes = [
+      smartSlipMontarComprovanteAdminFallback_(
+        respostasUsuario,
+        dataMovimentoTexto
+      )
+    ];
 
-if (!validacaoDuplicidadeEvidencia.ok) {
-  return {
-    ok: false,
-    status_fila: "PENDENTE_INTERNO",
-    mensagem: validacaoDuplicidadeEvidencia.mensagem + " Nenhum item foi salvo na BASE_SMARTSLIP.",
-    validacao_duplicidade_evidencia: validacaoDuplicidadeEvidencia,
-    resultado: resultado
-  };
-}
+    if (!Array.isArray(resultado.observacoes)) {
+      resultado.observacoes = [];
+    }
+
+    resultado.observacoes.push(
+      "IA retornou mais de 10 itens. Modo administrativo usou fallback manual para evitar salvamento massivo por possível alucinação."
+    );
+  }
+
+  if (!ignorarTravasIaAdmin) {
+    const validacaoDuplicidadeEvidencia =
+      smartSlipValidarDuplicidadeEvidenciaLote_(comprovantes);
+
+    if (!validacaoDuplicidadeEvidencia.ok) {
+      return {
+        ok: false,
+        status_fila: "PENDENTE_INTERNO",
+        mensagem: validacaoDuplicidadeEvidencia.mensagem + " Nenhum item foi salvo na BASE_SMARTSLIP.",
+        validacao_duplicidade_evidencia: validacaoDuplicidadeEvidencia,
+        resultado: resultado
+      };
+    }
+  }
 
   let salvos = 0;
   let pendentes = 0;
@@ -4515,6 +4774,16 @@ if (!validacaoDuplicidadeEvidencia.ok) {
   let retiradaJaAplicada = false;
 
   comprovantes.forEach(function(item) {
+    item = item || {};
+
+    if (ignorarTravasIaAdmin) {
+      item = smartSlipCompletarItemAdminSemTravas_(
+        item,
+        respostasUsuario,
+        dataMovimentoTexto
+      );
+    }
+
     const pendenciasItem = [];
 
     if (!item.tipo_documento || item.tipo_documento === "nao_identificado") {
@@ -4533,99 +4802,128 @@ if (!validacaoDuplicidadeEvidencia.ok) {
       pendenciasItem.push("Data de geração do documento não identificada.");
     }
 
-const movInicioGuardrail =
-  respostasUsuario.data_movimento_inicio ||
-  respostasUsuario.data_movimento ||
-  "";
+    const movInicioGuardrail =
+      respostasUsuario.data_movimento_inicio ||
+      respostasUsuario.data_movimento ||
+      "";
 
-const movFimGuardrail =
-  respostasUsuario.data_movimento_fim ||
-  respostasUsuario.data_movimento_inicio ||
-  respostasUsuario.data_movimento ||
-  "";
+    const movFimGuardrail =
+      respostasUsuario.data_movimento_fim ||
+      respostasUsuario.data_movimento_inicio ||
+      respostasUsuario.data_movimento ||
+      "";
 
-const correcaoDataDeposito = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
-  item.data_deposito,
-  movInicioGuardrail,
-  movFimGuardrail
-);
+    const correcaoDataDeposito = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
+      item.data_deposito,
+      movInicioGuardrail,
+      movFimGuardrail
+    );
 
-if (correcaoDataDeposito.corrigida) {
-  item.data_deposito = correcaoDataDeposito.data;
+    if (correcaoDataDeposito.corrigida) {
+      item.data_deposito = correcaoDataDeposito.data;
 
-  if (!Array.isArray(item.observacoes)) {
-    item.observacoes = [];
-  }
+      if (!Array.isArray(item.observacoes)) {
+        item.observacoes = [];
+      }
 
-  item.observacoes.push(correcaoDataDeposito.motivo);
-}
-
-const correcaoDataGeracao = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
-  item.data_geracao_documento,
-  movInicioGuardrail,
-  movFimGuardrail
-);
-
-if (correcaoDataGeracao.corrigida) {
-  item.data_geracao_documento = correcaoDataGeracao.data;
-
-  if (!Array.isArray(item.observacoes)) {
-    item.observacoes = [];
-  }
-
-  item.observacoes.push(correcaoDataGeracao.motivo);
-}
-
-const dadosGuardrail = {
-  data_deposito: item.data_deposito,
-  data_movimento: dataMovimentoTexto,
-  data_movimento_inicio: movInicioGuardrail,
-  data_movimento_fim: movFimGuardrail
-};
-
-const resultadoGuardrail = {
-  status: "PRONTO_PARA_SALVAR",
-  divergencias: []
-};
-
-smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
-
-    if (resultadoGuardrail.divergencias.length > 0) {
-      pendenciasItem.push(resultadoGuardrail.divergencias.join(" | "));
+      item.observacoes.push(correcaoDataDeposito.motivo);
     }
 
-    if (pendenciasItem.length > 0 || item.status === "INELEGIVEL") {
+    const correcaoDataGeracao = smartSlipCorrigirAnoDataDocumentoPeloMovimento_(
+      item.data_geracao_documento,
+      movInicioGuardrail,
+      movFimGuardrail
+    );
+
+    if (correcaoDataGeracao.corrigida) {
+      item.data_geracao_documento = correcaoDataGeracao.data;
+
+      if (!Array.isArray(item.observacoes)) {
+        item.observacoes = [];
+      }
+
+      item.observacoes.push(correcaoDataGeracao.motivo);
+    }
+
+    const dadosGuardrail = {
+      data_deposito: item.data_deposito,
+      data_movimento: dataMovimentoTexto,
+      data_movimento_inicio: movInicioGuardrail,
+      data_movimento_fim: movFimGuardrail
+    };
+
+    const resultadoGuardrail = {
+      status: "PRONTO_PARA_SALVAR",
+      divergencias: []
+    };
+
+    smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
+
+    if (resultadoGuardrail.divergencias.length > 0) {
+      if (ignorarTravasIaAdmin) {
+        if (!Array.isArray(item.observacoes)) {
+          item.observacoes = [];
+        }
+
+        item.observacoes.push(
+          "Guardrail de data ignorado por override administrativo: " +
+          resultadoGuardrail.divergencias.join(" | ")
+        );
+      } else {
+        pendenciasItem.push(resultadoGuardrail.divergencias.join(" | "));
+      }
+    }
+
+    if (!ignorarTravasIaAdmin && (pendenciasItem.length > 0 || item.status === "INELEGIVEL")) {
       pendentes++;
+
       mensagens.push(
         "Comprovante " +
         (item.indice_comprovante || "?") +
         ": " +
         pendenciasItem.join(" | ")
       );
+
       return;
     }
 
-    const validacaoEvidencia = smartSlipItemTemInferenciaOuBaixaEvidencia_(item);
+    if (!ignorarTravasIaAdmin) {
+      const validacaoEvidencia = smartSlipItemTemInferenciaOuBaixaEvidencia_(item);
 
-    if (validacaoEvidencia.bloquear) {
-      pendentes++;
+      if (validacaoEvidencia.bloquear) {
+        pendentes++;
 
-      mensagens.push(
-        "Comprovante " +
-        (item.indice_comprovante || "?") +
-        ": bloqueado por validação anti-alucinação. " +
-        validacaoEvidencia.motivo
-      );
+        mensagens.push(
+          "Comprovante " +
+          (item.indice_comprovante || "?") +
+          ": bloqueado por validação anti-alucinação. " +
+          validacaoEvidencia.motivo
+        );
 
-      return;
+        return;
+      }
     }
 
     const aplicarRetiradaNestaLinha = houveRetirada && !retiradaJaAplicada;
     const indiceComprovante = item.indice_comprovante || (salvos + pendentes + 1);
+
     const idComprovante = smartSlipGerarIdComprovante(
       protocolo,
       indiceComprovante
     );
+
+    const pendenciasSalvar = Array.isArray(item.observacoes)
+      ? item.observacoes.slice()
+      : [];
+
+    if (ignorarTravasIaAdmin) {
+      pendenciasSalvar.push(
+        "Override administrativo: validações bloqueantes da IA foram ignoradas."
+      );
+      pendenciasSalvar.push(
+        "Dados críticos podem ter sido preenchidos com informações digitadas manualmente na tela de envio."
+      );
+    }
 
     const payloadSalvar = {
       id_comprovante: idComprovante,
@@ -4652,18 +4950,24 @@ smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
       data_geracao_documento: item.data_geracao_documento || "",
       codigo_autenticacao: item.codigo_autenticacao || "",
       link_comprovante: linkComprovante,
-      status_processamento: "PRONTO_PARA_SALVAR",
-      pendencias: item.observacoes || [],
+      status_processamento: ignorarTravasIaAdmin
+        ? "SALVO_ADMIN_SEM_TRAVAS_IA"
+        : "PRONTO_PARA_SALVAR",
+      pendencias: pendenciasSalvar,
       divergencias: [],
-      confianca_geral: Number(resultado.confianca_geral || 0)
+      confianca_geral: ignorarTravasIaAdmin
+        ? Number(resultado.confianca_geral || item.confianca_item || 0)
+        : Number(resultado.confianca_geral || 0)
     };
 
     payloadSalvar.hash_comprovante = smartSlipGerarHashComprovante(payloadSalvar);
 
     smartSlipSalvarDadosComprovantePlanilha_(payloadSalvar);
+
     if (aplicarRetiradaNestaLinha) {
-        retiradaJaAplicada = true;
-      }
+      retiradaJaAplicada = true;
+    }
+
     salvos++;
   });
 
@@ -4671,7 +4975,9 @@ smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
     return {
       ok: true,
       status_fila: "SALVO",
-      mensagem: salvos + " comprovante(s) processado(s) e salvo(s) na BASE_SMARTSLIP.",
+      mensagem: ignorarTravasIaAdmin
+        ? salvos + " comprovante(s) salvo(s) em modo administrativo sem travas da IA."
+        : salvos + " comprovante(s) processado(s) e salvo(s) na BASE_SMARTSLIP.",
       qtd_salvos: salvos,
       qtd_pendentes: pendentes,
       resultado: resultado
@@ -4699,6 +5005,122 @@ smartSlipValidarGuardrailMovimento(resultadoGuardrail, dadosGuardrail);
     pendencias: mensagens,
     resultado: resultado
   };
+}
+
+function smartSlipTipoDocumentoFallbackAdmin_(tipoDeposito) {
+  const tipo = smartSlipNormalizarTipoDeposito_(tipoDeposito || "");
+
+  if (tipo === "Boleto") {
+    return "boleto_bancario";
+  }
+
+  if (tipo === "Carro Forte") {
+    return "comprovante_carro_forte";
+  }
+
+  if (tipo === "Dep. Bancário") {
+    return "deposito_caixa_eletronico";
+  }
+
+  return "nao_identificado";
+}
+
+function smartSlipTotalMovimentoRespostas_(respostasUsuario) {
+  respostasUsuario = respostasUsuario || {};
+
+  const valores = respostasUsuario.valores_diarios_movimento || {};
+
+  const total = Number(valores.total || 0);
+
+  return isNaN(total) ? 0 : total;
+}
+
+function smartSlipDataFallbackAdmin_(respostasUsuario, dataMovimentoTexto) {
+  respostasUsuario = respostasUsuario || {};
+
+  return String(
+    respostasUsuario.data_movimento_fim ||
+    respostasUsuario.data_movimento_inicio ||
+    respostasUsuario.data_movimento ||
+    dataMovimentoTexto ||
+    ""
+  ).trim();
+}
+
+function smartSlipMontarComprovanteAdminFallback_(respostasUsuario, dataMovimentoTexto) {
+  respostasUsuario = respostasUsuario || {};
+
+  const dataFallback = smartSlipDataFallbackAdmin_(respostasUsuario, dataMovimentoTexto);
+  const valorFallback = smartSlipTotalMovimentoRespostas_(respostasUsuario);
+
+  return {
+    status: "PRONTO_PARA_SALVAR",
+    indice_comprovante: 1,
+    tipo_documento: smartSlipTipoDocumentoFallbackAdmin_(respostasUsuario.tipo_deposito),
+    data_deposito: dataFallback,
+    valor_deposito: valorFallback,
+    banco: "Nao identificado",
+    data_geracao_documento: dataFallback,
+    codigo_autenticacao: "",
+    confianca_item: 0,
+    posicao_visual_aproximada: "Fallback administrativo",
+    evidencias: {
+      valor_deposito_texto: "Valor usado da soma dos valores diários informados na tela.",
+      data_deposito_texto: "Data usada do período de movimento informado na tela.",
+      codigo_autenticacao_texto: "",
+      controle_texto: "",
+      bloco_textual_comprovante: "Modo administrativo sem travas de IA."
+    },
+    observacoes: [
+      "Modo administrativo sem travas de IA: campos críticos ausentes foram preenchidos com dados informados manualmente na tela."
+    ]
+  };
+}
+
+function smartSlipCompletarItemAdminSemTravas_(item, respostasUsuario, dataMovimentoTexto) {
+  item = item || {};
+
+  const fallback = smartSlipMontarComprovanteAdminFallback_(
+    respostasUsuario,
+    dataMovimentoTexto
+  );
+
+  if (!item.tipo_documento || item.tipo_documento === "nao_identificado") {
+    item.tipo_documento = fallback.tipo_documento;
+  }
+
+  if (!item.data_deposito) {
+    item.data_deposito = fallback.data_deposito;
+  }
+
+  if (
+    item.valor_deposito === null ||
+    item.valor_deposito === undefined ||
+    item.valor_deposito === ""
+  ) {
+    item.valor_deposito = fallback.valor_deposito;
+  }
+
+  if (!item.data_geracao_documento) {
+    item.data_geracao_documento = item.data_deposito || fallback.data_geracao_documento;
+  }
+
+  if (!item.banco) {
+    item.banco = "Nao identificado";
+  }
+
+  if (!item.codigo_autenticacao) {
+    item.codigo_autenticacao = "";
+  }
+
+  if (!Array.isArray(item.observacoes)) {
+    item.observacoes = [];
+  }
+
+  item.observacoes.push("Modo administrativo sem travas de IA aplicado.");
+  item.status = "PRONTO_PARA_SALVAR";
+
+  return item;
 }
 
 function smartSlipValidarBloqueiosFila(resultado, dados) {
@@ -5865,31 +6287,14 @@ function smartSlipGetHistorico(usuario) {
   const historico = [];
   const chavesJaExibidas = {};
 
-  /*
-    Percorre de baixo para cima.
-    Como a planilha recebe appendRow, a última linha é sempre a versão mais recente.
-    Isso permite mostrar só a última versão quando houver reenvio/correção.
-  */
   for (let i = values.length - 1; i >= 0; i--) {
     const row = values[i];
-
     const respostas = smartSlipParseJsonSeguro_(row[15]);
 
-    /*
-      Regra nova do Histórico:
-      - Admin/Analista Pro: podem ver todos.
-      - Usuário comum: vê somente o que ele enviou pelo próprio e-mail.
-      - Reenvio por admin: o usuário original vê se email_usuario_original bater com o e-mail dele.
-    */
     if (!smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas)) {
       continue;
     }
 
-    /*
-      Agrupamento:
-      Se houver reenvio, usa protocolo_raiz/protocolo_original para mostrar só a versão mais recente.
-      Se não houver reenvio, usa o protocolo da própria linha.
-    */
     const chaveHistorico = smartSlipMontarChaveHistorico_(row, respostas);
 
     if (chavesJaExibidas[chaveHistorico]) {
@@ -5917,8 +6322,16 @@ function smartSlipGetHistorico(usuario) {
       status_fila: statusFila,
       mensagem: row[14] || "",
 
-      protocolo_raiz: respostas.protocolo_raiz || respostas.protocolo_original || respostas.protocolo_reenvio_origem || row[1] || "",
-      protocolo_original: respostas.protocolo_original || respostas.protocolo_reenvio_origem || "",
+      protocolo_raiz: respostas.protocolo_raiz ||
+        respostas.protocolo_original ||
+        respostas.protocolo_reenvio_origem ||
+        row[1] ||
+        "",
+
+      protocolo_original: respostas.protocolo_original ||
+        respostas.protocolo_reenvio_origem ||
+        "",
+
       protocolo_reenvio_origem: respostas.protocolo_reenvio_origem || "",
       email_usuario_original: respostas.email_usuario_original || row[2] || "",
       reenviado_por: respostas.reenviado_por || row[2] || "",
@@ -5953,26 +6366,57 @@ function smartSlipMontarChaveHistorico_(row, respostas) {
   row = row || [];
   respostas = respostas || {};
 
-  /*
-    Se for reenvio/correção, a chave precisa ser o protocolo original.
-    Assim:
-    - linha antiga PENDENTE_INTERNO
-    - linha nova SALVO
+  const protocoloLinha = String(row[1] || "").trim();
 
-    aparecem como uma única linha no Histórico, mostrando só a mais recente.
-  */
-  const protocoloRaiz = String(
+  const protocoloAgrupador = String(
     respostas.protocolo_raiz ||
     respostas.protocolo_original ||
     respostas.protocolo_reenvio_origem ||
+    protocoloLinha ||
     ""
   ).trim();
 
-  if (protocoloRaiz) {
-    return "PROTOCOLO_RAIZ|" + protocoloRaiz;
+  if (protocoloAgrupador) {
+    return "HISTORICO_PROTOCOLO|" + protocoloAgrupador;
   }
 
-  return "PROTOCOLO|" + String(row[1] || "").trim();
+  return "HISTORICO_SEM_PROTOCOLO|" + protocoloLinha;
+}
+
+function smartSlipMontarChaveHistorico_(row, respostas) {
+  row = row || [];
+  respostas = respostas || {};
+
+  /*
+    Regra:
+    Todas as linhas precisam cair no mesmo padrão de chave.
+
+    Linha original antiga:
+    - normalmente não tem protocolo_raiz no JSON
+    - então usa o protocolo da própria linha
+
+    Linha reenviada:
+    - usa protocolo_raiz/protocolo_original/protocolo_reenvio_origem
+
+    O prefixo precisa ser o MESMO para os dois casos.
+    Se usar PROTOCOLO| em uma e PROTOCOLO_RAIZ| em outra,
+    o Histórico mostra duplicado.
+  */
+  const protocoloLinha = String(row[1] || "").trim();
+
+  const protocoloAgrupador = String(
+    respostas.protocolo_raiz ||
+    respostas.protocolo_original ||
+    respostas.protocolo_reenvio_origem ||
+    protocoloLinha ||
+    ""
+  ).trim();
+
+  if (protocoloAgrupador) {
+    return "HISTORICO_PROTOCOLO|" + protocoloAgrupador;
+  }
+
+  return "HISTORICO_SEM_PROTOCOLO|" + protocoloLinha;
 }
 
 function smartSlipUsuarioPodeVerRegistroHistorico_(usuario, row, respostas) {
