@@ -1769,19 +1769,22 @@ body.intro-lock {
   background: var(--green-dark);
 }
 
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
+.history-table {
+  width: 100%;
+  min-width: 1360px;
+  border-collapse: collapse;
+  font-size: 13px;
+  table-layout: auto;
+}
 
-    .history-table th,
-    .history-table td {
-      padding: 11px 10px;
-      border-bottom: 1px solid #e6eee1;
-      text-align: left;
-      vertical-align: top;
-    }
+.history-table th,
+.history-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #e6eee1;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
 
     .history-table th {
       color: var(--green-dark);
@@ -1841,48 +1844,331 @@ body.intro-lock {
       border-color: rgba(0,94,39,.18);
     }
 
-    .config-grid {
-      display: grid;
-      gap: 12px;
-    }
+/* =========================================================
+   SMARTSLIP — CONFIGURAÇÕES PROFISSIONAIS
+   ========================================================= */
 
-    .config-row {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 12px;
-      padding: 12px 0;
-      border-bottom: 1px solid #edf2e8;
-    }
+#view-configuracoes {
+  width: 100%;
+  max-width: 1480px;
+}
 
-    .config-row b {
-      color: var(--green-dark);
-    }
+.config-professional-panel {
+  padding: 0;
+  overflow: hidden;
+}
 
-    .config-row-edit {
-  align-items: start;
+.config-section {
+  padding: 24px 28px;
+  border-bottom: 1px solid #e1e9dd;
+}
+
+.config-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.config-section-head h2 {
+  margin: 0 0 4px;
+  color: #17211b;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.config-section-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.config-section-icon {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(181,255,32,.25);
+  border: 1px solid rgba(0,94,39,.16);
+  color: var(--green-dark);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.config-field-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.config-field-grid.two {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+.config-field-grid.three {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+.config-field {
+  min-width: 0;
+  min-height: 96px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #dfe8db;
+  background: #f9fbf7;
+}
+
+.config-field label {
+  margin: 0 0 8px;
+  color: #314238;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .32px;
+}
+
+.config-field-value {
+  display: block;
+  color: #050807;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 800;
+  word-break: break-word;
+}
+
+.config-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #e7f8ee;
+  color: #027a48;
+  border: 1px solid #b7e4c7;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
 }
 
 .config-loja-control {
-  max-width: 360px;
+  width: 100%;
+  max-width: none;
 }
 
 .config-loja-control select {
   width: 100%;
 }
 
+.config-region-card {
+  min-width: 0;
+  min-height: 88px;
+  padding: 16px;
+  border-radius: 16px;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(181,255,32,.15),
+      transparent 42%
+    ),
+    #050807;
+  border: 1px solid rgba(181,255,32,.28);
+  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+}
+
+.config-region-card b {
+  display: block;
+  margin-bottom: 8px;
+  color: #B5FF20;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .32px;
+}
+
+.config-region-card span {
+  display: block;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.config-inactivity-panel {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(181,255,32,.06),
+      rgba(255,255,255,0)
+    );
+}
+
+.config-inactivity-alert {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #eef7e9;
+  border: 1px solid #cfe2c6;
+  color: #314238;
+  font-size: 12px;
+  line-height: 1.45;
+  font-weight: 750;
+}
+
+.config-inactivity-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.config-monitor-card {
+  min-width: 0;
+  padding: 17px;
+  border-radius: 17px;
+  background: #050807;
+  border: 1px solid rgba(181,255,32,.30);
+  box-shadow: 0 12px 26px rgba(0,0,0,.13);
+}
+
+.config-monitor-card label {
+  margin: 0 0 10px;
+  color: #B5FF20;
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .32px;
+}
+
+.config-monitor-input {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) 54px;
+  gap: 8px;
+  align-items: center;
+}
+
+.config-monitor-input input {
+  min-width: 0;
+  background: #ffffff;
+  color: #050807;
+  font-size: 20px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.config-monitor-input span {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.config-monitor-card small {
+  display: block;
+  margin-top: 9px;
+  color: rgba(255,255,255,.68);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 650;
+}
+
+.config-inactivity-meta {
+  margin-top: 13px;
+  color: #667085;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
 .config-actions {
-  margin-top: 18px;
+  margin: 0;
+  padding: 20px 28px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  background: #fbfcfa;
+}
+
+.config-actions-copy {
+  display: grid;
+  gap: 3px;
+}
+
+.config-actions-copy strong {
+  color: #17211b;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.config-actions-copy span {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 650;
 }
 
 .config-actions .btn-primary {
-  min-width: 220px;
+  width: auto;
+  min-width: 230px;
+}
+
+/* O parâmetro de inatividade não aparece no celular */
+@media (max-width: 1024px), (pointer: coarse) {
+  #view-configuracoes {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .config-professional-panel {
+    overflow: visible;
+  }
+
+  .config-section {
+    padding: 18px 0;
+  }
+
+  .config-field-grid.two,
+  .config-field-grid.three,
+  .config-inactivity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #cfgInatividadePanel {
+    display: none !important;
+  }
+
+  .config-actions {
+    padding: 18px 0 0;
+    background: transparent;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .config-actions-copy {
+    display: none;
+  }
+
+  .config-actions .btn-primary {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .filter-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 150px;
+  grid-template-columns:
+  minmax(150px, 1fr)
+  minmax(160px, 1fr)
+  minmax(120px, .8fr)
+  minmax(210px, 1.3fr)
+  150px;
   gap: 12px;
   align-items: end;
   margin-bottom: 18px;
@@ -3807,6 +4093,97 @@ body:not(.smart-mobile) .hist-status-modal-card {
 }
 
 /* =========================================================
+   SMARTSLIP - EVIDÊNCIA DE RETIRADA POR MARKETING
+   ========================================================= */
+
+.retirada-marketing-evidencia {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background: #050807;
+  border: 1px solid rgba(181, 255, 32, .34);
+  box-shadow: 0 12px 28px rgba(16, 24, 40, .14);
+}
+
+.retirada-marketing-head {
+  margin-bottom: 12px;
+}
+
+.retirada-marketing-head strong {
+  display: block;
+  color: #B5FF20;
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+
+.retirada-marketing-head span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, .76);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.retirada-marketing-upload {
+  min-height: 116px;
+  padding: 18px;
+  border-radius: 17px;
+  border: 1.5px dashed rgba(181, 255, 32, .48);
+  background: rgba(255, 255, 255, .07);
+  color: #ffffff;
+  text-align: center;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.retirada-marketing-upload:hover {
+  background: rgba(181, 255, 32, .12);
+  border-color: #B5FF20;
+  transform: translateY(-1px);
+}
+
+.retirada-marketing-upload .upload-title {
+  color: #ffffff;
+}
+
+.retirada-marketing-upload .upload-sub {
+  color: rgba(255, 255, 255, .70);
+}
+
+.retirada-marketing-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  background: #B5FF20;
+  color: #050807;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.retirada-marketing-link:hover {
+  background: #c8ff4d;
+}
+
+.comp-protocolo-retirada {
+  display: block;
+  margin-top: 4px;
+  color: #b54708;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.3;
+}
+
+/* =========================================================
    SMARTSLIP - NOVO ENVIO COM QUANTIDADE DE ANEXOS
    ========================================================= */
 
@@ -4501,6 +4878,227 @@ body.smart-mobile .arquivo-preview-box {
 }
 
 /* =========================================================
+   SMARTSLIP - HOME | INATIVIDADE POR LOJA
+   ========================================================= */
+
+.inatividade-lojas-updated {
+  color: rgba(255, 255, 255, .62);
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.inatividade-lojas-legenda {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 2px 0 18px;
+  color: rgba(255, 255, 255, .75);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.inatividade-lojas-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.inatividade-legenda-dot {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  border-radius: 999px;
+}
+
+.inatividade-legenda-dot.critico {
+  background: #e94f4f;
+}
+
+.inatividade-legenda-dot.atencao {
+  background: #f5a524;
+}
+
+.inatividade-legenda-dot.normal {
+  background: #5f9e22;
+}
+
+.inatividade-lojas-scroll {
+  display: grid;
+  gap: 11px;
+  padding-right: 5px;
+}
+
+.inatividade-lojas-scroll.tem-scroll {
+  max-height: 650px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(181, 255, 32, .38)
+    rgba(255, 255, 255, .07);
+}
+
+.inatividade-lojas-scroll.tem-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.inatividade-lojas-scroll.tem-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, .06);
+  border-radius: 999px;
+}
+
+.inatividade-lojas-scroll.tem-scroll::-webkit-scrollbar-thumb {
+  background: rgba(181, 255, 32, .38);
+  border-radius: 999px;
+}
+
+.inatividade-loja-row {
+  display: grid;
+  grid-template-columns:
+    84px
+    minmax(260px, 1fr)
+    128px;
+
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+}
+
+.inatividade-loja-codigo {
+  color: rgba(255, 255, 255, .82);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+
+  font-size: 12px;
+  font-weight: 850;
+  text-align: right;
+}
+
+.inatividade-loja-track {
+  position: relative;
+  height: 28px;
+  overflow: hidden;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, .06);
+}
+
+.inatividade-loja-fill {
+  height: 100%;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 7px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+  transition: width .35s ease;
+}
+
+.inatividade-loja-fill.critico {
+  background:
+    linear-gradient(
+      90deg,
+      #d83f45,
+      #ef5555
+    );
+}
+
+.inatividade-loja-fill.atencao {
+  background:
+    linear-gradient(
+      90deg,
+      #e99118,
+      #f7aa2b
+    );
+}
+
+.inatividade-loja-fill.normal {
+  background:
+    linear-gradient(
+      90deg,
+      #4f861b,
+      #6ca928
+    );
+}
+
+.inatividade-loja-fill.sem-criterio {
+  background:
+    linear-gradient(
+      90deg,
+      #667085,
+      #98a2b3
+    );
+}
+
+.inatividade-tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 29px;
+  padding: 6px 9px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.inatividade-tipo-badge.boleto {
+  background: #acd4ff;
+  color: #163b64;
+}
+
+.inatividade-tipo-badge.bancario {
+  background: #bce09a;
+  color: #234a12;
+}
+
+.inatividade-tipo-badge.carro {
+  background: #ffd38a;
+  color: #67400a;
+}
+
+.inatividade-tipo-badge.outro {
+  background: #e4e7ec;
+  color: #344054;
+}
+
+.inatividade-grupo-separador {
+  height: 1px;
+  margin: 4px 0;
+  background: rgba(255, 255, 255, .15);
+}
+
+.inatividade-lojas-empty {
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .06);
+  color: rgba(255, 255, 255, .72);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+body.smart-mobile #inatividadeLojasPanelInicio {
+  display: none !important;
+}
+
+@media (max-width: 1100px) {
+  .inatividade-loja-row {
+    grid-template-columns:
+      72px
+      minmax(190px, 1fr)
+      110px;
+  }
+}
+
+/* =========================================================
    SMARTSLIP - HOME DARK FULL WIDTH
    Aplica somente na página Início via body.smart-home-dark
    ========================================================= */
@@ -4863,58 +5461,6 @@ body.smart-home-dark #view-inicio .home-bottom-grid .panel {
   .status-panel-compact .status-pizza-3d {
     width: 230px !important;
     height: 230px !important;
-  }
-}
-
-/* =========================================================
-   SMARTSLIP - CONFIGURAÇÕES | TIPO DEPÓSITO E LOJA BASE
-   ========================================================= */
-
-.config-info-stack {
-  display: grid;
-  gap: 7px;
-  width: 100%;
-  max-width: 360px;
-}
-
-.config-info-card {
-  min-height: 42px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: #050807;
-  border: 1px solid rgba(181, 255, 32, .28);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.06),
-    0 8px 18px rgba(0,0,0,.10);
-}
-
-.config-info-card b {
-  display: block;
-  color: #B5FF20 !important;
-  font-size: 9px;
-  line-height: 1.15;
-  font-weight: 950;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  letter-spacing: .25px;
-}
-
-.config-info-card span {
-  display: block;
-  color: #ffffff !important;
-  font-size: 12px;
-  line-height: 1.25;
-  font-weight: 850;
-  word-break: break-word;
-}
-
-@media (max-width: 900px) {
-  .config-info-stack {
-    max-width: none;
-  }
-
-  .config-info-card {
-    min-height: 44px;
   }
 }
 
@@ -6329,37 +6875,86 @@ body.smart-mobile .perf-rt-wrap {
    ========================================================= */
 
 .envio-page-head {
+  display: block;
+}
+
+.envio-page-head-main {
+  width: 100%;
+}
+
+.envio-page-title-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
+  margin-top: 6px;
+}
+
+.envio-page-title-row h1 {
+  margin: 0;
 }
 
 .admin-ia-override {
   margin: 0 !important;
-  width: fit-content;
-  max-width: 360px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 13px;
-  border-radius: 16px;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 18px;
   background: #050807;
   color: #ffffff;
   border: 1px solid rgba(181,255,32,.38);
   box-shadow: 0 12px 26px rgba(0,0,0,.16);
   cursor: pointer;
   user-select: none;
+  min-height: 58px;
+  max-width: 420px;
 }
 
 .admin-ia-override input {
-  width: auto !important;
-  min-height: auto !important;
-  margin: 0 !important;
-  accent-color: #B5FF20;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.admin-ia-override b {
+.admin-ia-override-track {
+  position: relative;
+  width: 52px;
+  min-width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.14);
+  transition: background .18s ease, border-color .18s ease;
+}
+
+.admin-ia-override-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 3px 8px rgba(0,0,0,.24);
+  transition: transform .18s ease, background .18s ease;
+}
+
+.admin-ia-override input:checked + .admin-ia-override-track {
+  background: #B5FF20;
+  border-color: #B5FF20;
+}
+
+.admin-ia-override input:checked + .admin-ia-override-track .admin-ia-override-thumb {
+  transform: translateX(22px);
+  background: #050807;
+}
+
+.admin-ia-override-text {
+  display: block;
+}
+
+.admin-ia-override-text b {
   display: block;
   color: #B5FF20;
   font-size: 12px;
@@ -6369,7 +6964,7 @@ body.smart-mobile .perf-rt-wrap {
   letter-spacing: .25px;
 }
 
-.admin-ia-override small {
+.admin-ia-override-text small {
   display: block;
   margin-top: 3px;
   color: rgba(255,255,255,.72);
@@ -6380,6 +6975,17 @@ body.smart-mobile .perf-rt-wrap {
 
 body.smart-mobile .admin-ia-override {
   display: none !important;
+}
+
+@media (max-width: 1100px) {
+  .envio-page-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-ia-override {
+    max-width: 100%;
+  }
 }
 
 /* =========================================================
@@ -6413,6 +7019,8 @@ body.smart-mobile .admin-ia-override {
 body.smart-mobile .nav-badge {
   display: none !important;
 }
+
+
 
   </style>
 </head>
@@ -6661,7 +7269,7 @@ body.smart-mobile .nav-badge {
       <div class="chart-head">
         <div>
           <h2>Filtros da visão inicial</h2>
-          <p class="chart-sub">Os filtros abaixo controlam Store Sign-up, Valor dos comprovantes e Quantidade de envios.</p>
+          <p class="chart-sub">Os filtros abaixo controlam Store Sign-up, Valor dos comprovantes e Quantidade de envios. A inatividade apresenta a posição atual das lojas.</p>
         </div>
 
         <div class="chart-controls">
@@ -6708,6 +7316,54 @@ body.smart-mobile .nav-badge {
         <span><i class="legend-dot store-signup"></i> Lojas usando o SmartSlip</span>
       </div>
     </div>
+
+    <div
+  id="inatividadeLojasPanelInicio"
+  class="panel chart-panel chart-panel-secondary home-chart-panel"
+>
+  <div class="chart-head">
+    <div>
+      <h2>Inatividade de envio por loja</h2>
+
+      <p class="chart-sub">
+        Dias sem envio de comprovante — somente lojas que já utilizaram o SmartSlip.
+      </p>
+    </div>
+
+    <div
+      id="inatividadeLojasAtualizado"
+      class="inatividade-lojas-updated"
+    >
+      Atualizando...
+    </div>
+  </div>
+
+  <div class="inatividade-lojas-legenda">
+    <span>
+      <i class="inatividade-legenda-dot critico"></i>
+      Crítico
+    </span>
+
+    <span>
+      <i class="inatividade-legenda-dot atencao"></i>
+      Atenção
+    </span>
+
+    <span>
+      <i class="inatividade-legenda-dot normal"></i>
+      Normal
+    </span>
+  </div>
+
+  <div
+    id="chartInatividadeLojas"
+    class="inatividade-lojas-chart"
+  >
+    <p class="page-sub">
+      Carregando inatividade das lojas...
+    </p>
+  </div>
+</div>
 
     <div id="adocaoLojasPanelInicio" class="panel chart-panel chart-panel-secondary home-chart-panel">
         <div class="chart-head">
@@ -6798,26 +7454,35 @@ body.smart-mobile .nav-badge {
             </div>
       </section>
 
-<section id="view-comprovantes" class="view">
-  <div class="envio-page-head">
-    <div>
-      <div class="top-pill">Novo envio</div>
-      <h1>Enviar comprovante</h1>
-      <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
-    </div>
+      <section id="view-comprovantes" class="view">
+        <div class="envio-page-head">
+          <div class="envio-page-head-main">
+            <div class="top-pill">Novo envio</div>
 
-    <label id="boxOverrideIaAdmin" class="admin-ia-override" style="display:none;">
-      <input
-        id="ignorar_travas_ia_admin"
-        type="checkbox"
-        onchange="onToggleOverrideIaAdmin()"
-      >
-      <span>
-        <b>Desabilitar travas de IA</b>
-        <small>Modo admin: não bloquear por leitura automática.</small>
-      </span>
-    </label>
-  </div>
+            <div class="envio-page-title-row">
+              <h1>Enviar comprovante</h1>
+
+              <label id="boxOverrideIaAdmin" class="admin-ia-override" style="display:none;">
+                <input
+                  id="ignorar_travas_ia_admin"
+                  type="checkbox"
+                  onchange="onToggleOverrideIaAdmin()"
+                >
+
+                <span class="admin-ia-override-track">
+                  <span class="admin-ia-override-thumb"></span>
+                </span>
+
+                <span class="admin-ia-override-text">
+                  <b>Desabilitar travas de IA</b>
+                  <small>Modo admin: não bloquear por leitura automática.</small>
+                </span>
+              </label>
+            </div>
+
+            <p class="page-sub">Preencha os dados do depósito e anexe o comprovante.</p>
+          </div>
+        </div>
 
   <div id="novoEnvioPanel" class="novo-envio-panel">
     <div class="novo-envio-head">
@@ -6943,11 +7608,28 @@ body.smart-mobile .nav-badge {
 
               <div class="row row-single">
                 <div>
-                  <label>Houve retirada (falta/cancelamento/estorno/reembolso)?</label>
-                  <select id="houve_retirada" onchange="toggleRetirada()">
-                    <option value="false">Não</option>
-                    <option value="true">Sim</option>
+                  <label>Houve retirada? Selecione o motivo</label>
+
+                  <input
+                    id="houve_retirada"
+                    type="hidden"
+                    value="false"
+                  >
+
+                  <select id="motivo_retirada" onchange="toggleRetirada()">
+                    <option value="">NÃO HOUVE RETIRADA</option>
+                    <option value="FALTA">FALTA</option>
+                    <option value="CANCELAMENTO">CANCELAMENTO</option>
+                    <option value="ESTORNO">ESTORNO</option>
+                    <option value="REEMBOLSO">REEMBOLSO</option>
+                    <option value="MARKETING (RETIRADA DE PRODUTOS)">
+                      MARKETING (RETIRADA DE PRODUTOS)
+                    </option>
                   </select>
+
+                  <div class="hint">
+                    Se houver retirada, selecione obrigatoriamente o motivo correspondente.
+                  </div>
                 </div>
               </div>
 
@@ -7007,26 +7689,99 @@ body.smart-mobile .nav-badge {
             </div>
           </div>
 
-          <div id="boxRetirada" style="display:none;">
-            <div class="row">
-              <div>
-                <label>Valor da retirada</label>
-                <input
-                  id="valor_retirada"
-                  type="text"
-                  inputmode="decimal"
-                  placeholder="0,00"
-                  oninput="onValorRetiradaInput()"
-                  onblur="normalizarValorRetirada()"
-                >
+            <div id="boxRetirada" style="display:none;">
+              <div class="row row-single">
+                <div>
+                  <label>Valor da retirada</label>
+
+                  <input
+                    id="valor_retirada"
+                    type="text"
+                    inputmode="decimal"
+                    placeholder="0,00"
+                    oninput="onValorRetiradaInput()"
+                    onblur="normalizarValorRetirada()"
+                  >
+
+                  <div class="hint">
+                    Informe o valor que deverá ser descontado do movimento.
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <label>Motivo da retirada</label>
-                <input id="motivo_retirada" type="text" placeholder="Ex: Reembolso no ato">
+              <div
+                id="boxCupomRetiradaMarketing"
+                class="retirada-marketing-evidencia"
+                style="display:none;"
+              >
+                <div class="retirada-marketing-head">
+                  <div>
+                    <strong>Cupom de evidência da retirada</strong>
+                    <span>
+                      Obrigatório para retiradas solicitadas pela área de Marketing.
+                      Este arquivo será armazenado, mas não será lido pela IA.
+                    </span>
+                  </div>
+                </div>
+
+                <div
+                  class="retirada-marketing-upload"
+                  onclick="abrirSeletorCupomRetiradaMarketing()"
+                >
+                  <input
+                    id="cupom_retirada_marketing"
+                    type="file"
+                    accept="image/*,application/pdf"
+                    onchange="onCupomRetiradaMarketingSelecionado()"
+                    hidden
+                  >
+
+                  <div class="upload-icon">▧</div>
+
+                  <div
+                    id="cupomRetiradaMarketingTitulo"
+                    class="upload-title"
+                  >
+                    Anexar cupom da retirada
+                  </div>
+
+                  <div
+                    id="cupomRetiradaMarketingSub"
+                    class="upload-sub"
+                  >
+                    Imagem ou PDF de até 10 MB
+                  </div>
+                </div>
+
+                <a
+                  id="cupomRetiradaMarketingExistenteLink"
+                  class="retirada-marketing-link"
+                  href="#"
+                  target="_blank"
+                  style="display:none;"
+                >
+                  Abrir cupom já registrado
+                </a>
+
+                <input
+                  id="cupom_retirada_marketing_existente_id"
+                  type="hidden"
+                  value=""
+                >
+
+                <input
+                  id="cupom_retirada_marketing_existente_link"
+                  type="hidden"
+                  value=""
+                >
+
+                <input
+                  id="cupom_retirada_marketing_existente_nome"
+                  type="hidden"
+                  value=""
+                >
               </div>
             </div>
-          </div>
 
           <div class="actions">
             <button id="btnLimpar" class="btn-secondary" type="button" onclick="limparFormulario(false)">Limpar</button>
@@ -7038,7 +7793,7 @@ body.smart-mobile .nav-badge {
         </div>
       </section>
 
-      <section id="view-historico" class="view">
+      <section id="view-historico" class="view" style="width: 100%; max-width: 1500px;">
         <div class="top-pill">Histórico</div>
         <h1>Histórico de envios</h1>
         <p class="page-sub" id="histSub">Mostrando seus envios.</p>
@@ -7064,12 +7819,23 @@ body.smart-mobile .nav-badge {
               </select>
             </div>
 
+            <div id="boxFiltroHistMotivoRetirada">
+            <label>Motivo da retirada</label>
+
+            <select
+              id="filtroHistMotivoRetirada"
+              onchange="aplicarFiltrosHistorico()"
+            >
+              <option value="">Todos</option>
+            </select>
+          </div>
+
             <div>
               <button type="button" class="btn-secondary" onclick="limparFiltrosHistorico()">Limpar</button>
             </div>
           </div>
 
-          <div id="historicoTabela">
+          <div id="historicoTabela" style="width: 100%; overflow-x: auto;">
             <p class="page-sub">Carregando histórico...</p>
           </div>
           <div id="histStatusModal" class="hist-status-modal" onclick="fecharStatusHistoricoModal()">
@@ -7658,106 +8424,366 @@ body.smart-mobile .nav-badge {
   </div>
 </div>
 
-      <section id="view-configuracoes" class="view">
-        <div class="top-pill">Configurações</div>
-        <h1>Preferências</h1>
-        <p class="page-sub">Dados detectados automaticamente pelo sistema.</p>
+  <section id="view-configuracoes" class="view">
+  <div class="top-pill">Configurações</div>
 
-        <div class="panel">
-          <div class="config-grid">
-            <div class="config-row">
-              <b>E-mail</b>
-              <span id="cfgEmail">-</span>
-            </div>
+  <h1>Preferências e parâmetros</h1>
 
-            <div class="config-row">
-              <b>Perfil</b>
-              <span id="cfgPerfil">-</span>
-            </div>
+  <p class="page-sub">
+    Gerencie os dados da conta, preferências da loja
+    e parâmetros operacionais do SmartSlip.
+  </p>
 
-            <div class="config-row config-row-edit">
-              <b>Loja padrão</b>
-              <div class="config-loja-control">
-                <select id="cfgLojaSelect" onchange="onConfigLojaChange()">
-                  <option value="">Carregando lojas...</option>
-                </select>
-                <div class="hint">Essa loja será carregada automaticamente na tela de envio.</div>
-              </div>
-            </div>
+  <div class="panel config-professional-panel">
 
-            <div class="config-row config-row-edit">
-              <b>Tipo de depósito</b>
-              <div class="config-loja-control">
-                <select id="cfgTipoDeposito">
-                  <option value="">Selecione o tipo de depósito</option>
-                  <option value="Boleto">Boleto</option>
-                  <option value="Carro Forte">Carro Forte</option>
-                  <option value="Dep. Bancário">Dep. Bancário</option>
-                </select>
-                <div id="cfgTipoDepositoHint" class="hint">
-                  O tipo é carregado da aba Base, mas pode ser ajustado caso esteja incorreto.
-                </div>
-              </div>
-            </div>
+    <!-- INFORMAÇÕES DA CONTA -->
+    <div class="config-section">
+      <div class="config-section-head">
+        <span class="config-section-icon">◎</span>
 
-            <div class="config-row">
-              <b>Empresa</b>
-              <span id="cfgEmpresa">-</span>
-            </div>
+        <div>
+          <h2>Informações da conta</h2>
+          <p>
+            Identificação e nível de acesso do usuário.
+          </p>
+        </div>
+      </div>
 
-            <div class="config-row">
-              <b>Dados regionais</b>
-              <div class="config-info-stack">
-                <div class="config-info-card">
-                  <b>Time</b>
-                  <span id="cfgTime">-</span>
-                </div>
+      <div class="config-field-grid two">
+        <div class="config-field">
+          <label>E-mail</label>
 
-                <div class="config-info-card">
-                  <b>Gerente Regional</b>
-                  <span id="cfgGerenteRegional">-</span>
-                </div>
+          <span
+            id="cfgEmail"
+            class="config-field-value"
+          >
+            -
+          </span>
+        </div>
 
-                <div class="config-info-card">
-                  <b>E-mail Regional</b>
-                  <span id="cfgEmailRegional">-</span>
-                </div>
-              </div>
-            </div>
+        <div class="config-field">
+          <label>Perfil de acesso</label>
 
-            <div class="config-row config-row-edit" id="cfgCompHubRangeRow">
-            <b>Range Comp Hub</b>
-            <div class="config-loja-control">
-              <select id="cfgCompHubDias">
-                <option value="20">Últimos 20 dias</option>
-                <option value="30">Últimos 30 dias</option>
-                <option value="40">Últimos 40 dias</option>
-                <option value="60">Últimos 60 dias</option>
-                <option value="90">Últimos 90 dias</option>
-                <option value="120">Últimos 120 dias</option>
-                <option value="180">Últimos 180 dias</option>
-              </select>
-              <div class="hint">
-                Define o volume padrão carregado no Comp Hub para não pesar a consulta.
-              </div>
+          <span
+            id="cfgPerfil"
+            class="config-profile-badge"
+          >
+            -
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREFERÊNCIAS DA LOJA -->
+    <div class="config-section">
+      <div class="config-section-head">
+        <span class="config-section-icon">▦</span>
+
+        <div>
+          <h2>Preferências da loja</h2>
+          <p>
+            Loja e empresa carregadas nas rotinas de envio.
+          </p>
+        </div>
+      </div>
+
+      <div class="config-field-grid two">
+        <div class="config-field">
+          <label>Empresa</label>
+
+          <span
+            id="cfgEmpresa"
+            class="config-field-value"
+          >
+            -
+          </span>
+        </div>
+
+        <div class="config-field">
+          <label>Loja padrão</label>
+
+          <div class="config-loja-control">
+            <select
+              id="cfgLojaSelect"
+              onchange="onConfigLojaChange()"
+            >
+              <option value="">
+                Carregando lojas...
+              </option>
+            </select>
+
+            <div class="hint">
+              Essa loja será carregada automaticamente
+              na tela de envio.
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-            <div class="config-actions">
-              <button id="btnSalvarConfiguracoes" type="button" class="btn-primary" onclick="salvarConfiguracoesUsuario()">
-                Salvar configurações
-              </button>
+    <!-- DADOS REGIONAIS -->
+    <div class="config-section">
+      <div class="config-section-head">
+        <span class="config-section-icon">⌖</span>
+
+        <div>
+          <h2>Dados regionais</h2>
+          <p>
+            Estrutura operacional vinculada à loja selecionada.
+          </p>
+        </div>
+      </div>
+
+      <div class="config-field-grid three">
+        <div class="config-region-card">
+          <b>Time</b>
+          <span id="cfgTime">-</span>
+        </div>
+
+        <div class="config-region-card">
+          <b>Gerente Regional</b>
+          <span id="cfgGerenteRegional">-</span>
+        </div>
+
+        <div class="config-region-card">
+          <b>E-mail Regional</b>
+          <span id="cfgEmailRegional">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPROVANTES -->
+    <div class="config-section">
+      <div class="config-section-head">
+        <span class="config-section-icon">▤</span>
+
+        <div>
+          <h2>Comprovantes</h2>
+          <p>
+            Preferências utilizadas no envio e no Comp Hub.
+          </p>
+        </div>
+      </div>
+
+      <div class="config-field-grid two">
+        <div class="config-field">
+          <label>Tipo de depósito padrão</label>
+
+          <div class="config-loja-control">
+            <select id="cfgTipoDeposito">
+              <option value="">
+                Selecione o tipo de depósito
+              </option>
+
+              <option value="Boleto">
+                Boleto
+              </option>
+
+              <option value="Carro Forte">
+                Carro Forte
+              </option>
+
+              <option value="Dep. Bancário">
+                Dep. Bancário
+              </option>
+            </select>
+
+            <div
+              id="cfgTipoDepositoHint"
+              class="hint"
+            >
+              O tipo é carregado da aba Base, mas pode
+              ser ajustado caso esteja incorreto.
             </div>
+          </div>
+        </div>
 
-            <div id="cfgSaveLoader" class="cfg-save-loader">
-              <div class="cfg-save-spinner"></div>
-              <span>Salvando configurações da loja...</span>
+        <div
+          class="config-field"
+          id="cfgCompHubRangeRow"
+        >
+          <label>Range padrão — Comp Hub</label>
+
+          <div class="config-loja-control">
+            <select id="cfgCompHubDias">
+              <option value="20">
+                Últimos 20 dias
+              </option>
+
+              <option value="30">
+                Últimos 30 dias
+              </option>
+
+              <option value="40">
+                Últimos 40 dias
+              </option>
+
+              <option value="60">
+                Últimos 60 dias
+              </option>
+
+              <option value="90">
+                Últimos 90 dias
+              </option>
+
+              <option value="120">
+                Últimos 120 dias
+              </option>
+
+              <option value="180">
+                Últimos 180 dias
+              </option>
+            </select>
+
+            <div class="hint">
+              Define o volume padrão carregado no Comp Hub.
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <div id="cfgMsg" class="msg"></div>
-                      </div>
-                    </div>
-                  </section>
+    <!-- MONITORAMENTO DE INATIVIDADE -->
+    <div
+      id="cfgInatividadePanel"
+      class="config-section config-inactivity-panel"
+      style="display:none;"
+    >
+      <div class="config-section-head">
+        <span class="config-section-icon">◷</span>
+
+        <div>
+          <h2>Monitoramento de inatividade</h2>
+
+          <p>
+            Defina a partir de quantos dias sem envio
+            cada tipo de depósito será considerado crítico.
+          </p>
+        </div>
+      </div>
+
+      <div class="config-inactivity-alert">
+        Os novos parâmetros serão utilizados automaticamente
+        pela rotina diária de alertas.
+      </div>
+
+      <div class="config-inactivity-grid">
+        <div class="config-monitor-card">
+          <label for="cfgInatividadeBoleto">
+            Boleto
+          </label>
+
+          <div class="config-monitor-input">
+            <input
+              id="cfgInatividadeBoleto"
+              type="number"
+              min="1"
+              max="365"
+              step="1"
+              value="4"
+            >
+
+            <span>dias</span>
+          </div>
+
+          <small>
+            Disparo a partir do dia configurado.
+          </small>
+        </div>
+
+        <div class="config-monitor-card">
+          <label for="cfgInatividadeDepBancario">
+            Dep. Bancário
+          </label>
+
+          <div class="config-monitor-input">
+            <input
+              id="cfgInatividadeDepBancario"
+              type="number"
+              min="1"
+              max="365"
+              step="1"
+              value="4"
+            >
+
+            <span>dias</span>
+          </div>
+
+          <small>
+            Disparo a partir do dia configurado.
+          </small>
+        </div>
+
+        <div class="config-monitor-card">
+          <label for="cfgInatividadeCarroForte">
+            Carro Forte
+          </label>
+
+          <div class="config-monitor-input">
+            <input
+              id="cfgInatividadeCarroForte"
+              type="number"
+              min="1"
+              max="365"
+              step="1"
+              value="8"
+            >
+
+            <span>dias</span>
+          </div>
+
+          <small>
+            Disparo a partir do dia configurado.
+          </small>
+        </div>
+      </div>
+
+      <div
+        id="cfgInatividadeAtualizacao"
+        class="config-inactivity-meta"
+      >
+        Carregando parâmetros atuais...
+      </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="config-actions">
+      <div class="config-actions-copy">
+        <strong>Configuração centralizada</strong>
+
+        <span>
+          As alterações passam a valer após salvar.
+        </span>
+      </div>
+
+      <button
+        id="btnSalvarConfiguracoes"
+        type="button"
+        class="btn-primary"
+        onclick="salvarConfiguracoesUsuario()"
+      >
+        Salvar configurações
+      </button>
+    </div>
+
+    <div
+      id="cfgSaveLoader"
+      class="cfg-save-loader"
+    >
+      <div class="cfg-save-spinner"></div>
+
+      <span>
+        Salvando configurações...
+      </span>
+    </div>
+
+    <div
+      id="cfgMsg"
+      class="msg"
+    ></div>
+  </div>
+</section>
+
                 </main>
               </div>
 
@@ -7795,6 +8821,13 @@ body.smart-mobile .nav-badge {
         total_lojas_escopo: 0,
         lojas_utilizando: 0,
         lojas_sem_uso: 0,
+        rows: []
+      },
+      inatividade_lojas: {
+        atualizado_em: "",
+        atualizado_hora: "",
+        total_lojas: 0,
+        total_criticas: 0,
         rows: []
       },
       loja_resumo_filtro: "",
@@ -7848,10 +8881,13 @@ body.smart-mobile .nav-badge {
   { key: "dataMovimento", label: "Data Movimento", visible: true },
   { key: "houveRetirada", label: "Houve Retirada", visible: true },
   { key: "valorRetirada", label: "Valor Retirada", visible: false },
-  { key: "motivoRetirada", label: "Motivo Retirada", visible: false },
+  { key: "motivoRetirada", label: "Motivo Retirada", visible: true },
   { key: "dataGeracaoDocumento", label: "Data Geração", visible: false },
   { key: "codigoAutenticacao", label: "Cód. Autenticação", visible: false },
   { key: "linkComprovante", label: "Link", visible: true },
+  {key: "linkCupomRetiradaMarketing", label: "Cupom Retirada",visible: true},
+  {key: "nomeCupomRetiradaMarketing", label: "Nome Cupom Retirada", visible: false},
+  {key: "cupomRetiradaMarketingId", label: "ID Cupom Retirada", visible: false},
   { key: "statusProcessamento", label: "Status Fila", visible: true },
   { key: "statusBaseProcessamento", label: "Status Base", visible: false },
   { key: "pendencias", label: "Pendências", visible: true },
@@ -8604,6 +9640,15 @@ try {
     rows: []
   };
 
+  SMARTSLIP_STATE.inatividade_lojas =
+  resp.inatividade_lojas || {
+    atualizado_em: "",
+    atualizado_hora: "",
+    total_lojas: 0,
+    total_criticas: 0,
+    rows: []
+  };
+
   // Preserva dados já carregados do Comp Hub.
   SMARTSLIP_STATE.comp_hub = compHubAnterior;
   SMARTSLIP_STATE.comp_hub_filtrado = compHubFiltradoAnterior;
@@ -8637,8 +9682,24 @@ try {
     resp.store_signup_diario || []
   );
 
-  renderHistorico(resp.historico || []);
-  renderResumoStatus(resp.resumo_status || [], resp.lojas_atencao || []);
+  renderHistorico(
+    resp.historico || []
+  );
+
+  renderResumoStatus(
+    resp.resumo_status || [],
+    resp.lojas_atencao || []
+  );
+
+  renderInatividadeLojas(
+    resp.inatividade_lojas || {
+      atualizado_em: "",
+      atualizado_hora: "",
+      total_lojas: 0,
+      total_criticas: 0,
+      rows: []
+    }
+  );
 
   finalizarCallback(true);
 
@@ -8916,6 +9977,25 @@ document.getElementById("histSub").textContent = usuario.is_admin || usuario.is_
     cfgCompHubRangeRow.style.display = !isSmartSlipMobile() ? "" : "none";
   }
 
+  const cfgInatividadePanel =
+  document.getElementById(
+    "cfgInatividadePanel"
+  );
+
+const podeConfigurarInatividade =
+  (
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true
+  ) &&
+  !isSmartSlipMobile();
+
+if (cfgInatividadePanel) {
+  cfgInatividadePanel.style.display =
+    podeConfigurarInatividade
+      ? ""
+      : "none";
+}
+
   aplicarVisibilidadeOverrideIaAdmin_();
   renderizarBadgeCompHubNaoLido_();
 }
@@ -9119,97 +10199,508 @@ function limparCfgMensagem() {
   msg.textContent = "";
 }
 
-function salvarConfiguracoesUsuario() {
-  limparCfgMensagem();
-  salvarConfigRangeCompHub();
+function smartSlipPodeConfigurarInatividadeFront_() {
+  const usuario =
+    SMARTSLIP_STATE.usuario || {};
 
-  const select = document.getElementById("cfgLojaSelect");
-  const loja = select ? select.value : "";
+  return (
+    (
+      usuario.is_admin === true ||
+      usuario.is_analista_pro === true
+    ) &&
+    !isSmartSlipMobile()
+  );
+}
 
-  const tipoEl = document.getElementById("cfgTipoDeposito");
-  const tipoDeposito = tipoEl ? tipoEl.value : "";
+function smartSlipAplicarConfigInatividadeTela_(
+  config
+) {
+  config = config || {};
 
-  if (!loja) {
-    mostrarCfgMensagem("erro", "Selecione uma loja padrão.");
+  const boleto =
+    document.getElementById(
+      "cfgInatividadeBoleto"
+    );
+
+  const depBancario =
+    document.getElementById(
+      "cfgInatividadeDepBancario"
+    );
+
+  const carroForte =
+    document.getElementById(
+      "cfgInatividadeCarroForte"
+    );
+
+  const atualizacao =
+    document.getElementById(
+      "cfgInatividadeAtualizacao"
+    );
+
+  if (boleto) {
+    boleto.value =
+      String(config.boleto || 4);
+  }
+
+  if (depBancario) {
+    depBancario.value =
+      String(config.dep_bancario || 4);
+  }
+
+  if (carroForte) {
+    carroForte.value =
+      String(config.carro_forte || 8);
+  }
+
+  if (atualizacao) {
+    if (
+      config.atualizado_em ||
+      config.atualizado_por
+    ) {
+      atualizacao.textContent =
+        "Última alteração: " +
+        (
+          config.atualizado_em ||
+          "data não identificada"
+        ) +
+        (
+          config.atualizado_por
+            ? " por " +
+              config.atualizado_por
+            : ""
+        );
+    } else {
+      atualizacao.textContent =
+        "Utilizando os parâmetros padrão do SmartSlip.";
+    }
+  }
+}
+
+function smartSlipLerConfigInatividadeTela_() {
+  if (
+    !smartSlipPodeConfigurarInatividadeFront_()
+  ) {
+    return null;
+  }
+
+  function lerCampo(
+    id,
+    nome
+  ) {
+    const elemento =
+      document.getElementById(id);
+
+    const valor =
+      Number(
+        elemento
+          ? elemento.value
+          : 0
+      );
+
+    if (
+      !Number.isInteger(valor) ||
+      valor < 1 ||
+      valor > 365
+    ) {
+      throw new Error(
+        nome +
+        " deve ser um número inteiro entre 1 e 365 dias."
+      );
+    }
+
+    return valor;
+  }
+
+  return {
+    boleto:
+      lerCampo(
+        "cfgInatividadeBoleto",
+        "O prazo de Boleto"
+      ),
+
+    dep_bancario:
+      lerCampo(
+        "cfgInatividadeDepBancario",
+        "O prazo de Depósito Bancário"
+      ),
+
+    carro_forte:
+      lerCampo(
+        "cfgInatividadeCarroForte",
+        "O prazo de Carro Forte"
+      )
+  };
+}
+
+function carregarConfigInatividade() {
+  if (
+    !smartSlipPodeConfigurarInatividadeFront_()
+  ) {
     return;
   }
 
-  if (!tipoDeposito) {
-    mostrarCfgMensagem("erro", "Selecione o tipo de depósito da loja.");
-    return;
-  }
+  const atualizacao =
+    document.getElementById(
+      "cfgInatividadeAtualizacao"
+    );
 
-  smartSlipSetConfigLoading_(true, "Salvando configurações da loja...");
+  if (atualizacao) {
+    atualizacao.textContent =
+      "Carregando parâmetros atuais...";
+  }
 
   google.script.run
     .withSuccessHandler(function(txt) {
-      smartSlipSetConfigLoading_(false);
-
-      let envelope;
+      let envelope = {};
 
       try {
-        envelope = JSON.parse(txt);
-      } catch (e) {
-        mostrarCfgMensagem("erro", "Retorno inválido do backend ao salvar configuração.");
+        envelope =
+          JSON.parse(txt || "{}");
+      } catch (err) {
+        if (atualizacao) {
+          atualizacao.textContent =
+            "Não foi possível interpretar os parâmetros.";
+        }
+
         return;
       }
 
       if (!envelope.ok) {
-        mostrarCfgMensagem("erro", envelope.erro || "Erro ao salvar configuração.");
+        if (atualizacao) {
+          atualizacao.textContent =
+            envelope.erro ||
+            "Não foi possível carregar os parâmetros.";
+        }
+
         return;
       }
 
-      const payload = envelope.payload || {};
-      const empresa = payload.empresa_padrao || obterEmpresaPorLoja(loja);
+      SMARTSLIP_STATE.config_inatividade =
+        envelope.payload || {};
 
-      mostrarCfgMensagem("ok", "Configuração salva com sucesso.");
-
-      if (!SMARTSLIP_STATE.usuario) {
-        SMARTSLIP_STATE.usuario = {};
-      }
-
-      SMARTSLIP_STATE.usuario.loja_padrao = payload.loja_padrao || loja;
-      SMARTSLIP_STATE.usuario.empresa_padrao = empresa || "";
-      SMARTSLIP_STATE.usuario.tipo_deposito = payload.tipo_deposito || tipoDeposito;
-      SMARTSLIP_STATE.usuario.tipo_deposito_origem = payload.tipo_deposito_origem || "";
-      SMARTSLIP_STATE.usuario.time = payload.time || "";
-      SMARTSLIP_STATE.usuario.gerente_regional = payload.gerente_regional || "";
-      SMARTSLIP_STATE.usuario.email_regional = payload.email_regional || "";
-
-      document.getElementById("kpiLoja").textContent = SMARTSLIP_STATE.usuario.loja_padrao || "-";
-      document.getElementById("cfgEmpresa").textContent = empresa || "-";
-
-      smartSlipAtualizarDadosRegionaisConfig_({
-        tipo_deposito: SMARTSLIP_STATE.usuario.tipo_deposito,
-        tipo_deposito_origem: SMARTSLIP_STATE.usuario.tipo_deposito_origem,
-        time: SMARTSLIP_STATE.usuario.time,
-        gerente_regional: SMARTSLIP_STATE.usuario.gerente_regional,
-        email_regional: SMARTSLIP_STATE.usuario.email_regional
-      });
-
-      const inputLoja = document.getElementById("loja");
-
-      if (inputLoja) {
-        inputLoja.value = SMARTSLIP_STATE.usuario.loja_padrao || "";
-        inputLoja.readOnly = true;
-        inputLoja.placeholder = "";
-      }
-
-      const inputTipoDeposito = document.getElementById("tipo_deposito_envio");
-
-      if (inputTipoDeposito) {
-        inputTipoDeposito.value = SMARTSLIP_STATE.usuario.tipo_deposito || "";
-        inputTipoDeposito.readOnly = true;
-        inputTipoDeposito.placeholder = "";
-      }
-
-      carregarBootstrap({ silencioso: true });
+      smartSlipAplicarConfigInatividadeTela_(
+        SMARTSLIP_STATE.config_inatividade
+      );
     })
     .withFailureHandler(function(err) {
-      smartSlipSetConfigLoading_(false);
-      mostrarCfgMensagem("erro", err && err.message ? err.message : String(err));
+      if (atualizacao) {
+        atualizacao.textContent =
+          err && err.message
+            ? err.message
+            : String(err);
+      }
     })
-    .smartSlipSalvarPreferenciasUsuarioJson(loja, tipoDeposito);
+    .smartSlipGetConfigInatividadeAppJson();
+}
+
+function salvarConfiguracoesUsuario() {
+  limparCfgMensagem();
+
+  const select =
+    document.getElementById(
+      "cfgLojaSelect"
+    );
+
+  const loja =
+    select
+      ? select.value
+      : "";
+
+  const tipoEl =
+    document.getElementById(
+      "cfgTipoDeposito"
+    );
+
+  const tipoDeposito =
+    tipoEl
+      ? tipoEl.value
+      : "";
+
+  if (!loja) {
+    mostrarCfgMensagem(
+      "erro",
+      "Selecione uma loja padrão."
+    );
+
+    return;
+  }
+
+  if (!tipoDeposito) {
+    mostrarCfgMensagem(
+      "erro",
+      "Selecione o tipo de depósito da loja."
+    );
+
+    return;
+  }
+
+  let configInatividade = null;
+
+  try {
+    configInatividade =
+      smartSlipLerConfigInatividadeTela_();
+
+  } catch (errConfig) {
+    mostrarCfgMensagem(
+      "erro",
+      errConfig &&
+      errConfig.message
+        ? errConfig.message
+        : String(errConfig)
+    );
+
+    return;
+  }
+
+  salvarConfigRangeCompHub();
+
+  smartSlipSetConfigLoading_(
+    true,
+    "Salvando configurações..."
+  );
+
+  function salvarPreferenciasDaLoja_() {
+    google.script.run
+      .withSuccessHandler(function(txt) {
+        smartSlipSetConfigLoading_(
+          false
+        );
+
+        let envelope;
+
+        try {
+          envelope =
+            JSON.parse(txt);
+        } catch (e) {
+          mostrarCfgMensagem(
+            "erro",
+            "Retorno inválido do backend ao salvar configuração."
+          );
+
+          return;
+        }
+
+        if (!envelope.ok) {
+          mostrarCfgMensagem(
+            "erro",
+            envelope.erro ||
+            "Erro ao salvar configuração."
+          );
+
+          return;
+        }
+
+        const payload =
+          envelope.payload || {};
+
+        const empresa =
+          payload.empresa_padrao ||
+          obterEmpresaPorLoja(loja);
+
+        mostrarCfgMensagem(
+          "ok",
+          "Configurações salvas com sucesso."
+        );
+
+        if (!SMARTSLIP_STATE.usuario) {
+          SMARTSLIP_STATE.usuario = {};
+        }
+
+        SMARTSLIP_STATE.usuario.loja_padrao =
+          payload.loja_padrao ||
+          loja;
+
+        SMARTSLIP_STATE.usuario.empresa_padrao =
+          empresa || "";
+
+        SMARTSLIP_STATE.usuario.tipo_deposito =
+          payload.tipo_deposito ||
+          tipoDeposito;
+
+        SMARTSLIP_STATE.usuario.tipo_deposito_origem =
+          payload.tipo_deposito_origem ||
+          "";
+
+        SMARTSLIP_STATE.usuario.time =
+          payload.time || "";
+
+        SMARTSLIP_STATE.usuario.gerente_regional =
+          payload.gerente_regional ||
+          "";
+
+        SMARTSLIP_STATE.usuario.email_regional =
+          payload.email_regional ||
+          "";
+
+        const kpiLoja =
+          document.getElementById(
+            "kpiLoja"
+          );
+
+        if (kpiLoja) {
+          kpiLoja.textContent =
+            SMARTSLIP_STATE.usuario
+              .loja_padrao ||
+            "-";
+        }
+
+        const cfgEmpresa =
+          document.getElementById(
+            "cfgEmpresa"
+          );
+
+        if (cfgEmpresa) {
+          cfgEmpresa.textContent =
+            empresa || "-";
+        }
+
+        smartSlipAtualizarDadosRegionaisConfig_({
+          tipo_deposito:
+            SMARTSLIP_STATE.usuario
+              .tipo_deposito,
+
+          tipo_deposito_origem:
+            SMARTSLIP_STATE.usuario
+              .tipo_deposito_origem,
+
+          time:
+            SMARTSLIP_STATE.usuario.time,
+
+          gerente_regional:
+            SMARTSLIP_STATE.usuario
+              .gerente_regional,
+
+          email_regional:
+            SMARTSLIP_STATE.usuario
+              .email_regional
+        });
+
+        const inputLoja =
+          document.getElementById(
+            "loja"
+          );
+
+        if (inputLoja) {
+          inputLoja.value =
+            SMARTSLIP_STATE.usuario
+              .loja_padrao ||
+            "";
+
+          inputLoja.readOnly = true;
+          inputLoja.placeholder = "";
+        }
+
+        const inputTipoDeposito =
+          document.getElementById(
+            "tipo_deposito_envio"
+          );
+
+        if (inputTipoDeposito) {
+          inputTipoDeposito.value =
+            SMARTSLIP_STATE.usuario
+              .tipo_deposito ||
+            "";
+
+          inputTipoDeposito.readOnly =
+            true;
+
+          inputTipoDeposito.placeholder =
+            "";
+        }
+
+        carregarBootstrap({
+          silencioso: true
+        });
+      })
+      .withFailureHandler(function(err) {
+        smartSlipSetConfigLoading_(
+          false
+        );
+
+        mostrarCfgMensagem(
+          "erro",
+          err && err.message
+            ? err.message
+            : String(err)
+        );
+      })
+      .smartSlipSalvarPreferenciasUsuarioJson(
+        loja,
+        tipoDeposito
+      );
+  }
+
+  /*
+    Administrador e Analista Pro:
+    primeiro salva o parâmetro global,
+    depois salva as preferências da loja.
+  */
+  if (configInatividade) {
+    google.script.run
+      .withSuccessHandler(function(txt) {
+        let envelope = {};
+
+        try {
+          envelope =
+            JSON.parse(txt || "{}");
+        } catch (err) {
+          smartSlipSetConfigLoading_(
+            false
+          );
+
+          mostrarCfgMensagem(
+            "erro",
+            "Retorno inválido ao salvar os parâmetros de inatividade."
+          );
+
+          return;
+        }
+
+        if (!envelope.ok) {
+          smartSlipSetConfigLoading_(
+            false
+          );
+
+          mostrarCfgMensagem(
+            "erro",
+            envelope.erro ||
+            "Erro ao salvar os parâmetros de inatividade."
+          );
+
+          return;
+        }
+
+        SMARTSLIP_STATE.config_inatividade =
+          envelope.payload || {};
+
+        smartSlipAplicarConfigInatividadeTela_(
+          SMARTSLIP_STATE.config_inatividade
+        );
+
+        salvarPreferenciasDaLoja_();
+      })
+      .withFailureHandler(function(err) {
+        smartSlipSetConfigLoading_(
+          false
+        );
+
+        mostrarCfgMensagem(
+          "erro",
+          err && err.message
+            ? err.message
+            : String(err)
+        );
+      })
+      .smartSlipSalvarConfigInatividadeAppJson(
+        JSON.stringify(
+          configInatividade
+        )
+      );
+
+    return;
+  }
+
+  salvarPreferenciasDaLoja_();
 }
 
 function aplicarTemaHomeSmartSlip(nome) {
@@ -10933,6 +12424,10 @@ function abrirView(nome, btn) {
 
   ativarViewSmartSlip_(nome, btn);
 
+  if (nome === "configuracoes") {
+    carregarConfigInatividade();
+  }
+
   if (nome === "inicio" || nome === "historico") {
     carregarBootstrap({ silencioso: true });
   }
@@ -10959,33 +12454,229 @@ function abrirView(nome, btn) {
   }
 }
 
-function toggleRetirada() {
-  const houveEl = document.getElementById("houve_retirada");
-  const box = document.getElementById("boxRetirada");
-  const valorEl = document.getElementById("valor_retirada");
-  const motivoEl = document.getElementById("motivo_retirada");
+function smartSlipMotivoRetiradaEhMarketingFront_(valor) {
+  return String(valor || "").trim().toUpperCase() ===
+    "MARKETING (RETIRADA DE PRODUTOS)";
+}
 
-  const houve = houveEl && houveEl.value === "true";
-  const valorRetirada = valorEl ? smartSlipNumeroBR(valorEl.value) : 0;
+function abrirSeletorCupomRetiradaMarketing() {
+  const input = document.getElementById("cupom_retirada_marketing");
 
-  const deveMostrar = houve || valorRetirada > 0;
+  if (input) {
+    input.click();
+  }
+}
 
-  if (box) {
-    box.style.display = deveMostrar ? "block" : "none";
+function onCupomRetiradaMarketingSelecionado() {
+  const input = document.getElementById("cupom_retirada_marketing");
+  const file = input && input.files ? input.files[0] : null;
+
+  const titulo = document.getElementById(
+    "cupomRetiradaMarketingTitulo"
+  );
+
+  const sub = document.getElementById(
+    "cupomRetiradaMarketingSub"
+  );
+
+  if (!file) {
+    if (titulo) {
+      titulo.textContent = "Anexar cupom da retirada";
+    }
+
+    if (sub) {
+      sub.textContent = "Imagem ou PDF de até 10 MB";
+    }
+
+    return;
   }
 
-  if (!deveMostrar) {
+  const mb = file.size / 1024 / 1024;
+
+  if (titulo) {
+    titulo.textContent = file.name;
+  }
+
+  if (sub) {
+    sub.textContent =
+      "Cupom selecionado • " + mb.toFixed(2) + " MB • Não será lido pela IA";
+  }
+}
+
+function smartSlipLerArquivoComoDataUrl_(file) {
+  return new Promise(function(resolve, reject) {
+    if (!file) {
+      resolve("");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+      resolve(event && event.target ? event.target.result : "");
+    };
+
+    reader.onerror = function() {
+      reject(new Error("Não foi possível ler o cupom de retirada."));
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function smartSlipDefinirCupomRetiradaExistente_(dados) {
+  dados = dados || {};
+
+  const inputNovo = document.getElementById(
+    "cupom_retirada_marketing"
+  );
+
+  const idInput = document.getElementById(
+    "cupom_retirada_marketing_existente_id"
+  );
+
+  const linkInput = document.getElementById(
+    "cupom_retirada_marketing_existente_link"
+  );
+
+  const nomeInput = document.getElementById(
+    "cupom_retirada_marketing_existente_nome"
+  );
+
+  const linkVisual = document.getElementById(
+    "cupomRetiradaMarketingExistenteLink"
+  );
+
+  const fileId = String(
+    dados.cupom_retirada_marketing_file_id || ""
+  ).trim();
+
+  const link = String(
+    dados.cupom_retirada_marketing_link || ""
+  ).trim();
+
+  const nome = String(
+    dados.cupom_retirada_marketing_nome || ""
+  ).trim();
+
+  if (inputNovo) {
+    inputNovo.value = "";
+  }
+
+  if (idInput) {
+    idInput.value = fileId;
+  }
+
+  if (linkInput) {
+    linkInput.value = link;
+  }
+
+  if (nomeInput) {
+    nomeInput.value = nome;
+  }
+
+  if (linkVisual) {
+    if (link) {
+      linkVisual.href = link;
+      linkVisual.textContent = nome
+        ? "Abrir cupom já registrado: " + nome
+        : "Abrir cupom já registrado";
+
+      linkVisual.style.display = "inline-flex";
+    } else {
+      linkVisual.href = "#";
+      linkVisual.style.display = "none";
+    }
+  }
+
+  onCupomRetiradaMarketingSelecionado();
+}
+
+function smartSlipLimparCupomRetiradaMarketing_(limparExistente) {
+  const input = document.getElementById(
+    "cupom_retirada_marketing"
+  );
+
+  if (input) {
+    input.value = "";
+  }
+
+  onCupomRetiradaMarketingSelecionado();
+
+  if (limparExistente !== true) {
+    return;
+  }
+
+  smartSlipDefinirCupomRetiradaExistente_({
+    cupom_retirada_marketing_file_id: "",
+    cupom_retirada_marketing_link: "",
+    cupom_retirada_marketing_nome: ""
+  });
+}
+
+function toggleRetirada() {
+  const houveEl = document.getElementById("houve_retirada");
+  const motivoEl = document.getElementById("motivo_retirada");
+  const box = document.getElementById("boxRetirada");
+  const valorEl = document.getElementById("valor_retirada");
+
+  const boxMarketing = document.getElementById(
+    "boxCupomRetiradaMarketing"
+  );
+
+  const cupomInput = document.getElementById(
+    "cupom_retirada_marketing"
+  );
+
+  const cupomExistenteLink = document.getElementById(
+    "cupom_retirada_marketing_existente_link"
+  );
+
+  const motivo = motivoEl
+    ? String(motivoEl.value || "").trim()
+    : "";
+
+  const houveRetirada = !!motivo;
+  const ehMarketing =
+    smartSlipMotivoRetiradaEhMarketingFront_(motivo);
+
+  if (houveEl) {
+    houveEl.value = houveRetirada ? "true" : "false";
+  }
+
+  if (box) {
+    box.style.display = houveRetirada ? "block" : "none";
+  }
+
+  if (valorEl) {
+    valorEl.required = houveRetirada;
+  }
+
+  if (boxMarketing) {
+    boxMarketing.style.display = ehMarketing ? "block" : "none";
+  }
+
+  const possuiCupomExistente = !!String(
+    cupomExistenteLink && cupomExistenteLink.value
+      ? cupomExistenteLink.value
+      : ""
+  ).trim();
+
+  if (cupomInput) {
+    cupomInput.required = ehMarketing && !possuiCupomExistente;
+  }
+
+  if (!houveRetirada) {
     if (valorEl) {
       valorEl.value = "";
     }
 
-    if (motivoEl) {
-      motivoEl.value = "";
-    }
+    smartSlipLimparCupomRetiradaMarketing_(true);
+    return;
   }
 
-  if (motivoEl) {
-    motivoEl.required = valorRetirada > 0;
+  if (!ehMarketing) {
+    smartSlipLimparCupomRetiradaMarketing_(true);
   }
 }
 
@@ -11021,6 +12712,7 @@ function smartSlipLimparContextoReenvio_() {
 
 function limparFormulario(limparLoja) {
   document.getElementById("arquivo").value = "";
+
   atualizarUploadInfo(null);
   limparPreviewArquivoSmartSlip(false);
 
@@ -11028,12 +12720,20 @@ function limparFormulario(limparLoja) {
   document.getElementById("data_movimento_fim").value = "";
 
   document.getElementById("houve_retirada").value = "false";
-  document.getElementById("valor_retirada").value = "";
   document.getElementById("motivo_retirada").value = "";
-  document.getElementById("boxRetirada").style.display = "none";
+  document.getElementById("valor_retirada").value = "";
 
-  document.getElementById("boxValoresDiariosMovimento").style.display = "none";
-  document.getElementById("valoresDiariosGrid").innerHTML = "";
+  smartSlipLimparCupomRetiradaMarketing_(true);
+  toggleRetirada();
+
+  document.getElementById(
+    "boxValoresDiariosMovimento"
+  ).style.display = "none";
+
+  document.getElementById(
+    "valoresDiariosGrid"
+  ).innerHTML = "";
+
   atualizarTotalValoresDiariosMovimento();
 
   resetarPreValidacaoTotalIa();
@@ -11197,6 +12897,12 @@ function smartSlipLimparApenasArquivoEnvio_() {
   atualizarUploadInfo(null);
   limparPreviewArquivoSmartSlip(false);
   resetarPreValidacaoTotalIa();
+
+  /*
+    Limpa apenas o arquivo novo do cupom.
+    Mantém o link já salvo quando o envio possui vários anexos.
+  */
+  smartSlipLimparCupomRetiradaMarketing_(false);
 }
 
 function smartSlipAbrirPopupProximoAnexo_() {
@@ -12547,6 +14253,205 @@ function desenharGraficoAdocaoLojasSmartSlip(payload) {
   box.innerHTML = svg;
 }
 
+function renderInatividadeLojas(payload) {
+  payload = payload || {
+    atualizado_em: "",
+    atualizado_hora: "",
+    rows: []
+  };
+
+  SMARTSLIP_STATE.inatividade_lojas =
+    payload;
+
+  const box = document.getElementById(
+    "chartInatividadeLojas"
+  );
+
+  const atualizado = document.getElementById(
+    "inatividadeLojasAtualizado"
+  );
+
+  if (!box) {
+    return;
+  }
+
+  /*
+    Esse gráfico deve existir somente na versão desktop.
+  */
+  if (isSmartSlipMobile()) {
+    return;
+  }
+
+  const rows = Array.isArray(payload.rows)
+    ? payload.rows.slice()
+    : [];
+
+  if (atualizado) {
+    atualizado.textContent =
+      payload.atualizado_hora
+        ? "Atualizado hoje às " +
+          payload.atualizado_hora
+        : "Atualização não disponível";
+  }
+
+  if (!rows.length) {
+    box.innerHTML =
+      "<div class='inatividade-lojas-empty'>" +
+        "Ainda não existem lojas com envio registrado " +
+        "para o escopo atual." +
+      "</div>";
+
+    return;
+  }
+
+  rows.sort(function(a, b) {
+    const diferenca =
+      Number(b.dias_sem_envio || 0) -
+      Number(a.dias_sem_envio || 0);
+
+    if (diferenca !== 0) {
+      return diferenca;
+    }
+
+    return String(a.loja || "")
+      .localeCompare(
+        String(b.loja || "")
+      );
+  });
+
+  const maxDias =
+    Math.max.apply(
+      null,
+      rows.map(function(item) {
+        return Number(
+          item.dias_sem_envio || 0
+        );
+      })
+    ) || 1;
+
+  const classeScroll =
+    rows.length > 15
+      ? " tem-scroll"
+      : "";
+
+  let html =
+    "<div class='inatividade-lojas-scroll" +
+    classeScroll +
+    "'>";
+
+  rows.forEach(function(item, index) {
+    const status = String(
+      item.status || "NORMAL"
+    ).toUpperCase();
+
+    const statusAnterior =
+      index > 0
+        ? String(
+            rows[index - 1].status || ""
+          ).toUpperCase()
+        : "";
+
+    /*
+      Insere uma linha divisória depois
+      das lojas críticas.
+    */
+    if (
+      index > 0 &&
+      statusAnterior === "CRITICO" &&
+      status !== "CRITICO"
+    ) {
+      html +=
+        "<div class='inatividade-grupo-separador'></div>";
+    }
+
+    let classeStatus = "normal";
+
+    if (status === "CRITICO") {
+      classeStatus = "critico";
+    } else if (status === "ATENCAO") {
+      classeStatus = "atencao";
+    } else if (status === "SEM_CRITERIO") {
+      classeStatus = "sem-criterio";
+    }
+
+    const tipo = String(
+      item.tipo_deposito || ""
+    ).trim();
+
+    let classeTipo = "outro";
+
+    if (tipo === "Boleto") {
+      classeTipo = "boleto";
+    } else if (tipo === "Dep. Bancário") {
+      classeTipo = "bancario";
+    } else if (tipo === "Carro Forte") {
+      classeTipo = "carro";
+    }
+
+    const dias =
+      Number(
+        item.dias_sem_envio || 0
+      );
+
+    const percentual =
+      Math.max(
+        7,
+        Math.round(
+          (dias / maxDias) * 100
+        )
+      );
+
+    const ultimoEnvio =
+      item.ultimo_envio
+        ? "Último envio: " +
+          item.ultimo_envio
+        : "Último envio não identificado";
+
+    html +=
+      "<div " +
+        "class='inatividade-loja-row' " +
+        "title='" +
+        escapeHtml(ultimoEnvio) +
+      "'>" +
+
+        "<div class='inatividade-loja-codigo'>" +
+          escapeHtml(
+            item.loja_exibicao ||
+            item.loja ||
+            "-"
+          ) +
+        "</div>" +
+
+        "<div class='inatividade-loja-track'>" +
+          "<div " +
+            "class='inatividade-loja-fill " +
+            classeStatus +
+            "' " +
+            "style='width:" +
+            percentual +
+            "%'>" +
+              dias +
+              "d" +
+          "</div>" +
+        "</div>" +
+
+        "<div class='" +
+          "inatividade-tipo-badge " +
+          classeTipo +
+        "'>" +
+          escapeHtml(
+            tipo || "Não identificado"
+          ) +
+        "</div>" +
+
+      "</div>";
+  });
+
+  html += "</div>";
+
+  box.innerHTML = html;
+}
+
 function renderResumoStatus(dados, lojasAtencao) {
   SMARTSLIP_STATE.resumo_status = dados || [];
   SMARTSLIP_STATE.lojas_atencao = lojasAtencao || [];
@@ -12862,118 +14767,380 @@ function compactarValor(valor) {
       aplicarFiltrosHistorico();
     }
 
-    function popularFiltrosHistorico(dados) {
+    function obterMotivoRetiradaHistorico_(registro) {
+  registro = registro || {};
+
+  const campos =
+    registro.campos_reenvio || {};
+
+  const motivoOriginal = String(
+    campos.motivo_retirada || ""
+  ).trim();
+
+  const motivoNormalizado = motivoOriginal
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const houveRetiradaRaw = String(
+    campos.houve_retirada
+  )
+    .trim()
+    .toLowerCase();
+
+  const houveRetirada =
+    campos.houve_retirada === true ||
+    houveRetiradaRaw === "true" ||
+    houveRetiradaRaw === "sim" ||
+    houveRetiradaRaw === "1" ||
+    (
+      motivoNormalizado &&
+      motivoNormalizado !== "NAO HOUVE RETIRADA" &&
+      motivoNormalizado !== "NAO" &&
+      motivoNormalizado !== "FALSE"
+    );
+
+  if (!houveRetirada) {
+    return "Não houve retirada";
+  }
+
+  if (!motivoOriginal) {
+    return "Motivo não informado";
+  }
+
+  if (motivoNormalizado === "FALTA") {
+    return "FALTA";
+  }
+
+  if (motivoNormalizado === "CANCELAMENTO") {
+    return "CANCELAMENTO";
+  }
+
+  if (motivoNormalizado === "ESTORNO") {
+    return "ESTORNO";
+  }
+
+  if (motivoNormalizado === "REEMBOLSO") {
+    return "REEMBOLSO";
+  }
+
+  if (
+    motivoNormalizado.indexOf(
+      "MARKETING"
+    ) >= 0
+  ) {
+    return "MARKETING (RETIRADA DE PRODUTOS)";
+  }
+
+  return motivoOriginal;
+}
+
+function popularFiltrosHistorico(dados) {
   dados = dados || [];
 
-  const statusAtual = document.getElementById("filtroHistStatus")
-    ? document.getElementById("filtroHistStatus").value
-    : "";
+  const statusAtual =
+    document.getElementById(
+      "filtroHistStatus"
+    )
+      ? document.getElementById(
+          "filtroHistStatus"
+        ).value
+      : "";
 
-  const lojaAtual = document.getElementById("filtroHistLoja")
-    ? document.getElementById("filtroHistLoja").value
-    : "";
+  const lojaAtual =
+    document.getElementById(
+      "filtroHistLoja"
+    )
+      ? document.getElementById(
+          "filtroHistLoja"
+        ).value
+      : "";
+
+  const motivoAtual =
+    document.getElementById(
+      "filtroHistMotivoRetirada"
+    )
+      ? document.getElementById(
+          "filtroHistMotivoRetirada"
+        ).value
+      : "";
 
   const statusSet = {};
   const lojaSet = {};
+  const motivoSet = {};
 
   dados.forEach(function(r) {
-    const status = String(r.status_fila || "").trim();
-    const loja = String(r.loja || "").trim();
+    const status = String(
+      r.status_fila || ""
+    ).trim();
 
-    if (status) statusSet[status] = true;
-    if (loja) lojaSet[loja] = true;
+    const loja = String(
+      r.loja || ""
+    ).trim();
+
+    const motivo =
+      obterMotivoRetiradaHistorico_(r);
+
+    if (status) {
+      statusSet[status] = true;
+    }
+
+    if (loja) {
+      lojaSet[loja] = true;
+    }
+
+    if (motivo) {
+      motivoSet[motivo] = true;
+    }
   });
 
-  const statusSelect = document.getElementById("filtroHistStatus");
-  const lojaSelect = document.getElementById("filtroHistLoja");
+  const statusSelect =
+    document.getElementById(
+      "filtroHistStatus"
+    );
+
+  const lojaSelect =
+    document.getElementById(
+      "filtroHistLoja"
+    );
+
+  const motivoSelect =
+    document.getElementById(
+      "filtroHistMotivoRetirada"
+    );
 
   if (statusSelect) {
-    statusSelect.innerHTML = "<option value=''>Todos</option>";
+    statusSelect.innerHTML =
+      "<option value=''>Todos</option>";
 
-    Object.keys(statusSet).sort().forEach(function(status) {
-      const opt = document.createElement("option");
-      opt.value = status;
-      opt.textContent = status;
-      statusSelect.appendChild(opt);
-    });
+    Object.keys(statusSet)
+      .sort(function(a, b) {
+        return a.localeCompare(
+          b,
+          "pt-BR"
+        );
+      })
+      .forEach(function(status) {
+        const opt =
+          document.createElement(
+            "option"
+          );
+
+        opt.value = status;
+        opt.textContent = status;
+
+        statusSelect.appendChild(opt);
+      });
 
     if (statusAtual) {
-      statusSelect.value = statusAtual;
+      statusSelect.value =
+        statusAtual;
     }
   }
 
   if (lojaSelect) {
-    lojaSelect.innerHTML = "<option value=''>Todas</option>";
+    lojaSelect.innerHTML =
+      "<option value=''>Todas</option>";
 
-    Object.keys(lojaSet).sort().forEach(function(loja) {
-      const opt = document.createElement("option");
-      opt.value = loja;
-      opt.textContent = loja;
-      lojaSelect.appendChild(opt);
-    });
+    Object.keys(lojaSet)
+      .sort(function(a, b) {
+        return a.localeCompare(
+          b,
+          "pt-BR",
+          {
+            numeric: true
+          }
+        );
+      })
+      .forEach(function(loja) {
+        const opt =
+          document.createElement(
+            "option"
+          );
+
+        opt.value = loja;
+        opt.textContent = loja;
+
+        lojaSelect.appendChild(opt);
+      });
 
     if (lojaAtual) {
-      lojaSelect.value = lojaAtual;
+      lojaSelect.value =
+        lojaAtual;
+    }
+  }
+
+  if (motivoSelect) {
+    motivoSelect.innerHTML =
+      "<option value=''>Todos</option>";
+
+    Object.keys(motivoSet)
+      .sort(function(a, b) {
+        return a.localeCompare(
+          b,
+          "pt-BR"
+        );
+      })
+      .forEach(function(motivo) {
+        const opt =
+          document.createElement(
+            "option"
+          );
+
+        opt.value = motivo;
+        opt.textContent = motivo;
+
+        motivoSelect.appendChild(opt);
+      });
+
+    if (motivoAtual) {
+      motivoSelect.value =
+        motivoAtual;
     }
   }
 }
 
 function aplicarFiltrosHistorico() {
-  const dados = SMARTSLIP_STATE.historico || [];
+  const dados =
+    SMARTSLIP_STATE.historico || [];
 
-  const filtroData = document.getElementById("filtroHistData")
-    ? document.getElementById("filtroHistData").value
-    : "";
+  const filtroData =
+    document.getElementById(
+      "filtroHistData"
+    )
+      ? document.getElementById(
+          "filtroHistData"
+        ).value
+      : "";
 
-  const filtroStatus = document.getElementById("filtroHistStatus")
-    ? document.getElementById("filtroHistStatus").value
-    : "";
+  const filtroStatus =
+    document.getElementById(
+      "filtroHistStatus"
+    )
+      ? document.getElementById(
+          "filtroHistStatus"
+        ).value
+      : "";
 
-  const usuarioAtual = SMARTSLIP_STATE.usuario || {};
+  const filtroMotivoRetirada =
+    document.getElementById(
+      "filtroHistMotivoRetirada"
+    )
+      ? document.getElementById(
+          "filtroHistMotivoRetirada"
+        ).value
+      : "";
+
+  const usuarioAtual =
+    SMARTSLIP_STATE.usuario || {};
 
   const podeFiltrarLoja =
     usuarioAtual.is_admin === true ||
     usuarioAtual.is_analista_pro === true ||
     usuarioAtual.is_regional === true;
 
-  const filtroLoja = podeFiltrarLoja && document.getElementById("filtroHistLoja")
-    ? document.getElementById("filtroHistLoja").value
-    : "";
+  const filtroLoja =
+    podeFiltrarLoja &&
+    document.getElementById(
+      "filtroHistLoja"
+    )
+      ? document.getElementById(
+          "filtroHistLoja"
+        ).value
+      : "";
 
-  const filtrados = dados.filter(function(r) {
-    if (filtroData) {
-      const dataRegistroInput = converterDataHoraBRParaInput(r.data_registro);
+  const filtrados = dados.filter(
+    function(r) {
+      if (filtroData) {
+        const dataRegistroInput =
+          converterDataHoraBRParaInput(
+            r.data_registro
+          );
 
-      if (dataRegistroInput !== filtroData) {
+        if (
+          dataRegistroInput !==
+          filtroData
+        ) {
+          return false;
+        }
+      }
+
+      if (
+        filtroStatus &&
+        String(
+          r.status_fila || ""
+        ) !== filtroStatus
+      ) {
         return false;
       }
+
+      if (
+        filtroLoja &&
+        String(
+          r.loja || ""
+        ) !== filtroLoja
+      ) {
+        return false;
+      }
+
+      if (filtroMotivoRetirada) {
+        const motivoRegistro =
+          obterMotivoRetiradaHistorico_(
+            r
+          );
+
+        if (
+          motivoRegistro !==
+          filtroMotivoRetirada
+        ) {
+          return false;
+        }
+      }
+
+      return true;
     }
+  );
 
-    if (filtroStatus && String(r.status_fila || "") !== filtroStatus) {
-      return false;
-    }
-
-    if (filtroLoja && String(r.loja || "") !== filtroLoja) {
-      return false;
-    }
-
-    return true;
-  });
-
-  desenharTabelaHistorico(filtrados);
+  desenharTabelaHistorico(
+    filtrados
+  );
 }
 
 function limparFiltrosHistorico() {
-  if (document.getElementById("filtroHistData")) {
-    document.getElementById("filtroHistData").value = "";
+  const filtroData =
+    document.getElementById(
+      "filtroHistData"
+    );
+
+  const filtroStatus =
+    document.getElementById(
+      "filtroHistStatus"
+    );
+
+  const filtroLoja =
+    document.getElementById(
+      "filtroHistLoja"
+    );
+
+  const filtroMotivo =
+    document.getElementById(
+      "filtroHistMotivoRetirada"
+    );
+
+  if (filtroData) {
+    filtroData.value = "";
   }
 
-  if (document.getElementById("filtroHistStatus")) {
-    document.getElementById("filtroHistStatus").value = "";
+  if (filtroStatus) {
+    filtroStatus.value = "";
   }
 
-  if (document.getElementById("filtroHistLoja")) {
-    document.getElementById("filtroHistLoja").value = "";
+  if (filtroLoja) {
+    filtroLoja.value = "";
+  }
+
+  if (filtroMotivo) {
+    filtroMotivo.value = "";
   }
 
   aplicarFiltrosHistorico();
@@ -13002,6 +15169,8 @@ function desenharTabelaHistorico(dados) {
   html += "<th>Protocolo</th>";
   html += "<th>Loja</th>";
   html += "<th>Movimento</th>";
+  html += "<th>Motivo retirada</th>";
+  html += "<th>Cupom retirada</th>";
   html += "<th>Status</th>";
   html += "<th>Arquivo</th>";
   html += "<th>Reenviar?</th>";
@@ -13017,6 +15186,28 @@ function desenharTabelaHistorico(dados) {
     html += "<td>" + escapeHtml(r.protocolo || "") + "</td>";
     html += "<td>" + escapeHtml(r.loja || "") + "</td>";
     html += "<td>" + escapeHtml(r.data_movimento || "") + "</td>";
+    html += "<td>" +
+      escapeHtml(
+        r.houve_retirada
+          ? r.motivo_retirada || "-"
+          : "-"
+      ) +
+    "</td>";
+
+    html += "<td>";
+
+    if (r.cupom_retirada_marketing_link) {
+      html +=
+        "<a target='_blank' href='" +
+        escapeAttr(
+          r.cupom_retirada_marketing_link
+        ) +
+        "'>Abrir cupom</a>";
+    } else {
+      html += "-";
+    }
+
+    html += "</td>";
     html += "<td>" + montarBotaoStatusHistorico(r) + "</td>";
     html += "<td><a target='_blank' href='" + escapeAttr(link) + "'>Abrir</a></td>";
     html += "<td>" + montarBotaoReenvioHistorico(r) + "</td>";
@@ -13054,11 +15245,40 @@ function desenharHistoricoMobile(dados) {
         "</div>" +
 
         "<div class='mobile-history-grid'>" +
-          "<div><b>Loja</b><span>" + escapeHtml(r.loja || "") + "</span></div>" +
-          "<div><b>Movimento</b><span>" + escapeHtml(r.data_movimento || "") + "</span></div>" +
+          "<div><b>Loja</b><span>" +
+            escapeHtml(r.loja || "") +
+          "</span></div>" +
+
+          "<div><b>Movimento</b><span>" +
+            escapeHtml(r.data_movimento || "") +
+          "</span></div>" +
+
+          (
+            r.houve_retirada
+              ? (
+                  "<div><b>Motivo retirada</b><span>" +
+                    escapeHtml(
+                      r.motivo_retirada || "-"
+                    ) +
+                  "</span></div>"
+                )
+              : ""
+          ) +
         "</div>" +
 
         "<a class='mobile-history-link' target='_blank' href='" + escapeAttr(link) + "'>Abrir comprovante</a>" +
+        (
+          r.cupom_retirada_marketing_link
+            ? (
+                "<a class='mobile-history-link' " +
+                "target='_blank' href='" +
+                escapeAttr(
+                  r.cupom_retirada_marketing_link
+                ) +
+                "'>Abrir cupom da retirada</a>"
+              )
+            : ""
+        ) +
         montarBotaoReenvioHistoricoMobile(r) +
       "</div>";
   });
@@ -13284,21 +15504,36 @@ function preencherFormularioReenvioHistorico(registro) {
       "";
   }
 
-  if (houveRetirada) {
-    houveRetirada.value = campos.houve_retirada === true ? "true" : "false";
-  }
+const motivoRetiradaRegistro = campos.houve_retirada === true
+  ? String(campos.motivo_retirada || "").trim()
+  : "";
 
-  if (valorRetirada) {
-    valorRetirada.value = campos.houve_retirada === true
-      ? formatarValorRetiradaReenvio_(campos.valor_retirada)
-      : "";
-  }
+if (motivoRetirada) {
+  motivoRetirada.value = motivoRetiradaRegistro;
+}
 
-  if (motivoRetirada) {
-    motivoRetirada.value = campos.houve_retirada === true
-      ? String(campos.motivo_retirada || "").trim()
-      : "";
-  }
+if (houveRetirada) {
+  houveRetirada.value = motivoRetiradaRegistro
+    ? "true"
+    : "false";
+}
+
+if (valorRetirada) {
+  valorRetirada.value = motivoRetiradaRegistro
+    ? formatarValorRetiradaReenvio_(campos.valor_retirada)
+    : "";
+}
+
+smartSlipDefinirCupomRetiradaExistente_({
+  cupom_retirada_marketing_file_id:
+    campos.cupom_retirada_marketing_file_id || "",
+
+  cupom_retirada_marketing_link:
+    campos.cupom_retirada_marketing_link || "",
+
+  cupom_retirada_marketing_nome:
+    campos.cupom_retirada_marketing_nome || ""
+});
 
   if (arquivo) {
     arquivo.value = "";
@@ -13816,6 +16051,14 @@ function formatarPeriodoMovimentoProtocoloCompHub_(valor) {
 function montarProtocolosCompHub_(dados, lojaNorm) {
   const mapa = {};
 
+  function normalizarTexto_(valor) {
+    return String(valor || "")
+      .trim()
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
   function formatarPeriodoMovimento_(item) {
     item = item || {};
 
@@ -13872,14 +16115,54 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
     return "Mov.: " + movimento;
   }
 
+  function possuiRetirada_(item, motivoRetirada) {
+    item = item || {};
+
+    const houveRetiradaRaw = normalizarTexto_(
+      item.houveRetirada !== undefined
+        ? item.houveRetirada
+        : item.houve_retirada
+    );
+
+    const motivoNorm = normalizarTexto_(motivoRetirada);
+
+    /*
+      Registros novos:
+      houveRetirada pode vir como "Sim", true ou texto equivalente.
+
+      Registros antigos:
+      mesmo sem houveRetirada preenchido corretamente, um motivo válido
+      deve permitir exibir a retirada.
+    */
+    const marcouRetirada = [
+      "SIM",
+      "TRUE",
+      "1"
+    ].includes(houveRetiradaRaw);
+
+    const motivoIndicaRetirada =
+      !!motivoNorm &&
+      motivoNorm !== "NAO HOUVE RETIRADA" &&
+      motivoNorm !== "NAO" &&
+      motivoNorm !== "FALSE";
+
+    return marcouRetirada || motivoIndicaRetirada;
+  }
+
   (dados || []).forEach(function(item) {
-    const lojaItem = normalizarLojaFrontSmartSlip_(item.loja || "");
+    item = item || {};
+
+    const lojaItem = normalizarLojaFrontSmartSlip_(
+      item.loja || ""
+    );
 
     if (lojaNorm && lojaItem !== lojaNorm) {
       return;
     }
 
-    const protocolo = String(item.protocolo || "").trim();
+    const protocolo = String(
+      item.protocolo || ""
+    ).trim();
 
     if (!protocolo) {
       return;
@@ -13896,71 +16179,135 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
         qtd: 0,
         valor: 0,
         bancos: {},
-        tipos: {}
+        tipos: {},
+        motivosRetirada: {}
       };
     }
 
     mapa[protocolo].qtd += 1;
-    mapa[protocolo].valor += Number(item.valorDeposito || 0);
+    mapa[protocolo].valor += Number(
+      item.valorDeposito || 0
+    );
 
     const periodoMovimento = formatarPeriodoMovimento_(item);
 
-    if (periodoMovimento && !mapa[protocolo].periodoMovimento) {
-      mapa[protocolo].periodoMovimento = periodoMovimento;
+    if (
+      periodoMovimento &&
+      !mapa[protocolo].periodoMovimento
+    ) {
+      mapa[protocolo].periodoMovimento =
+        periodoMovimento;
     }
 
     /*
-      Regra correta:
-      ordenar o protocolo pela data do envio, ou seja, Data Registro.
-      Não usar Data Depósito nem Data Movimento como critério principal.
+      Ordenação pela Data Registro, que representa
+      a data efetiva de envio ao SmartSlip.
     */
-    const dataRegistroTexto = String(item.dataRegistro || "").trim();
-    const dataRegistroMs = converterDataOrdenacaoCompHub(dataRegistroTexto);
+    const dataRegistroTexto = String(
+      item.dataRegistro || ""
+    ).trim();
+
+    const dataRegistroMs =
+      converterDataOrdenacaoCompHub(
+        dataRegistroTexto
+      );
 
     /*
-      Se o mesmo protocolo tiver mais de uma linha/comprovante,
-      mantém a data de envio mais recente dentro daquele protocolo.
+      Quando o protocolo possui vários comprovantes,
+      mantém a data de envio mais recente.
     */
-    if (dataRegistroMs > Number(mapa[protocolo].dataEnvioMs || 0)) {
-      mapa[protocolo].dataEnvioMs = dataRegistroMs;
-      mapa[protocolo].data = dataRegistroTexto;
+    if (
+      dataRegistroMs >
+      Number(mapa[protocolo].dataEnvioMs || 0)
+    ) {
+      mapa[protocolo].dataEnvioMs =
+        dataRegistroMs;
+
+      mapa[protocolo].data =
+        dataRegistroTexto;
     }
 
     /*
-      Fallback apenas para exibição, caso algum registro antigo venha sem Data Registro.
-      Não deve mandar na ordenação principal.
+      Fallback somente para exibição de registros antigos
+      que não possuem Data Registro.
     */
     if (!mapa[protocolo].data) {
       const dataFallback = String(
         item.dataDeposito ||
         item.dataMovimento ||
+        item.data_movimento ||
         ""
       ).trim();
 
       if (dataFallback) {
-        mapa[protocolo].data = dataFallback;
+        mapa[protocolo].data =
+          dataFallback;
       }
     }
 
-    const banco = String(item.banco || "").trim();
+    const banco = String(
+      item.banco || ""
+    ).trim();
 
     if (banco) {
       mapa[protocolo].bancos[banco] = true;
     }
 
-    const tipo = String(item.tipoDocumento || "").trim();
+    const tipo = String(
+      item.tipoDocumento ||
+      item.tipo_documento ||
+      ""
+    ).trim();
 
     if (tipo) {
       mapa[protocolo].tipos[tipo] = true;
     }
+
+    /*
+      Motivo da retirada:
+      agrupa os motivos encontrados nas linhas pertencentes
+      ao mesmo protocolo e ignora registros sem retirada.
+    */
+    const motivoRetirada = String(
+      item.motivoRetirada ||
+      item.motivo_retirada ||
+      ""
+    ).trim();
+
+    if (
+      possuiRetirada_(item, motivoRetirada) &&
+      motivoRetirada &&
+      normalizarTexto_(motivoRetirada) !==
+        "NAO HOUVE RETIRADA"
+    ) {
+      mapa[protocolo]
+        .motivosRetirada[motivoRetirada] = true;
+    }
   });
 
   return Object.keys(mapa)
-    .map(function(k) {
-      const item = mapa[k];
+    .map(function(chave) {
+      const item = mapa[chave];
 
-      item.bancoLabel = Object.keys(item.bancos).slice(0, 2).join(", ") || "-";
-      item.tipoLabel = Object.keys(item.tipos).slice(0, 1).join(", ") || "depósito";
+      item.bancoLabel =
+        Object.keys(item.bancos)
+          .slice(0, 2)
+          .join(", ") || "-";
+
+      item.tipoLabel =
+        Object.keys(item.tipos)
+          .slice(0, 1)
+          .join(", ") || "depósito";
+
+      /*
+        Campo usado pelo pop-up para exibir,
+        abaixo da linha de movimento:
+
+        Retirada: MARKETING (RETIRADA DE PRODUTOS)
+      */
+      item.motivoRetiradaLabel =
+        Object.keys(item.motivosRetirada || {})
+          .join(", ");
 
       return item;
     })
@@ -13972,7 +16319,10 @@ function montarProtocolosCompHub_(dados, lojaNorm) {
         return dataB - dataA;
       }
 
-      return String(b.protocolo || "").localeCompare(String(a.protocolo || ""));
+      return String(b.protocolo || "")
+        .localeCompare(
+          String(a.protocolo || "")
+        );
     });
 }
 
@@ -14091,8 +16441,24 @@ function abrirPopupProtocolosCompHub(lojaNorm, protocolos) {
             escapeHtml(item.bancoLabel || "-") +
           "</span>" +
           "<span class='comp-protocolo-periodo'>" +
-            escapeHtml(item.periodoMovimento || "Mov.: não informado") +
+            escapeHtml(
+              item.periodoMovimento ||
+              "Mov.: não informado"
+            ) +
           "</span>" +
+
+          (
+            item.motivoRetiradaLabel
+              ? (
+                  "<span class='comp-protocolo-retirada'>" +
+                    "Retirada: " +
+                    escapeHtml(
+                      item.motivoRetiradaLabel
+                    ) +
+                  "</span>"
+                )
+              : ""
+          ) +
         "</div>" +
         "<span class='comp-protocolo-tipo'>" + escapeHtml(item.tipoLabel || "depósito") + "</span>" +
         "<strong class='comp-protocolo-valor'>" + formatBRL(item.valor || 0) + "</strong>" +
@@ -14315,7 +16681,10 @@ function restaurarColunasPadraoCompHub() {
     dataMovimento: true,
     houveRetirada: true,
     valorRetirada: false,
-    motivoRetirada: false,
+    motivoRetirada: true,
+    linkCupomRetiradaMarketing: true,
+    nomeCupomRetiradaMarketing: false,
+    cupomRetiradaMarketingId: false,
     dataGeracaoDocumento: false,
     codigoAutenticacao: false,
     linkComprovante: true,
@@ -14725,6 +17094,23 @@ function renderCelulaCompHub(key, item) {
     return "<a class='comp-link' href='" + escapeAttr(item.linkComprovante) + "' target='_blank'>Abrir</a>";
   }
 
+    if (key === "linkCupomRetiradaMarketing") {
+    if (!item.linkCupomRetiradaMarketing) {
+      return "-";
+    }
+
+    return (
+      "<a class='comp-link' " +
+      "href='" +
+      escapeAttr(
+        item.linkCupomRetiradaMarketing
+      ) +
+      "' target='_blank'>" +
+        "Abrir cupom" +
+      "</a>"
+    );
+  }
+
   if (key === "statusProcessamento") {
     return "<span class='comp-status " + getCompHubStatusClass(item.statusProcessamento) + "'>" + escapeHtml(item.statusProcessamento || "") + "</span>";
   }
@@ -15017,6 +17403,26 @@ function montarLinkComprovanteDetalheCompHub(item) {
   );
 }
 
+function montarLinkCupomRetiradaDetalheCompHub(item) {
+  if (!item.linkCupomRetiradaMarketing) {
+    return "";
+  }
+
+  return (
+    "<div class='comp-detail-linkbar'>" +
+      "<span>↗ Cupom de evidência da retirada disponível</span>" +
+      "<a class='comp-detail-open-btn' " +
+      "target='_blank' href='" +
+      escapeAttr(
+        item.linkCupomRetiradaMarketing
+      ) +
+      "'>" +
+        "↗ Abrir cupom da retirada" +
+      "</a>" +
+    "</div>"
+  );
+}
+
 function abrirDetalheCompHubItem(item) {
   const modal = document.getElementById("compModal");
   const sub = document.getElementById("compModalSub");
@@ -15045,8 +17451,26 @@ function abrirDetalheCompHubItem(item) {
     "⌘",
     montarCardDetalheProfCompHub("Data Registro", item.dataRegistro) +
     montarCardDetalheProfCompHub("Data Depósito", item.dataDeposito) +
-    montarCardDetalheProfCompHub("Data Movimento", item.dataMovimento) +
-    montarCardDetalheProfCompHub("Data Geração Documento", item.dataGeracaoDocumento) +
+    montarCardDetalheProfCompHub(
+      "Data Movimento",
+      item.dataMovimento
+    ) +
+
+    (
+      String(item.motivoRetirada || "").trim() &&
+      String(item.motivoRetirada || "").trim() !==
+        "Não houve retirada"
+        ? montarCardDetalheProfCompHub(
+            "Motivo Retirada",
+            item.motivoRetirada
+          )
+        : ""
+    ) +
+
+    montarCardDetalheProfCompHub(
+      "Data Geração Documento",
+      item.dataGeracaoDocumento
+    ) +
     montarCardDetalheProfCompHub("Índice Comprovante", item.indiceComprovante),
     3
   );
@@ -15067,7 +17491,6 @@ function abrirDetalheCompHubItem(item) {
     montarCardDetalheProfCompHub("Banco", item.banco) +
     montarCardDetalheProfCompHub("Houve Retirada", item.houveRetirada, { strong: true }) +
     montarCardDetalheProfCompHub("Valor Retirada", formatBRL(item.valorRetirada)) +
-    montarCardDetalheProfCompHub("Motivo Retirada", item.motivoRetirada),
     3
   );
 
@@ -15095,6 +17518,7 @@ function abrirDetalheCompHubItem(item) {
   }
 
   html += montarLinkComprovanteDetalheCompHub(item);
+  html += montarLinkCupomRetiradaDetalheCompHub(item);
 
   /*
     Mantém o JSON exatamente como já era.
@@ -15246,6 +17670,8 @@ if (!dados.length) {
     "Data Geração Documento",
     "Código Autenticação",
     "Link Comprovante",
+    "Link Cupom Retirada Marketing",
+    "Nome Cupom Retirada Marketing",
     "Status Processamento",
     "Pendências",
     "Divergências",
@@ -15273,6 +17699,8 @@ if (!dados.length) {
       item.dataGeracaoDocumento,
       item.codigoAutenticacao,
       item.linkComprovante,
+      item.linkCupomRetiradaMarketing,
+      item.nomeCupomRetiradaMarketing,
       item.statusProcessamento,
       item.pendencias,
       item.divergencias,
@@ -16432,6 +18860,16 @@ function enviar() {
     const inputArquivo = document.getElementById("arquivo");
     const file = inputArquivo && inputArquivo.files ? inputArquivo.files[0] : null;
 
+    const inputCupomRetirada = document.getElementById(
+      "cupom_retirada_marketing"
+    );
+
+    const cupomRetiradaFile =
+      inputCupomRetirada &&
+      inputCupomRetirada.files
+        ? inputCupomRetirada.files[0]
+        : null;
+
     const loja = String(document.getElementById("loja").value || "").trim();
     const tipoDeposito = String(document.getElementById("tipo_deposito_envio").value || "").trim();
     const dataInicio = String(document.getElementById("data_movimento_inicio").value || "").trim();
@@ -16521,22 +18959,71 @@ function enviar() {
       return;
     }
 
-    const houveRetiradaTela = document.getElementById("houve_retirada").value === "true";
-    const valorRetiradaTextoTela = String(document.getElementById("valor_retirada").value || "").trim();
-    const valorRetiradaTela = smartSlipNumeroBR(valorRetiradaTextoTela);
-    const motivoRetiradaTela = String(document.getElementById("motivo_retirada").value || "").trim();
+const motivoRetiradaTela = String(
+  document.getElementById("motivo_retirada").value || ""
+).trim();
 
-    if (houveRetiradaTela) {
-      if (!valorRetiradaTextoTela || valorRetiradaTela <= 0) {
-        mostrarMensagem("erro", "Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-        return;
-      }
+const houveRetiradaTela = !!motivoRetiradaTela;
 
-      if (!motivoRetiradaTela) {
-        mostrarMensagem("erro", "Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-        return;
-      }
-    }
+document.getElementById("houve_retirada").value =
+  houveRetiradaTela ? "true" : "false";
+
+const valorRetiradaTextoTela = String(
+  document.getElementById("valor_retirada").value || ""
+).trim();
+
+const valorRetiradaTela = smartSlipNumeroBR(
+  valorRetiradaTextoTela
+);
+
+const retiradaMarketing =
+  smartSlipMotivoRetiradaEhMarketingFront_(
+    motivoRetiradaTela
+  );
+
+const cupomExistenteLink = String(
+  document.getElementById(
+    "cupom_retirada_marketing_existente_link"
+  ).value || ""
+).trim();
+
+if (houveRetiradaTela) {
+  if (!valorRetiradaTextoTela || valorRetiradaTela <= 0) {
+    mostrarMensagem(
+      "erro",
+      "Informe o valor da retirada."
+    );
+
+    return;
+  }
+}
+
+if (
+  retiradaMarketing &&
+  Number(anexoAtualFluxo || 1) === 1 &&
+  !cupomRetiradaFile &&
+  !cupomExistenteLink
+) {
+  mostrarMensagem(
+    "erro",
+    "Anexe o cupom de evidência da retirada solicitada pelo Marketing."
+  );
+
+  return;
+}
+
+if (cupomRetiradaFile) {
+  const limiteCupomBytes = 10 * 1024 * 1024;
+
+  if (cupomRetiradaFile.size > limiteCupomBytes) {
+    mostrarMensagem(
+      "erro",
+      "O cupom de retirada deve ter no máximo 10 MB."
+    );
+
+    return;
+  }
+}
 
     travarTelaEnvio("Lendo arquivo...");
 
@@ -16577,8 +19064,31 @@ function enviar() {
       mostrarMensagem("erro", "Erro ao ler o arquivo selecionado. Tente anexar novamente.");
     };
 
-    reader.onload = function(e) {
-      const arquivoBase64Envio = e.target.result;
+      reader.onload = async function(e) {
+        const arquivoBase64Envio = e.target.result;
+
+        let cupomRetiradaBase64Envio = "";
+
+        if (cupomRetiradaFile) {
+          try {
+            cupomRetiradaBase64Envio =
+              await smartSlipLerArquivoComoDataUrl_(
+                cupomRetiradaFile
+              );
+          } catch (errCupom) {
+            clearTimeout(timeoutEnvio);
+            finalizarBotao();
+
+            mostrarMensagem(
+              "erro",
+              errCupom && errCupom.message
+                ? errCupom.message
+                : "Não foi possível ler o cupom de retirada."
+            );
+
+            return;
+          }
+        }
 
       const overrideIaAdminAtivo = isOverrideIaAdminAtivo_();
 
@@ -16704,6 +19214,23 @@ function enviar() {
           houve_retirada: String(houveRetiradaTela),
           valor_retirada: houveRetiradaTela ? valorRetiradaTela : 0,
           motivo_retirada: houveRetiradaTela ? motivoRetiradaTela : "Não houve retirada",
+          cupom_retirada_marketing_base64:
+            retiradaMarketing
+              ? cupomRetiradaBase64Envio
+              : "",
+
+          cupom_retirada_marketing_nome:
+            retiradaMarketing && cupomRetiradaFile
+              ? cupomRetiradaFile.name
+              : "",
+
+          cupom_retirada_marketing_mime_type:
+            retiradaMarketing && cupomRetiradaFile
+              ? (
+                  cupomRetiradaFile.type ||
+                  "application/pdf"
+                )
+              : "",
           valores_diarios_movimento: coletarValoresDiariosMovimento(),
           pre_validacao_total_ia: preValidacaoParaBackend,
 
@@ -16739,6 +19266,17 @@ function enviar() {
               SMARTSLIP_STATE.sequencia_lote_ativo = Number(resp.proxima_sequencia_lote || 1);
               SMARTSLIP_STATE.envio_lote_anexo_atual =
                 Number(SMARTSLIP_STATE.envio_lote_anexo_atual || 1) + 1;
+
+                smartSlipDefinirCupomRetiradaExistente_({
+                cupom_retirada_marketing_file_id:
+                  resp.cupom_retirada_marketing_file_id || "",
+
+                cupom_retirada_marketing_link:
+                  resp.cupom_retirada_marketing_link || "",
+
+                cupom_retirada_marketing_nome:
+                  resp.cupom_retirada_marketing_nome || ""
+              });
 
               smartSlipLimparApenasArquivoEnvio_();
               smartSlipAtualizarProgressoAnexos_();
