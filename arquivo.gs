@@ -5,7 +5,6 @@
  * - consultar_info_loja
  * - salvar_dados_comprovante_planilha
  *
- * Não interfere no fluxo BaseClara atual.
  ****************************************************/
 
 const SMARTSLIP_TOKEN_PROPERTY = "SMARTSLIP_TOKEN";
@@ -33,6 +32,20 @@ const SMARTSLIP_DOMINIOS_CORPORATIVOS = [
   "fisia.com.br"
 ];
 const SMARTSLIP_ABA_CUSTOS_IA = "SMARTSLIP_CUSTOS_IA";
+const SMARTSLIP_EMAIL_VEKTOR = "vektor@gruposbf.com.br";
+const SMARTSLIP_EMAIL_ALERTA_INATIVIDADE_CC = "contasareceber@gruposbf.com.br,transformacao_digital@gruposbf.com.br";
+const SMARTSLIP_ALERTA_INATIVIDADE_HANDLER = "smartSlipExecutarAlertasInatividadeDiarios";
+const SMARTSLIP_ALERTA_INATIVIDADE_PREFIXO_PROP = "SMARTSLIP_ALERTA_INATIVIDADE_ENVIADO_";
+const SMARTSLIP_INATIVIDADE_PROP_BOLETO = "SMARTSLIP_INATIVIDADE_DIAS_BOLETO";
+const SMARTSLIP_INATIVIDADE_PROP_DEP_BANCARIO = "SMARTSLIP_INATIVIDADE_DIAS_DEP_BANCARIO";
+const SMARTSLIP_INATIVIDADE_PROP_CARRO_FORTE = "SMARTSLIP_INATIVIDADE_DIAS_CARRO_FORTE";
+const SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_POR = "SMARTSLIP_INATIVIDADE_ATUALIZADO_POR";
+const SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_EM = "SMARTSLIP_INATIVIDADE_ATUALIZADO_EM";
+const SMARTSLIP_INATIVIDADE_PADRAO_BOLETO = 4;
+const SMARTSLIP_INATIVIDADE_PADRAO_DEP_BANCARIO = 4;
+const SMARTSLIP_INATIVIDADE_PADRAO_CARRO_FORTE = 8;
+var SMARTSLIP_MEMO_CONFIG_INATIVIDADE_ = null;
+const SMARTSLIP_URL_ACESSO = "https://script.google.com/a/macros/gruposbf.com.br/s/AKfycbx0W_VHGc_J9GOg4fyOVShXKRzWmHoeGVhkVprDVu5pCwswg7NjQb0dR5WimDJDK9bA/exec";
 
 function smartSlipGetUsuarioAtual() {
   const email = String(Session.getActiveUser().getEmail() || "").trim().toLowerCase();
@@ -474,7 +487,11 @@ function smartSlipSalvarDadosComprovantePlanilha_(dados) {
     (dados.pendencias || []).join(" | "),
     (dados.divergencias || []).join(" | "),
     dados.confianca_geral || "",
-    JSON.stringify(dados)
+    JSON.stringify(dados),
+
+    dados.cupom_retirada_marketing_file_id || "",
+    dados.cupom_retirada_marketing_link || "",
+    dados.cupom_retirada_marketing_nome || ""
   ]);
 
   return {
@@ -484,11 +501,8 @@ function smartSlipSalvarDadosComprovantePlanilha_(dados) {
   };
 }
 
-/**
- * Cria cabeçalho da aba BASE_SMARTSLIP.
- */
-function smartSlipCriarCabecalho_(sh) {
-  sh.appendRow([
+function smartSlipGetCabecalhoBase_() {
+  return [
     "Data Registro",
     "ID Comprovante",
     "Hash Comprovante",
@@ -511,24 +525,77 @@ function smartSlipCriarCabecalho_(sh) {
     "Pendências",
     "Divergências",
     "Confiança Geral",
-    "JSON Original"
-  ]);
+    "JSON Original",
+    "Cupom Retirada Marketing ID",
+    "Link Cupom Retirada Marketing",
+    "Nome Cupom Retirada Marketing"
+  ];
+}
+
+/**
+ * Cria cabeçalho da aba BASE_SMARTSLIP.
+ */
+function smartSlipCriarCabecalho_(sh) {
+  const headers = smartSlipGetCabecalhoBase_();
+
+  if (sh.getMaxColumns() < headers.length) {
+    sh.insertColumnsAfter(
+      sh.getMaxColumns(),
+      headers.length - sh.getMaxColumns()
+    );
+  }
+
+  sh.getRange(
+    1,
+    1,
+    1,
+    headers.length
+  ).setValues([headers]);
+
+  sh.setFrozenRows(1);
 }
 
 /**
  * Garante que a aba tem cabeçalho.
  */
 function smartSlipGarantirCabecalho_(sh) {
+  const headers = smartSlipGetCabecalhoBase_();
+
+  if (sh.getMaxColumns() < headers.length) {
+    sh.insertColumnsAfter(
+      sh.getMaxColumns(),
+      headers.length - sh.getMaxColumns()
+    );
+  }
+
   if (sh.getLastRow() === 0) {
-    smartSlipCriarCabecalho_(sh);
+    sh.getRange(
+      1,
+      1,
+      1,
+      headers.length
+    ).setValues([headers]);
+
+    sh.setFrozenRows(1);
     return;
   }
 
-  const primeiraCelula = String(sh.getRange(1, 1).getValue() || "").trim();
+  const primeiraCelula = String(
+    sh.getRange(1, 1).getValue() || ""
+  ).trim();
 
-  if (!primeiraCelula) {
-    smartSlipCriarCabecalho_(sh);
+  if (primeiraCelula !== "Data Registro") {
+    sh.insertRowBefore(1);
   }
+
+  sh.getRange(
+    1,
+    1,
+    1,
+    headers.length
+  ).setValues([headers]);
+
+  sh.setFrozenRows(1);
 }
 
 /**
@@ -574,6 +641,20 @@ function smartSlipValidarDadosComprovante_(dados) {
   if (!Array.isArray(dados.divergencias)) {
     faltantes.push("divergencias deve ser array");
   }
+
+  if (
+  dados.houve_retirada === true &&
+  smartSlipMotivoRetiradaEhMarketing_(
+    dados.motivo_retirada
+  ) &&
+  !String(
+    dados.cupom_retirada_marketing_link || ""
+  ).trim()
+) {
+  faltantes.push(
+    "cupom de evidência da retirada por Marketing"
+  );
+}
 
   if (faltantes.length) {
     throw new Error("Campos obrigatórios ausentes/inválidos: " + faltantes.join(", "));
@@ -1472,11 +1553,18 @@ function smartSlipUsuarioEhRegional_(usuario) {
 }
 
 function smartSlipGetBaseOperacionalLojas_() {
-  const ss = SpreadsheetApp.openById(SMARTSLIP_BASE_LOJAS_SPREADSHEET_ID);
-  const sh = ss.getSheetByName(SMARTSLIP_ABA_BASE_LOJAS);
+  const ss = SpreadsheetApp.openById(
+    SMARTSLIP_BASE_LOJAS_SPREADSHEET_ID
+  );
+
+  const sh = ss.getSheetByName(
+    SMARTSLIP_ABA_BASE_LOJAS
+  );
 
   if (!sh) {
-    throw new Error("Aba Base não encontrada na planilha operacional de lojas.");
+    throw new Error(
+      "Aba Base não encontrada na planilha operacional de lojas."
+    );
   }
 
   const lastRow = sh.getLastRow();
@@ -1485,68 +1573,149 @@ function smartSlipGetBaseOperacionalLojas_() {
     return [];
   }
 
-  const lastColumn = Math.max(14, sh.getLastColumn());
+  const lastColumn = Math.max(
+    14,
+    sh.getLastColumn()
+  );
 
-  // Cabeçalho na linha 3. Dados a partir da linha 4.
-  const values = sh.getRange(3, 1, lastRow - 2, lastColumn).getValues();
-  const headers = values[0].map(function(h) {
-    return String(h || "").trim();
+  /*
+    Cabeçalho na linha 3.
+    Dados a partir da linha 4.
+  */
+  const values = sh
+    .getRange(
+      3,
+      1,
+      lastRow - 2,
+      lastColumn
+    )
+    .getValues();
+
+  const headers = values[0].map(function(header) {
+    return String(header || "").trim();
   });
 
-  const idxCodigo = smartSlipEncontrarIndiceHeader_(headers, [
-    "Codigo",
-    "Código",
-    "CODIGO",
-    "Cod Loja",
-    "Código Loja",
-    "Loja"
-  ]);
+  const idxCodigo = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "Codigo",
+      "Código",
+      "CODIGO",
+      "Cod Loja",
+      "Código Loja",
+      "Loja"
+    ]
+  );
 
-  const idxShopping = smartSlipEncontrarIndiceHeader_(headers, [
-    "Shopping"
-  ]);
+  const idxShopping = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "Shopping"
+    ]
+  );
 
-  const idxEndereco = smartSlipEncontrarIndiceHeader_(headers, [
-    "Endereço",
-    "Endereco"
-  ]);
+  const idxEndereco = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "Endereço",
+      "Endereco"
+    ]
+  );
 
-  const idxTime = smartSlipEncontrarIndiceHeader_(headers, [
-    "Time"
-  ]);
+  const idxTime = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "Time"
+    ]
+  );
 
-  const idxGerenteRegional = smartSlipEncontrarIndiceHeader_(headers, [
-    "Gerente Regional"
-  ]);
+  const idxGerenteRegional =
+    smartSlipEncontrarIndiceHeader_(
+      headers,
+      [
+        "Gerente Regional"
+      ]
+    );
 
-  const idxEmailRegional = smartSlipEncontrarIndiceHeader_(headers, [
-    "E-mail Regional",
-    "Email Regional",
-    "E-mail do Regional",
-    "Email do Regional"
-  ]);
+  const idxEmailRegional =
+    smartSlipEncontrarIndiceHeader_(
+      headers,
+      [
+        "E-mail Regional",
+        "Email Regional",
+        "E-mail do Regional",
+        "Email do Regional"
+      ]
+    );
 
-  const idxTipoDeposito = smartSlipEncontrarIndiceHeader_(headers, [
-    "Tipo de Depósito",
-    "Tipo de Deposito",
-    "Tipo Depósito",
-    "Tipo Deposito"
-  ]);
+  const idxEmailGerenteLoja =
+    smartSlipEncontrarIndiceHeader_(
+      headers,
+      [
+        "E-mail Gerente Loja",
+        "Email Gerente Loja",
+        "E-mail do Gerente da Loja",
+        "Email do Gerente da Loja",
+        "E-mail Gerente",
+        "Email Gerente"
+      ]
+    );
 
-  const colCodigo = idxCodigo >= 0 ? idxCodigo : 2;                // fallback: coluna C
-  const colShopping = idxShopping >= 0 ? idxShopping : 3;          // fallback: coluna D
-  const colEndereco = idxEndereco >= 0 ? idxEndereco : 4;          // fallback: coluna E
-  const colTime = idxTime >= 0 ? idxTime : 5;                      // fallback: coluna F
-  const colGerenteRegional = idxGerenteRegional >= 0 ? idxGerenteRegional : 6; // fallback: coluna G
-  const colEmailRegional = idxEmailRegional >= 0 ? idxEmailRegional : 7;       // fallback: coluna H
-  const colTipoDeposito = idxTipoDeposito >= 0 ? idxTipoDeposito : 13;         // fallback: coluna N
+  const idxTipoDeposito =
+    smartSlipEncontrarIndiceHeader_(
+      headers,
+      [
+        "Tipo de Depósito",
+        "Tipo de Deposito",
+        "Tipo Depósito",
+        "Tipo Deposito"
+      ]
+    );
+
+  /*
+    Fallbacks de acordo com a estrutura atual da aba Base.
+    Os índices começam em zero.
+  */
+  const colCodigo =
+    idxCodigo >= 0 ? idxCodigo : 2; // coluna C
+
+  const colShopping =
+    idxShopping >= 0 ? idxShopping : 3; // coluna D
+
+  const colEndereco =
+    idxEndereco >= 0 ? idxEndereco : 4; // coluna E
+
+  const colTime =
+    idxTime >= 0 ? idxTime : 5; // coluna F
+
+  const colGerenteRegional =
+    idxGerenteRegional >= 0
+      ? idxGerenteRegional
+      : 6; // coluna G
+
+  const colEmailRegional =
+    idxEmailRegional >= 0
+      ? idxEmailRegional
+      : 7; // coluna H
+
+  const colEmailGerenteLoja =
+    idxEmailGerenteLoja >= 0
+      ? idxEmailGerenteLoja
+      : 8; // coluna I
+
+  const colTipoDeposito =
+    idxTipoDeposito >= 0
+      ? idxTipoDeposito
+      : 13; // coluna N
 
   const lojas = [];
 
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
 
-    const loja4 = smartSlipNormalizarLoja4(row[colCodigo] || "");
+    const loja4 = smartSlipNormalizarLoja4(
+      row[colCodigo] || ""
+    );
 
     if (!loja4) {
       continue;
@@ -1554,13 +1723,39 @@ function smartSlipGetBaseOperacionalLojas_() {
 
     lojas.push({
       loja: loja4,
-      shopping: String(row[colShopping] || "").trim(),
-      endereco: String(row[colEndereco] || "").trim(),
-      time: String(row[colTime] || "").trim(),
-      gerente_regional: String(row[colGerenteRegional] || "").trim(),
-      email_regional: smartSlipNormalizarEmail_(row[colEmailRegional] || ""),
-      tipo_deposito: smartSlipNormalizarTipoDeposito_(row[colTipoDeposito] || ""),
-      tipo_deposito_original: String(row[colTipoDeposito] || "").trim(),
+
+      shopping: String(
+        row[colShopping] || ""
+      ).trim(),
+
+      endereco: String(
+        row[colEndereco] || ""
+      ).trim(),
+
+      time: String(
+        row[colTime] || ""
+      ).trim(),
+
+      gerente_regional: String(
+        row[colGerenteRegional] || ""
+      ).trim(),
+
+      email_regional: smartSlipNormalizarEmail_(
+        row[colEmailRegional] || ""
+      ),
+
+      email_gerente_loja: smartSlipNormalizarEmail_(
+        row[colEmailGerenteLoja] || ""
+      ),
+
+      tipo_deposito: smartSlipNormalizarTipoDeposito_(
+        row[colTipoDeposito] || ""
+      ),
+
+      tipo_deposito_original: String(
+        row[colTipoDeposito] || ""
+      ).trim(),
+
       linha_base: i + 3
     });
   }
@@ -1714,13 +1909,18 @@ function smartSlipNormalizarTipoDeposito_(valor) {
   return "";
 }
 
-function smartSlipConsultarDadosOperacionaisLoja_(lojaInformada) {
-  const loja4Busca = smartSlipNormalizarLoja4(lojaInformada || "");
+function smartSlipConsultarDadosOperacionaisLoja_(
+  lojaInformada
+) {
+  const loja4Busca = smartSlipNormalizarLoja4(
+    lojaInformada || ""
+  );
 
   if (!loja4Busca) {
     return {
       ok: false,
-      erro: "Loja não informada para consulta operacional."
+      erro:
+        "Loja não informada para consulta operacional."
     };
   }
 
@@ -1729,26 +1929,51 @@ function smartSlipConsultarDadosOperacionaisLoja_(lojaInformada) {
   for (let i = 0; i < lojas.length; i++) {
     const item = lojas[i];
 
-    if (item.loja === loja4Busca) {
-      return {
-        ok: true,
-        loja_normalizada: item.loja,
-        shopping: item.shopping || "",
-        endereco: item.endereco || "",
-        tipo_deposito: item.tipo_deposito || "",
-        tipo_deposito_original: item.tipo_deposito_original || "",
-        time: item.time || "",
-        gerente_regional: item.gerente_regional || "",
-        email_regional: item.email_regional || "",
-        linha_base: item.linha_base || ""
-      };
+    if (item.loja !== loja4Busca) {
+      continue;
     }
+
+    return {
+      ok: true,
+
+      loja_normalizada:
+        item.loja,
+
+      shopping:
+        item.shopping || "",
+
+      endereco:
+        item.endereco || "",
+
+      tipo_deposito:
+        item.tipo_deposito || "",
+
+      tipo_deposito_original:
+        item.tipo_deposito_original || "",
+
+      time:
+        item.time || "",
+
+      gerente_regional:
+        item.gerente_regional || "",
+
+      email_regional:
+        item.email_regional || "",
+
+      email_gerente_loja:
+        item.email_gerente_loja || "",
+
+      linha_base:
+        item.linha_base || ""
+    };
   }
 
   return {
     ok: false,
-    erro: "Loja não encontrada na aba Base operacional.",
-    loja_normalizada_tentativa: loja4Busca
+    erro:
+      "Loja não encontrada na aba Base operacional.",
+    loja_normalizada_tentativa:
+      loja4Busca
   };
 }
 
@@ -1765,6 +1990,1750 @@ function smartSlipConsultarDadosOperacionaisLojaJson(lojaInformada) {
       erro: String(err && err.message ? err.message : err)
     });
   }
+}
+
+function smartSlipGetMapaEmpresaPorLoja_() {
+  const mapa = {};
+
+  const ss = SpreadsheetApp.openById(
+    SMARTSLIP_INFO_LIMITES_SPREADSHEET_ID
+  );
+
+  const sh = ss.getSheetByName(
+    SMARTSLIP_ABA_INFO_LIMITES
+  );
+
+  if (!sh || sh.getLastRow() < 2) {
+    return mapa;
+  }
+
+  const values = sh.getDataRange().getValues();
+
+  const headers = values[0].map(function(header) {
+    return String(header || "").trim();
+  });
+
+  const idxLoja = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "Norm_Loja",
+      "NORM_LOJA",
+      "Norm Loja",
+      "Loja",
+      "LOJA"
+    ]
+  );
+
+  let idxEmpresa = smartSlipEncontrarIndiceHeader_(
+    headers,
+    [
+      "EMPRESA0",
+      "EMPRESA",
+      "Empresa"
+    ]
+  );
+
+  if (idxEmpresa < 0) {
+    idxEmpresa = 6;
+  }
+
+  if (idxLoja < 0) {
+    return mapa;
+  }
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+
+    const loja = smartSlipNormalizarLoja4(
+      row[idxLoja] || ""
+    );
+
+    if (!loja) {
+      continue;
+    }
+
+    mapa[loja] = smartSlipNormalizarEmpresa_(
+      row[idxEmpresa] || ""
+    );
+  }
+
+  return mapa;
+}
+
+function smartSlipConverterDataInatividade_(valor) {
+  if (!valor) {
+    return null;
+  }
+
+  if (
+    Object.prototype.toString.call(valor) ===
+      "[object Date]" &&
+    !isNaN(valor.getTime())
+  ) {
+    return new Date(valor.getTime());
+  }
+
+  const texto = String(valor || "").trim();
+
+  let match = texto.match(
+    /^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+
+  if (match) {
+    return new Date(
+      Number(match[3]),
+      Number(match[2]) - 1,
+      Number(match[1]),
+      Number(match[4] || 0),
+      Number(match[5] || 0),
+      Number(match[6] || 0)
+    );
+  }
+
+  match = texto.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+
+  if (match) {
+    return new Date(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      Number(match[4] || 0),
+      Number(match[5] || 0),
+      Number(match[6] || 0)
+    );
+  }
+
+  const data = new Date(texto);
+
+  return isNaN(data.getTime())
+    ? null
+    : data;
+}
+
+function smartSlipCalcularDiasSemEnvio_(
+  ultimoEnvio,
+  dataReferencia
+) {
+  if (
+    !(ultimoEnvio instanceof Date) ||
+    isNaN(ultimoEnvio.getTime())
+  ) {
+    return 0;
+  }
+
+  dataReferencia =
+    dataReferencia instanceof Date
+      ? dataReferencia
+      : new Date();
+
+  /*
+    Calcula dias civis, desconsiderando a diferença
+    de horário entre o envio e a execução da rotina.
+  */
+  const ultimoUtc = Date.UTC(
+    ultimoEnvio.getFullYear(),
+    ultimoEnvio.getMonth(),
+    ultimoEnvio.getDate()
+  );
+
+  const referenciaUtc = Date.UTC(
+    dataReferencia.getFullYear(),
+    dataReferencia.getMonth(),
+    dataReferencia.getDate()
+  );
+
+  return Math.max(
+    0,
+    Math.floor(
+      (referenciaUtc - ultimoUtc) /
+      (24 * 60 * 60 * 1000)
+    )
+  );
+}
+
+function smartSlipValidarDiasDisparoInatividade_(
+  valor,
+  nomeCampo
+) {
+  const numero = Number(
+    String(valor || "")
+      .replace(",", ".")
+      .trim()
+  );
+
+  if (
+    !Number.isInteger(numero) ||
+    numero < 1 ||
+    numero > 365
+  ) {
+    throw new Error(
+      nomeCampo +
+      " deve ser um número inteiro entre 1 e 365 dias."
+    );
+  }
+
+  return numero;
+}
+
+function smartSlipGetConfigInatividade_() {
+  if (SMARTSLIP_MEMO_CONFIG_INATIVIDADE_) {
+    return Object.assign(
+      {},
+      SMARTSLIP_MEMO_CONFIG_INATIVIDADE_
+    );
+  }
+
+  const properties =
+    PropertiesService.getScriptProperties();
+
+  function lerDias(
+    nomePropriedade,
+    valorPadrao
+  ) {
+    const raw =
+      properties.getProperty(
+        nomePropriedade
+      );
+
+    const numero =
+      Number(raw);
+
+    if (
+      !Number.isInteger(numero) ||
+      numero < 1 ||
+      numero > 365
+    ) {
+      return valorPadrao;
+    }
+
+    return numero;
+  }
+
+  const config = {
+    boleto:
+      lerDias(
+        SMARTSLIP_INATIVIDADE_PROP_BOLETO,
+        SMARTSLIP_INATIVIDADE_PADRAO_BOLETO
+      ),
+
+    dep_bancario:
+      lerDias(
+        SMARTSLIP_INATIVIDADE_PROP_DEP_BANCARIO,
+        SMARTSLIP_INATIVIDADE_PADRAO_DEP_BANCARIO
+      ),
+
+    carro_forte:
+      lerDias(
+        SMARTSLIP_INATIVIDADE_PROP_CARRO_FORTE,
+        SMARTSLIP_INATIVIDADE_PADRAO_CARRO_FORTE
+      ),
+
+    atualizado_por:
+      String(
+        properties.getProperty(
+          SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_POR
+        ) || ""
+      ).trim(),
+
+    atualizado_em:
+      String(
+        properties.getProperty(
+          SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_EM
+        ) || ""
+      ).trim()
+  };
+
+  SMARTSLIP_MEMO_CONFIG_INATIVIDADE_ =
+    config;
+
+  return Object.assign(
+    {},
+    config
+  );
+}
+
+function smartSlipSalvarConfigInatividade_(
+  dados
+) {
+  smartSlipAssertUsuarioAutorizado_();
+
+  const usuario =
+    smartSlipGetUsuarioAtual();
+
+  const podeConfigurar =
+    usuario.is_admin === true ||
+    usuario.is_analista_pro === true;
+
+  if (!podeConfigurar) {
+    throw new Error(
+      "Apenas Administrador ou Analista Pro pode alterar os parâmetros de inatividade."
+    );
+  }
+
+  dados = dados || {};
+
+  const config = {
+    boleto:
+      smartSlipValidarDiasDisparoInatividade_(
+        dados.boleto,
+        "O prazo de Boleto"
+      ),
+
+    dep_bancario:
+      smartSlipValidarDiasDisparoInatividade_(
+        dados.dep_bancario,
+        "O prazo de Depósito Bancário"
+      ),
+
+    carro_forte:
+      smartSlipValidarDiasDisparoInatividade_(
+        dados.carro_forte,
+        "O prazo de Carro Forte"
+      )
+  };
+
+  const timezone =
+    Session.getScriptTimeZone() ||
+    "America/Sao_Paulo";
+
+  const atualizadoEm =
+    Utilities.formatDate(
+      new Date(),
+      timezone,
+      "dd/MM/yyyy HH:mm:ss"
+    );
+
+  const atualizadoPor =
+    String(
+      usuario.email ||
+      Session.getActiveUser().getEmail() ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  const properties =
+    PropertiesService.getScriptProperties();
+
+  const valores = {};
+
+  valores[
+    SMARTSLIP_INATIVIDADE_PROP_BOLETO
+  ] = String(config.boleto);
+
+  valores[
+    SMARTSLIP_INATIVIDADE_PROP_DEP_BANCARIO
+  ] = String(config.dep_bancario);
+
+  valores[
+    SMARTSLIP_INATIVIDADE_PROP_CARRO_FORTE
+  ] = String(config.carro_forte);
+
+  valores[
+    SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_POR
+  ] = atualizadoPor;
+
+  valores[
+    SMARTSLIP_INATIVIDADE_PROP_ATUALIZADO_EM
+  ] = atualizadoEm;
+
+  properties.setProperties(
+    valores,
+    false
+  );
+
+  SMARTSLIP_MEMO_CONFIG_INATIVIDADE_ = {
+    boleto:
+      config.boleto,
+
+    dep_bancario:
+      config.dep_bancario,
+
+    carro_forte:
+      config.carro_forte,
+
+    atualizado_por:
+      atualizadoPor,
+
+    atualizado_em:
+      atualizadoEm
+  };
+
+  return Object.assign(
+    {},
+    SMARTSLIP_MEMO_CONFIG_INATIVIDADE_
+  );
+}
+
+function smartSlipGetLimiteInatividadePorTipo_(
+  tipoDeposito
+) {
+  const tipo =
+    smartSlipNormalizarTipoDeposito_(
+      tipoDeposito
+    );
+
+  const config =
+    smartSlipGetConfigInatividade_();
+
+  if (tipo === "Boleto") {
+    return config.boleto;
+  }
+
+  if (tipo === "Dep. Bancário") {
+    return config.dep_bancario;
+  }
+
+  if (tipo === "Carro Forte") {
+    return config.carro_forte;
+  }
+
+  return null;
+}
+
+function smartSlipClassificarInatividade_(
+  tipoDeposito,
+  diasSemEnvio
+) {
+  const limite =
+    smartSlipGetLimiteInatividadePorTipo_(
+      tipoDeposito
+    );
+
+  if (limite === null) {
+    return "SEM_CRITERIO";
+  }
+
+  const dias =
+    Number(diasSemEnvio || 0);
+
+  /*
+    O valor configurado representa exatamente
+    o primeiro dia em que o alerta será crítico.
+  */
+  if (dias >= limite) {
+    return "CRITICO";
+  }
+
+  /*
+    Um dia antes do disparo, a loja entra
+    em status de atenção.
+  */
+  if (
+    limite > 1 &&
+    dias === limite - 1
+  ) {
+    return "ATENCAO";
+  }
+
+  return "NORMAL";
+}
+
+function smartSlipGetConfigInatividadeAppJson() {
+  try {
+    smartSlipAssertUsuarioAutorizado_();
+
+    const usuario =
+      smartSlipGetUsuarioAtual();
+
+    const podeConfigurar =
+      usuario.is_admin === true ||
+      usuario.is_analista_pro === true;
+
+    if (!podeConfigurar) {
+      throw new Error(
+        "Acesso restrito a Administrador e Analista Pro."
+      );
+    }
+
+    return JSON.stringify({
+      ok: true,
+      payload:
+        smartSlipGetConfigInatividade_()
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(
+        err && err.message
+          ? err.message
+          : err
+      )
+    });
+  }
+}
+
+function smartSlipSalvarConfigInatividadeAppJson(
+  dadosJson
+) {
+  try {
+    smartSlipAssertUsuarioAutorizado_();
+
+    let dados = dadosJson || {};
+
+    if (typeof dadosJson === "string") {
+      dados = JSON.parse(
+        dadosJson || "{}"
+      );
+    }
+
+    return JSON.stringify({
+      ok: true,
+      payload:
+        smartSlipSalvarConfigInatividade_(
+          dados
+        )
+    });
+
+  } catch (err) {
+    return JSON.stringify({
+      ok: false,
+      erro: String(
+        err && err.message
+          ? err.message
+          : err
+      )
+    });
+  }
+}
+
+function smartSlipMontarInatividadeLojas_(
+  usuario,
+  aplicarEscopoUsuario
+) {
+  const timezone =
+    Session.getScriptTimeZone() ||
+    "America/Sao_Paulo";
+
+  const agora = new Date();
+
+  const baseOperacional =
+    smartSlipGetBaseOperacionalLojas_();
+
+  const mapaBase = {};
+
+  baseOperacional.forEach(function(item) {
+    const loja = smartSlipNormalizarLoja4(
+      item.loja || ""
+    );
+
+    if (loja) {
+      mapaBase[loja] = item;
+    }
+  });
+
+  const mapaEmpresa =
+    smartSlipGetMapaEmpresaPorLoja_();
+
+  const ss = SpreadsheetApp.openById(
+    SMARTSLIP_DB_SPREADSHEET_ID
+  );
+
+  const sh = ss.getSheetByName(
+    SMARTSLIP_ABA_FILA
+  );
+
+  const mapaUltimoEnvio = {};
+
+  /*
+    Somente lojas que já possuem registro na fila.
+  */
+  if (sh && sh.getLastRow() >= 2) {
+    const lastColumn = Math.max(
+      16,
+      sh.getLastColumn()
+    );
+
+    const values = sh
+      .getRange(
+        2,
+        1,
+        sh.getLastRow() - 1,
+        lastColumn
+      )
+      .getValues();
+
+    values.forEach(function(row) {
+      const loja = smartSlipNormalizarLoja4(
+        row[3] || ""
+      );
+
+      if (!loja) {
+        return;
+      }
+
+      if (
+        aplicarEscopoUsuario === true &&
+        usuario &&
+        !smartSlipUsuarioPodeVerLoja_(
+          usuario,
+          loja
+        )
+      ) {
+        return;
+      }
+
+      const dataRegistro =
+        smartSlipConverterDataInatividade_(
+          row[0]
+        );
+
+      if (!dataRegistro) {
+        return;
+      }
+
+      const anterior =
+        mapaUltimoEnvio[loja];
+
+      if (
+        !anterior ||
+        dataRegistro.getTime() >
+          anterior.data.getTime()
+      ) {
+        mapaUltimoEnvio[loja] = {
+          data: dataRegistro,
+          respostas:
+            smartSlipParseJsonSeguro_(
+              row[15]
+            )
+        };
+      }
+    });
+  }
+
+  const rows = Object.keys(mapaUltimoEnvio)
+    .map(function(loja) {
+      const registro =
+        mapaUltimoEnvio[loja];
+
+      const dadosBase =
+        mapaBase[loja] || {};
+
+      const respostas =
+        registro.respostas || {};
+
+      const tipoDeposito =
+        smartSlipNormalizarTipoDeposito_(
+          dadosBase.tipo_deposito ||
+          respostas.tipo_deposito ||
+          ""
+        );
+
+      const diasSemEnvio =
+        smartSlipCalcularDiasSemEnvio_(
+          registro.data,
+          agora
+        );
+
+      const limiteDias =
+        smartSlipGetLimiteInatividadePorTipo_(
+          tipoDeposito
+        );
+
+      const status =
+        smartSlipClassificarInatividade_(
+          tipoDeposito,
+          diasSemEnvio
+        );
+
+      const empresa =
+        mapaEmpresa[loja] ||
+        smartSlipNormalizarEmpresa_(
+          respostas.empresa || ""
+        );
+
+      const lojaExibicao =
+        empresa === "Centauro"
+          ? "CE" + loja
+          : loja;
+
+      return {
+        loja: loja,
+        loja_exibicao: lojaExibicao,
+        empresa: empresa,
+
+        shopping: String(
+          dadosBase.shopping || ""
+        ).trim(),
+
+        time: String(
+          dadosBase.time ||
+          respostas.time ||
+          ""
+        ).trim(),
+
+        tipo_deposito:
+          tipoDeposito,
+
+        limite_dias:
+          limiteDias,
+
+        dias_sem_envio:
+          diasSemEnvio,
+
+        status:
+          status,
+
+        ultimo_envio:
+          Utilities.formatDate(
+            registro.data,
+            timezone,
+            "dd/MM/yyyy HH:mm"
+          ),
+
+        ultimo_envio_iso:
+          Utilities.formatDate(
+            registro.data,
+            timezone,
+            "yyyy-MM-dd'T'HH:mm:ss"
+          ),
+
+        gerente_regional: String(
+          dadosBase.gerente_regional ||
+          respostas.gerente_regional ||
+          ""
+        ).trim(),
+
+        email_regional:
+          smartSlipNormalizarEmail_(
+            dadosBase.email_regional ||
+            respostas.email_regional ||
+            ""
+          ),
+
+        email_gerente_loja:
+          smartSlipNormalizarEmail_(
+            dadosBase.email_gerente_loja ||
+            ""
+          ),
+
+        alerta_elegivel:
+          status === "CRITICO"
+      };
+    })
+    .sort(function(a, b) {
+      const diferenca =
+        Number(b.dias_sem_envio || 0) -
+        Number(a.dias_sem_envio || 0);
+
+      if (diferenca !== 0) {
+        return diferenca;
+      }
+
+      return String(a.loja || "")
+        .localeCompare(
+          String(b.loja || "")
+        );
+    });
+
+  return {
+    atualizado_em:
+      Utilities.formatDate(
+        agora,
+        timezone,
+        "dd/MM/yyyy HH:mm"
+      ),
+
+    atualizado_hora:
+      Utilities.formatDate(
+        agora,
+        timezone,
+        "HH:mm"
+      ),
+
+    total_lojas:
+      rows.length,
+
+    total_criticas:
+      rows.filter(function(item) {
+        return item.status === "CRITICO";
+      }).length,
+
+    rows: rows
+  };
+}
+
+function smartSlipGetInatividadeLojas(usuario) {
+  usuario =
+    usuario ||
+    smartSlipGetUsuarioAtual();
+
+  return smartSlipMontarInatividadeLojas_(
+    usuario,
+    true
+  );
+}
+
+function smartSlipPrimeiroNomePessoa_(nome) {
+  const primeiro = String(nome || "")
+    .trim()
+    .split(/\s+/)[0] || "Regional";
+
+  return primeiro.charAt(0).toUpperCase() +
+    primeiro.slice(1).toLowerCase();
+}
+
+function smartSlipEscaparHtmlEmail_(valor) {
+  return String(valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function smartSlipIdentificadorLojaAlerta_(item) {
+  item = item || {};
+
+  const loja = smartSlipNormalizarLoja4(
+    item.loja || ""
+  );
+
+  if (item.empresa === "Centauro") {
+    return "CE" + loja;
+  }
+
+  return loja;
+}
+
+function smartSlipMontarTextoAlertaInatividade_(item) {
+  const regional =
+    smartSlipPrimeiroNomePessoa_(
+      item.gerente_regional
+    );
+
+  const loja =
+    smartSlipIdentificadorLojaAlerta_(
+      item
+    );
+
+  return [
+    regional + ", bom dia!",
+    "",
+    "Este é um alerta automático do SmartSlip, gerado pela rotina de monitoramento com apoio de Inteligência Artificial.",
+    "",
+    "A loja " +
+      loja +
+      " está há " +
+      item.dias_sem_envio +
+      " dia(s) sem enviar comprovantes pela plataforma.",
+    "",
+    "Tipo de depósito: " +
+      (
+        item.tipo_deposito ||
+        "Não identificado"
+      ),
+    "Último envio registrado: " +
+      (
+        item.ultimo_envio ||
+        "Não identificado"
+      ),
+    "",
+    "Solicitamos verificar o envio o mais rápido possível, para que a ausência dos comprovantes não prejudique o processo de conciliação financeira.",
+    "",
+    "Acesse o SmartSlip pela plataforma corporativa.",
+    "",
+    "Atenciosamente,",
+    "Vektor - Grupo SBF"
+  ].join("\n");
+}
+
+function smartSlipMontarHtmlAlertaInatividade_(
+  item
+) {
+  const regional =
+    smartSlipEscaparHtmlEmail_(
+      smartSlipPrimeiroNomePessoa_(
+        item.gerente_regional
+      )
+    );
+
+  const loja =
+    smartSlipEscaparHtmlEmail_(
+      smartSlipIdentificadorLojaAlerta_(
+        item
+      )
+    );
+
+  const tipo =
+    smartSlipEscaparHtmlEmail_(
+      item.tipo_deposito ||
+      "Não identificado"
+    );
+
+  const ultimoEnvio =
+    smartSlipEscaparHtmlEmail_(
+      item.ultimo_envio ||
+      "Não identificado"
+    );
+
+  const dias =
+    Number(item.dias_sem_envio || 0);
+
+  return `
+    <div style="
+      margin:0;
+      padding:24px;
+      background:#f4f7f2;
+      font-family:Arial,sans-serif;
+    ">
+      <div style="
+        max-width:680px;
+        margin:0 auto;
+        background:#ffffff;
+        border:1px solid #d9e5d4;
+        border-radius:18px;
+        overflow:hidden;
+        box-shadow:0 14px 34px rgba(0,0,0,.08);
+      ">
+        <div style="
+          padding:22px 26px;
+          background:#050807;
+          border-bottom:4px solid #B5FF20;
+        ">
+          <div style="
+            color:#B5FF20;
+            font-size:12px;
+            font-weight:800;
+            text-transform:uppercase;
+            letter-spacing:.5px;
+          ">
+            Alerta automático SmartSlip
+          </div>
+
+          <div style="
+            margin-top:7px;
+            color:#ffffff;
+            font-size:22px;
+            font-weight:800;
+          ">
+            Loja sem envio de comprovante
+          </div>
+        </div>
+
+        <div style="padding:26px;">
+          <p style="
+            margin:0 0 18px;
+            color:#17211b;
+            font-size:16px;
+          ">
+            <strong>${regional}, bom dia!</strong>
+          </p>
+
+          <p style="
+            margin:0 0 18px;
+            color:#475467;
+            font-size:14px;
+            line-height:1.6;
+          ">
+            Este é um alerta automático do SmartSlip,
+            gerado pela rotina de monitoramento com apoio
+            de Inteligência Artificial.
+          </p>
+
+          <div style="
+            margin:20px 0;
+            padding:18px;
+            background:#fff1f0;
+            border:1px solid #fecdca;
+            border-radius:14px;
+          ">
+            <div style="
+              color:#b42318;
+              font-size:14px;
+              font-weight:800;
+            ">
+              A loja ${loja} está há ${dias}
+              dia(s) sem enviar comprovantes.
+            </div>
+          </div>
+
+          <table style="
+            width:100%;
+            border-collapse:collapse;
+            margin:18px 0;
+          ">
+            <tr>
+              <td style="
+                width:180px;
+                padding:11px;
+                background:#f7faf5;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+                font-weight:700;
+              ">
+                Loja
+              </td>
+
+              <td style="
+                padding:11px;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+              ">
+                ${loja}
+              </td>
+            </tr>
+
+            <tr>
+              <td style="
+                padding:11px;
+                background:#f7faf5;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+                font-weight:700;
+              ">
+                Tipo de depósito
+              </td>
+
+              <td style="
+                padding:11px;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+              ">
+                ${tipo}
+              </td>
+            </tr>
+
+            <tr>
+              <td style="
+                padding:11px;
+                background:#f7faf5;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+                font-weight:700;
+              ">
+                Último envio
+              </td>
+
+              <td style="
+                padding:11px;
+                border:1px solid #e0e9dc;
+                font-size:13px;
+              ">
+                ${ultimoEnvio}
+              </td>
+            </tr>
+          </table>
+
+<p style="
+  margin:20px 0 0;
+  color:#34443a;
+  font-size:14px;
+  line-height:1.65;
+">
+  Solicitamos verificar o envio o mais rápido
+  possível, para que a ausência dos comprovantes
+  não prejudique o processo de conciliação
+  financeira.
+</p>
+
+<div style="
+  width:100%;
+  height:1px;
+  margin:22px 0;
+  background:#dfe8db;
+"></div>
+
+<div style="
+  text-align:center;
+">
+  <p style="
+    margin:0 0 12px;
+    color:#475467;
+    font-size:13px;
+    line-height:1.5;
+  ">
+    Acesse diretamente a plataforma para verificar
+    e regularizar o envio:
+  </p>
+
+  <a
+    href="${smartSlipEscaparHtmlEmail_(SMARTSLIP_URL_ACESSO)}"
+    target="_blank"
+    style="
+      display:inline-block;
+      padding:13px 22px;
+      background:#050807;
+      color:#B5FF20;
+      border:1px solid #B5FF20;
+      border-radius:10px;
+      text-decoration:none;
+      font-size:14px;
+      font-weight:800;
+    "
+  >
+    Acessar o SmartSlip
+  </a>
+</div>
+        </div>
+
+        <div style="
+          padding:16px 26px;
+          background:#005E27;
+          color:#ffffff;
+          font-size:12px;
+        ">
+          Vektor - Grupo SBF · Monitoramento SmartSlip
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function smartSlipLimparControlesAlertasAntigos_(
+  properties,
+  chaveHoje
+) {
+  const todas = properties.getProperties();
+
+  const prefixoHoje =
+    SMARTSLIP_ALERTA_INATIVIDADE_PREFIXO_PROP +
+    chaveHoje +
+    "_";
+
+  Object.keys(todas).forEach(function(chave) {
+    if (
+      chave.indexOf(
+        SMARTSLIP_ALERTA_INATIVIDADE_PREFIXO_PROP
+      ) !== 0
+    ) {
+      return;
+    }
+
+    if (chave.indexOf(prefixoHoje) === 0) {
+      return;
+    }
+
+    properties.deleteProperty(chave);
+  });
+}
+
+function smartSlipCodificarAssuntoUtf8_(texto) {
+  const caracteres = Array.from(
+    String(texto || "")
+  );
+
+  const blocos = [];
+  let blocoAtual = "";
+
+  caracteres.forEach(function(caractere) {
+    const candidato =
+      blocoAtual + caractere;
+
+    const quantidadeBytes =
+      Utilities
+        .newBlob(candidato)
+        .getBytes()
+        .length;
+
+    /*
+      Mantém cada bloco RFC 2047 dentro
+      de um tamanho seguro.
+    */
+    if (
+      quantidadeBytes > 42 &&
+      blocoAtual
+    ) {
+      blocos.push(blocoAtual);
+      blocoAtual = caractere;
+    } else {
+      blocoAtual = candidato;
+    }
+  });
+
+  if (blocoAtual) {
+    blocos.push(blocoAtual);
+  }
+
+  return blocos
+    .map(function(bloco) {
+      const base64 =
+        Utilities.base64Encode(
+          bloco,
+          Utilities.Charset.UTF_8
+        );
+
+      return (
+        "=?UTF-8?B?" +
+        base64 +
+        "?="
+      );
+    })
+    .join("\r\n ");
+}
+
+function smartSlipQuebrarBase64Mime_(base64) {
+  const partes = String(base64 || "")
+    .match(/.{1,76}/g);
+
+  return partes
+    ? partes.join("\r\n")
+    : "";
+}
+
+function smartSlipEnviarEmailUtf8_(opcoes) {
+  opcoes = opcoes || {};
+
+  const destinatario = String(
+    opcoes.to || ""
+  ).trim();
+
+  const copia = String(
+    opcoes.cc || ""
+  ).trim();
+
+  const remetente = String(
+    opcoes.from ||
+    "vektor@gruposbf.com.br"
+  ).trim();
+
+  const nomeRemetente = String(
+    opcoes.name ||
+    "Vektor - Grupo SBF"
+  ).trim();
+
+  const assunto = String(
+    opcoes.subject || ""
+  );
+
+  const corpoTexto = String(
+    opcoes.textBody || " "
+  );
+
+  const corpoHtml = String(
+    opcoes.htmlBody || ""
+  );
+
+  if (!destinatario) {
+    throw new Error(
+      "Destinatário não informado."
+    );
+  }
+
+  if (!assunto) {
+    throw new Error(
+      "Assunto não informado."
+    );
+  }
+
+  const boundary =
+    "smartslip_" +
+    Utilities
+      .getUuid()
+      .replace(/-/g, "");
+
+  const assuntoCodificado =
+    smartSlipCodificarAssuntoUtf8_(
+      assunto
+    );
+
+  const textoBase64 =
+    smartSlipQuebrarBase64Mime_(
+      Utilities.base64Encode(
+        corpoTexto,
+        Utilities.Charset.UTF_8
+      )
+    );
+
+  const htmlBase64 =
+    smartSlipQuebrarBase64Mime_(
+      Utilities.base64Encode(
+        corpoHtml,
+        Utilities.Charset.UTF_8
+      )
+    );
+
+  const cabecalhos = [
+    "From: " +
+      nomeRemetente +
+      " <" +
+      remetente +
+      ">",
+
+    "To: " + destinatario
+  ];
+
+  if (copia) {
+    cabecalhos.push(
+      "Cc: " + copia
+    );
+  }
+
+  cabecalhos.push(
+    "Subject: " + assuntoCodificado
+  );
+
+  cabecalhos.push(
+    "MIME-Version: 1.0"
+  );
+
+  cabecalhos.push(
+    'Content-Type: multipart/alternative; boundary="' +
+      boundary +
+      '"'
+  );
+
+  const mensagemMime = [
+    cabecalhos.join("\r\n"),
+    "",
+
+    "--" + boundary,
+    "Content-Type: text/plain; charset=UTF-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    textoBase64,
+    "",
+
+    "--" + boundary,
+    "Content-Type: text/html; charset=UTF-8",
+    "Content-Transfer-Encoding: base64",
+    "",
+    htmlBase64,
+    "",
+
+    "--" + boundary + "--",
+    ""
+  ].join("\r\n");
+
+  const mensagemRaw =
+    Utilities
+      .base64EncodeWebSafe(
+        mensagemMime,
+        Utilities.Charset.UTF_8
+      )
+      .replace(/=+$/g, "");
+
+  return Gmail.Users.Messages.send(
+    {
+      raw: mensagemRaw
+    },
+    "me"
+  );
+}
+
+function smartSlipEnviarEmailTesteInatividadeParaMim() {
+  /*
+    Informe aqui o seu e-mail corporativo.
+  */
+  const emailTeste = "rodrigo.lisboa@gruposbf.com.br";
+
+  if (
+    !emailTeste ||
+    emailTeste ===
+      "SEU_EMAIL@gruposbf.com.br"
+  ) {
+    throw new Error(
+      "Informe o seu e-mail corporativo na variável emailTeste."
+    );
+  }
+
+  const itemTeste = {
+    loja: "0072",
+    loja_exibicao: "CE0072",
+    empresa: "Centauro",
+
+    shopping: "Shopping Teste",
+    time: "Regional Teste",
+
+    tipo_deposito: "Boleto",
+    limite_dias: 3,
+    dias_sem_envio: 5,
+    status: "CRITICO",
+
+    ultimo_envio:
+      "17/06/2026 08:25",
+
+    ultimo_envio_iso:
+      "2026-06-17T08:25:00",
+
+    gerente_regional:
+      "Rodrigo Lisboa",
+
+    email_regional:
+      emailTeste,
+
+    email_gerente_loja:
+      emailTeste,
+
+    alerta_elegivel:
+      true
+  };
+
+  const identificadorLoja =
+    smartSlipIdentificadorLojaAlerta_(
+      itemTeste
+    );
+
+  /*
+    Emojis criados por código Unicode.
+  */
+  const emojiTeste =
+    String.fromCodePoint(
+      0x1F9EA
+    );
+
+  const emojiAlerta =
+    String.fromCodePoint(
+      0x1F6A8
+    );
+
+  const assunto =
+    emojiTeste +
+    " TESTE | " +
+    emojiAlerta +
+    " ALERTA SMARTSLIP | " +
+    "LOJA SEM ENVIO DE COMPROVANTE: " +
+    identificadorLoja +
+    " " +
+    emojiAlerta;
+
+  const corpoTexto =
+    smartSlipMontarTextoAlertaInatividade_(
+      itemTeste
+    );
+
+  const corpoHtml =
+    smartSlipMontarHtmlAlertaInatividade_(
+      itemTeste
+    );
+
+  const retorno =
+    smartSlipEnviarEmailUtf8_({
+      to: emailTeste,
+
+      from:
+        "vektor@gruposbf.com.br",
+
+      name:
+        "Vektor - Grupo SBF",
+
+      subject:
+        assunto,
+
+      textBody:
+        corpoTexto,
+
+      htmlBody:
+        corpoHtml
+    });
+
+  return {
+    ok: true,
+    mensagem:
+      "E-mail de teste UTF-8 enviado.",
+    destinatario:
+      emailTeste,
+    assunto:
+      assunto,
+    message_id:
+      retorno && retorno.id
+        ? retorno.id
+        : ""
+  };
+}
+
+function smartSlipExecutarAlertasInatividadeDiarios() {
+  const lock = LockService.getScriptLock();
+
+  if (!lock.tryLock(30000)) {
+    return {
+      ok: false,
+      erro: "Já existe uma execução dos alertas em andamento."
+    };
+  }
+
+  try {
+    const timezone =
+      Session.getScriptTimeZone() ||
+      "America/Sao_Paulo";
+
+    const agora = new Date();
+
+    const chaveHoje = Utilities.formatDate(
+      agora,
+      timezone,
+      "yyyyMMdd"
+    );
+
+    const properties =
+      PropertiesService.getScriptProperties();
+
+    smartSlipLimparControlesAlertasAntigos_(
+      properties,
+      chaveHoje
+    );
+
+    const payload = smartSlipMontarInatividadeLojas_(
+      null,
+      false
+    );
+
+    const rows = Array.isArray(payload.rows)
+      ? payload.rows
+      : [];
+
+    const resumo = {
+      ok: true,
+      avaliadas: rows.length,
+      criticas: 0,
+      enviados: 0,
+      ignorados_ja_enviados: 0,
+      sem_destinatario: 0,
+      erros: []
+    };
+
+    rows.forEach(function(item) {
+      if (
+        String(item.status || "").toUpperCase() !==
+        "CRITICO"
+      ) {
+        return;
+      }
+
+      resumo.criticas++;
+
+      const loja = String(
+        item.loja || ""
+      ).trim();
+
+      if (!loja) {
+        resumo.erros.push(
+          "Registro crítico encontrado sem código de loja."
+        );
+
+        return;
+      }
+
+      const chaveControle =
+        SMARTSLIP_ALERTA_INATIVIDADE_PREFIXO_PROP +
+        chaveHoje +
+        "_" +
+        loja;
+
+      /*
+        Impede mais de um envio para a mesma loja
+        durante o mesmo dia.
+      */
+      if (properties.getProperty(chaveControle)) {
+        resumo.ignorados_ja_enviados++;
+        return;
+      }
+
+      const destinatarios = [];
+
+      [
+        item.email_regional,
+        item.email_gerente_loja
+      ].forEach(function(email) {
+        const emailNormalizado =
+          smartSlipNormalizarEmail_(
+            email || ""
+          );
+
+        if (
+          !emailNormalizado ||
+          emailNormalizado.indexOf("@") < 1 ||
+          destinatarios.indexOf(
+            emailNormalizado
+          ) >= 0
+        ) {
+          return;
+        }
+
+        destinatarios.push(
+          emailNormalizado
+        );
+      });
+
+      if (!destinatarios.length) {
+        resumo.sem_destinatario++;
+
+        resumo.erros.push(
+          "Loja " +
+          loja +
+          ": regional e gerente sem e-mail válido."
+        );
+
+        return;
+      }
+
+      const identificador =
+        smartSlipIdentificadorLojaAlerta_(
+          item
+        );
+
+      /*
+        Gera o emoji pelo código Unicode.
+        O assunto será codificado como UTF-8 pela função
+        smartSlipEnviarEmailUtf8_.
+      */
+      const emojiAlerta =
+        String.fromCodePoint(0x1F6A8);
+
+      const assunto =
+        emojiAlerta +
+        " ALERTA SMARTSLIP | " +
+        "LOJA SEM ENVIO DE COMPROVANTE: " +
+        identificador +
+        " " +
+        emojiAlerta;
+
+      const ownerEmail =
+        destinatarios.join(",");
+
+      try {
+        smartSlipEnviarEmailUtf8_({
+          to: ownerEmail,
+
+          cc:
+            SMARTSLIP_EMAIL_ALERTA_INATIVIDADE_CC,
+
+          from:
+            SMARTSLIP_EMAIL_VEKTOR,
+
+          name:
+            "Vektor - Grupo SBF",
+
+          subject:
+            assunto,
+
+          textBody:
+            smartSlipMontarTextoAlertaInatividade_(
+              item
+            ),
+
+          htmlBody:
+            smartSlipMontarHtmlAlertaInatividade_(
+              item
+            )
+        });
+
+        properties.setProperty(
+          chaveControle,
+          Utilities.formatDate(
+            new Date(),
+            timezone,
+            "dd/MM/yyyy HH:mm:ss"
+          )
+        );
+
+        resumo.enviados++;
+
+      } catch (erroEmail) {
+        resumo.erros.push(
+          "Loja " +
+          loja +
+          ": " +
+          String(
+            erroEmail &&
+            erroEmail.message
+              ? erroEmail.message
+              : erroEmail
+          )
+        );
+      }
+    });
+
+    return resumo;
+
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function smartSlipInstalarTriggerAlertaInatividade() {
+  const handler =
+    SMARTSLIP_ALERTA_INATIVIDADE_HANDLER;
+
+  /*
+    Exclui trigger anterior da mesma função
+    para não gerar execuções duplicadas.
+  */
+  ScriptApp.getProjectTriggers()
+    .forEach(function(trigger) {
+      if (
+        trigger.getHandlerFunction() ===
+        handler
+      ) {
+        ScriptApp.deleteTrigger(trigger);
+      }
+    });
+
+  const trigger =
+    ScriptApp.newTrigger(handler)
+      .timeBased()
+      .atHour(8)
+      .nearMinute(0)
+      .everyDays(1)
+      .inTimezone(
+        "America/Sao_Paulo"
+      )
+      .create();
+
+  return {
+    ok: true,
+    mensagem:
+      "Trigger diário criado para aproximadamente 08:00.",
+    trigger_id:
+      trigger.getUniqueId()
+  };
+}
+
+function smartSlipDiagnosticarInatividadeLojas() {
+  const payload =
+    smartSlipMontarInatividadeLojas_(
+      null,
+      false
+    );
+
+  Logger.log(
+    JSON.stringify(
+      payload,
+      null,
+      2
+    )
+  );
+
+  return payload;
+}
+
+function smartSlipResetarControleAlertasInatividadeHoje() {
+  const timezone =
+    Session.getScriptTimeZone() ||
+    "America/Sao_Paulo";
+
+  const chaveHoje =
+    Utilities.formatDate(
+      new Date(),
+      timezone,
+      "yyyyMMdd"
+    );
+
+  const properties =
+    PropertiesService.getScriptProperties();
+
+  const todas =
+    properties.getProperties();
+
+  const prefixoHoje =
+    SMARTSLIP_ALERTA_INATIVIDADE_PREFIXO_PROP +
+    chaveHoje +
+    "_";
+
+  Object.keys(todas).forEach(function(chave) {
+    if (chave.indexOf(prefixoHoje) === 0) {
+      properties.deleteProperty(chave);
+    }
+  });
+
+  return {
+    ok: true,
+    mensagem:
+      "Controle dos alertas de hoje removido."
+  };
 }
 
 function smartSlipTesteSalvarCompleto() {
@@ -2049,6 +4018,205 @@ function smartSlipGetNumberScriptProperty_(nome, valorPadrao) {
   const n = Number(String(raw).replace(",", ".").trim());
 
   return isNaN(n) ? Number(valorPadrao || 0) : n;
+}
+
+function smartSlipAtualizarCotacaoUsdBrl() {
+  const url =
+    "https://api.bcb.gov.br/dados/serie/" +
+    "bcdata.sgs.1/dados/ultimos/1?formato=json";
+
+  const properties =
+    PropertiesService.getScriptProperties();
+
+  const cotacaoAnterior =
+    smartSlipGetNumberScriptProperty_(
+      "SMARTSLIP_IA_USD_BRL",
+      0
+    );
+
+  try {
+    const response =
+      UrlFetchApp.fetch(
+        url,
+        {
+          method: "get",
+
+          headers: {
+            Accept: "application/json"
+          },
+
+          muteHttpExceptions: true
+        }
+      );
+
+    const status =
+      response.getResponseCode();
+
+    const texto =
+      response.getContentText();
+
+    if (status !== 200) {
+      throw new Error(
+        "Banco Central retornou HTTP " +
+        status +
+        ": " +
+        texto
+      );
+    }
+
+    const dados =
+      JSON.parse(texto || "[]");
+
+    if (
+      !Array.isArray(dados) ||
+      !dados.length
+    ) {
+      throw new Error(
+        "A API do Banco Central não retornou cotação."
+      );
+    }
+
+    const cotacao =
+      Number(
+        String(
+          dados[0].valor || ""
+        )
+          .replace(",", ".")
+          .trim()
+      );
+
+    if (
+      !Number.isFinite(cotacao) ||
+      cotacao <= 0
+    ) {
+      throw new Error(
+        "Cotação inválida retornada pelo Banco Central."
+      );
+    }
+
+    const dataCotacao =
+      String(
+        dados[0].data || ""
+      ).trim();
+
+    const timezone =
+      Session.getScriptTimeZone() ||
+      "America/Sao_Paulo";
+
+    const atualizadoEm =
+      Utilities.formatDate(
+        new Date(),
+        timezone,
+        "dd/MM/yyyy HH:mm:ss"
+      );
+
+    properties.setProperties(
+      {
+        SMARTSLIP_IA_USD_BRL:
+          cotacao.toFixed(4),
+
+        SMARTSLIP_IA_USD_BRL_DATA:
+          dataCotacao,
+
+        SMARTSLIP_IA_USD_BRL_ATUALIZADO_EM:
+          atualizadoEm,
+
+        SMARTSLIP_IA_USD_BRL_FONTE:
+          "Banco Central do Brasil - SGS série 1"
+      },
+      false
+    );
+
+    Logger.log(
+      "Cotação USD/BRL atualizada: " +
+      cotacao.toFixed(4) +
+      " | Data BCB: " +
+      dataCotacao
+    );
+
+    return {
+      ok: true,
+      cotacao: cotacao,
+      data_cotacao: dataCotacao,
+      atualizado_em: atualizadoEm,
+      fonte:
+        "Banco Central do Brasil"
+    };
+
+  } catch (err) {
+    /*
+      Em caso de indisponibilidade da API,
+      mantém a última cotação válida gravada.
+    */
+    Logger.log(
+      "Erro ao atualizar cotação USD/BRL: " +
+      String(
+        err && err.message
+          ? err.message
+          : err
+      )
+    );
+
+    return {
+      ok: false,
+
+      cotacao_mantida:
+        cotacaoAnterior,
+
+      erro:
+        String(
+          err && err.message
+            ? err.message
+            : err
+        )
+    };
+  }
+}
+
+function smartSlipInstalarTriggerCotacaoUsdBrl() {
+  const handler =
+    "smartSlipAtualizarCotacaoUsdBrl";
+
+  /*
+    Remove eventual acionador antigo da mesma função,
+    evitando duplicidade.
+  */
+  ScriptApp
+    .getProjectTriggers()
+    .forEach(function(trigger) {
+      if (
+        trigger.getHandlerFunction() ===
+        handler
+      ) {
+        ScriptApp.deleteTrigger(
+          trigger
+        );
+      }
+    });
+
+  /*
+    Consulta a última cotação publicada
+    quatro vezes por dia.
+  */
+  ScriptApp
+    .newTrigger(handler)
+    .timeBased()
+    .everyHours(6)
+    .create();
+
+  /*
+    Já realiza a primeira atualização.
+  */
+  const resultado =
+    smartSlipAtualizarCotacaoUsdBrl();
+
+  return {
+    ok: true,
+    mensagem:
+      "Acionador da cotação instalado.",
+    primeira_atualizacao:
+      resultado
+  };
 }
 
 function smartSlipGetConfigCustoIa_() {
@@ -3227,6 +5395,166 @@ function smartSlipSalvarUploadEmPastaEstruturada(form, respostasUsuario, protoco
   };
 }
 
+function smartSlipSalvarCupomRetiradaMarketing_(
+  form,
+  respostasUsuario,
+  protocolo
+) {
+  if (!form || !form.cupom_retirada_marketing_base64) {
+    return {
+      file_id: "",
+      link: "",
+      nome: ""
+    };
+  }
+
+  respostasUsuario = respostasUsuario || {};
+
+  const loja = respostasUsuario.loja || form.loja;
+
+  const dataMovimentoTexto =
+    smartSlipMontarDataMovimentoTexto(
+      respostasUsuario
+    );
+
+  const dataMovimentoReferencia =
+    respostasUsuario.data_movimento_inicio ||
+    respostasUsuario.data_movimento ||
+    respostasUsuario.data_movimento_fim ||
+    form.data_movimento_inicio ||
+    "";
+
+  if (!loja || !dataMovimentoReferencia) {
+    throw new Error(
+      "Não foi possível definir a pasta do cupom de retirada."
+    );
+  }
+
+  const mimeType = String(
+    form.cupom_retirada_marketing_mime_type ||
+    "application/pdf"
+  ).trim();
+
+  const mimePermitido =
+    mimeType.indexOf("image/") === 0 ||
+    mimeType === "application/pdf";
+
+  if (!mimePermitido) {
+    throw new Error(
+      "O cupom de retirada deve ser uma imagem ou PDF."
+    );
+  }
+
+  const base64Limpo = String(
+    form.cupom_retirada_marketing_base64
+  ).split(",").pop();
+
+  const bytes = Utilities.base64Decode(base64Limpo);
+
+  const limiteBytes = 10 * 1024 * 1024;
+
+  if (bytes.length > limiteBytes) {
+    throw new Error(
+      "O cupom de retirada deve ter no máximo 10 MB."
+    );
+  }
+
+  const pastaDestino =
+    smartSlipObterPastaAnoMesLoja(
+      dataMovimentoReferencia,
+      loja
+    );
+
+  const nomeOriginal = String(
+    form.cupom_retirada_marketing_nome ||
+    "cupom_retirada_marketing.pdf"
+  ).trim();
+
+  const nomeArquivo =
+    smartSlipMontarNomeArquivoComprovante(
+      "RET-MKT-" + protocolo,
+      loja,
+      dataMovimentoTexto,
+      nomeOriginal
+    );
+
+  const blob = Utilities.newBlob(
+    bytes,
+    mimeType,
+    nomeArquivo
+  );
+
+  const file = pastaDestino.createFile(blob);
+
+  return {
+    file_id: file.getId(),
+    link: file.getUrl(),
+    nome: file.getName()
+  };
+}
+
+function smartSlipBuscarCupomRetiradaMarketingPorLote_(
+  sh,
+  protocoloLote
+) {
+  protocoloLote = String(
+    protocoloLote || ""
+  ).trim();
+
+  if (
+    !sh ||
+    !protocoloLote ||
+    sh.getLastRow() < 2
+  ) {
+    return {
+      file_id: "",
+      link: "",
+      nome: ""
+    };
+  }
+
+  const lastCol = Math.max(
+    32,
+    sh.getLastColumn()
+  );
+
+  const values = sh.getRange(
+    2,
+    1,
+    sh.getLastRow() - 1,
+    lastCol
+  ).getValues();
+
+  for (let i = values.length - 1; i >= 0; i--) {
+    const row = values[i];
+
+    const protocoloLoteRow = String(
+      row[18] || ""
+    ).trim();
+
+    const linkCupom = String(
+      row[30] || ""
+    ).trim();
+
+    if (
+      protocoloLoteRow === protocoloLote &&
+      linkCupom
+    ) {
+      return {
+        file_id: String(row[29] || "").trim(),
+        link: linkCupom,
+        nome: String(row[31] || "").trim()
+      };
+    }
+  }
+
+  return {
+    file_id: "",
+    link: "",
+    nome: ""
+  };
+}
+
 function smartSlipCopiarArquivoParaPastaEstruturada(fileId, respostasUsuario, protocolo) {
   respostasUsuario = respostasUsuario || {};
 
@@ -3505,7 +5833,12 @@ function smartSlipGarantirCabecalhoFila() {
     "Tempo Fila (seg)",
     "Tempo Leitura IA (seg)",
     "Tempo Total (seg)",
-    "Sinal Performance"
+    "Sinal Performance",
+
+    // Evidência de retirada solicitada pelo Marketing
+    "Cupom Retirada Marketing ID",
+    "Link Cupom Retirada Marketing",
+    "Nome Cupom Retirada Marketing"
   ];
 
   if (sh.getMaxColumns() < headers.length) {
@@ -3877,6 +6210,38 @@ function smartSlipBuscarLinhaFilaPorProtocolo_(sh, protocolo) {
   return null;
 }
 
+function smartSlipNormalizarMotivoRetirada_(valor) {
+  const raw = String(valor || "").trim();
+
+  if (!raw) {
+    return "";
+  }
+
+  const txt = raw
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const mapa = {
+    "FALTA": "FALTA",
+    "CANCELAMENTO": "CANCELAMENTO",
+    "ESTORNO": "ESTORNO",
+    "REEMBOLSO": "REEMBOLSO",
+    "MARKETING": "MARKETING (RETIRADA DE PRODUTOS)",
+    "MARKETING (RETIRADA DE PRODUTOS)":
+      "MARKETING (RETIRADA DE PRODUTOS)"
+  };
+
+  return mapa[txt] || "";
+}
+
+function smartSlipMotivoRetiradaEhMarketing_(valor) {
+  return smartSlipNormalizarMotivoRetirada_(valor) ===
+    "MARKETING (RETIRADA DE PRODUTOS)";
+}
+
 function smartSlipEnviarComprovanteApp(form) {
   try {
     smartSlipAssertUsuarioAutorizado_();
@@ -3985,24 +6350,55 @@ function smartSlipEnviarComprovanteApp(form) {
       );
     }
 
-    const houveRetiradaValidacao = String(form.houve_retirada) === "true";
-    const valorRetiradaValidacao = Number(form.valor_retirada || 0);
-    const motivoRetiradaValidacao = String(form.motivo_retirada || "").trim();
+      const motivoRetiradaRaw = String(
+        form.motivo_retirada || ""
+      ).trim();
+
+      const motivoRetiradaValidacao =
+        smartSlipNormalizarMotivoRetirada_(
+          motivoRetiradaRaw
+        );
+
+      if (
+        motivoRetiradaRaw &&
+        !motivoRetiradaValidacao
+      ) {
+        throw new Error(
+          "Motivo de retirada inválido. " +
+          "Selecione uma das opções disponíveis."
+        );
+      }
+
+      const houveRetiradaValidacao =
+        !!motivoRetiradaValidacao;
+
+      const valorRetiradaValidacao = Number(
+        form.valor_retirada || 0
+      );
 
     if (valorRetiradaValidacao < 0) {
       throw new Error("O valor da retirada não pode ser negativo.");
     }
 
-    if (houveRetiradaValidacao && (!valorRetiradaValidacao || valorRetiradaValidacao <= 0)) {
-      throw new Error("Informe o valor da retirada quando 'Houve retirada?' estiver marcado como Sim.");
+    if (
+      houveRetiradaValidacao &&
+      (
+        !valorRetiradaValidacao ||
+        valorRetiradaValidacao <= 0
+      )
+    ) {
+      throw new Error(
+        "Informe o valor da retirada."
+      );
     }
 
-    if (houveRetiradaValidacao && !motivoRetiradaValidacao) {
-      throw new Error("Informe o motivo da retirada quando 'Houve retirada?' estiver marcado como Sim.");
-    }
-
-    if (!houveRetiradaValidacao && valorRetiradaValidacao > 0) {
-      throw new Error("Se houver valor de retirada, marque 'Houve retirada?' como Sim.");
+    if (
+      !houveRetiradaValidacao &&
+      valorRetiradaValidacao > 0
+    ) {
+      throw new Error(
+        "Selecione o motivo correspondente à retirada."
+      );
     }
 
     const ehContinuacaoLoteForm = String(form.protocolo_lote || "").trim() !== "";
@@ -4042,7 +6438,7 @@ function smartSlipEnviarComprovanteApp(form) {
       throw new Error("O tipo de depósito enviado não corresponde ao tipo configurado para a loja. Atualize em Configurações.");
     }
 
-    const houveRetiradaResposta = String(form.houve_retirada) === "true";
+    const houveRetiradaResposta = houveRetiradaValidacao;
 
     const respostasUsuario = {
       loja: loja4,
@@ -4055,7 +6451,7 @@ function smartSlipEnviarComprovanteApp(form) {
       houve_retirada: houveRetiradaResposta,
       valor_retirada: houveRetiradaResposta ? Number(form.valor_retirada || 0) : 0,
       motivo_retirada: houveRetiradaResposta
-        ? String(form.motivo_retirada || "").trim()
+        ? motivoRetiradaValidacao
         : "Não houve retirada",
       valores_diarios_movimento: valoresDiariosMovimento,
       pre_validacao_total_ia: preValidacaoTotalIa,
@@ -4157,6 +6553,133 @@ const arquivo = smartSlipSalvarUploadEmPastaEstruturada(
   protocolo
 );
 
+const aplicarRetiradaNesteEnvio =
+  houveRetiradaResposta &&
+  (
+    controleLote.eh_lote !== true ||
+    Number(controleLote.sequencia_lote || 1) === 1
+  );
+
+let cupomRetiradaMarketing = {
+  file_id: "",
+  link: "",
+  nome: ""
+};
+
+/*
+  Se for reenvio, preserva o cupom já vinculado
+  à linha original caso nenhum novo arquivo seja anexado.
+*/
+if (
+  contextoReenvio &&
+  contextoReenvio.row_origem
+) {
+  const rowOrigem = contextoReenvio.row_origem;
+  const respostasOrigem =
+    smartSlipParseJsonSeguro_(rowOrigem[15]);
+
+  cupomRetiradaMarketing = {
+    file_id: String(
+      respostasOrigem
+        .cupom_retirada_marketing_file_id ||
+      rowOrigem[29] ||
+      ""
+    ).trim(),
+
+    link: String(
+      respostasOrigem
+        .cupom_retirada_marketing_link ||
+      rowOrigem[30] ||
+      ""
+    ).trim(),
+
+    nome: String(
+      respostasOrigem
+        .cupom_retirada_marketing_nome ||
+      rowOrigem[31] ||
+      ""
+    ).trim()
+  };
+}
+
+/*
+  Em envio com vários anexos, recupera o cupom
+  armazenado no primeiro anexo do protocolo.
+*/
+if (
+  !cupomRetiradaMarketing.link &&
+  controleLote.eh_lote === true &&
+  Number(controleLote.sequencia_lote || 1) > 1
+) {
+  cupomRetiradaMarketing =
+    smartSlipBuscarCupomRetiradaMarketingPorLote_(
+      sh,
+      controleLote.protocolo_lote
+    );
+}
+
+/*
+  Se um cupom novo foi enviado, ele substitui
+  o cupom anterior.
+*/
+if (
+  smartSlipMotivoRetiradaEhMarketing_(
+    motivoRetiradaValidacao
+  ) &&
+  form.cupom_retirada_marketing_base64
+) {
+  cupomRetiradaMarketing =
+    smartSlipSalvarCupomRetiradaMarketing_(
+      form,
+      respostasUsuario,
+      protocolo
+    );
+}
+
+if (
+  smartSlipMotivoRetiradaEhMarketing_(
+    motivoRetiradaValidacao
+  ) &&
+  aplicarRetiradaNesteEnvio &&
+  !cupomRetiradaMarketing.link
+) {
+  throw new Error(
+    "Anexe o cupom de evidência da retirada solicitada pelo Marketing."
+  );
+}
+
+/*
+  Em um lote com vários anexos, a retirada deve
+  ser aplicada apenas uma vez, no primeiro envio.
+*/
+respostasUsuario.houve_retirada =
+  aplicarRetiradaNesteEnvio;
+
+respostasUsuario.valor_retirada =
+  aplicarRetiradaNesteEnvio
+    ? valorRetiradaValidacao
+    : 0;
+
+respostasUsuario.motivo_retirada =
+  aplicarRetiradaNesteEnvio
+    ? motivoRetiradaValidacao
+    : "Não houve retirada";
+
+respostasUsuario.cupom_retirada_marketing_file_id =
+  aplicarRetiradaNesteEnvio
+    ? cupomRetiradaMarketing.file_id
+    : "";
+
+respostasUsuario.cupom_retirada_marketing_link =
+  aplicarRetiradaNesteEnvio
+    ? cupomRetiradaMarketing.link
+    : "";
+
+respostasUsuario.cupom_retirada_marketing_nome =
+  aplicarRetiradaNesteEnvio
+    ? cupomRetiradaMarketing.nome
+    : "";
+
 const linhaFila = [
   new Date(),
   protocolo,
@@ -4192,8 +6715,17 @@ const linhaFila = [
   "",
   "",
   "",
-  ""
-];
+  "",
+
+  respostasUsuario
+    .cupom_retirada_marketing_file_id || "",
+
+  respostasUsuario
+    .cupom_retirada_marketing_link || "",
+
+  respostasUsuario
+    .cupom_retirada_marketing_nome || ""
+  ];
 
 if (contextoReenvio) {
   sh.getRange(contextoReenvio.row_index, 1, 1, linhaFila.length).setValues([linhaFila]);
@@ -4213,7 +6745,18 @@ if (contextoReenvio) {
       status_lote: controleLote.status_lote,
       mensagem: ignorarTravasIaAdmin
         ? "Comprovante recebido com sucesso em modo administrativo sem travas da IA."
-        : "Comprovante recebido com sucesso."
+        : "Comprovante recebido com sucesso.",
+      cupom_retirada_marketing_file_id:
+        respostasUsuario
+          .cupom_retirada_marketing_file_id || "",
+
+      cupom_retirada_marketing_link:
+        respostasUsuario
+          .cupom_retirada_marketing_link || "",
+
+      cupom_retirada_marketing_nome:
+        respostasUsuario
+          .cupom_retirada_marketing_nome || "",  
     };
 
   } catch (err) {
@@ -4638,10 +7181,24 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
 
   const ignorarTravasIaAdmin = respostasUsuario.ignorar_travas_ia_admin === true;
 
+    /*Cria uma cópia específica para a IA. Os metadados do cupom de retirada não são enviados ao Gemini, e o arquivo do cupom nunca é carregado aqui.*/
+
+  const respostasUsuarioIa =
+    Object.assign({}, respostasUsuario);
+
+  delete respostasUsuarioIa
+    .cupom_retirada_marketing_file_id;
+
+  delete respostasUsuarioIa
+    .cupom_retirada_marketing_link;
+
+  delete respostasUsuarioIa
+    .cupom_retirada_marketing_nome;
+
   let resultado = null;
 
   try {
-    resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuario);
+    resultado = smartSlipChamarGemini(base64, mimeType, respostasUsuarioIa);
   } catch (errGemini) {
     if (!ignorarTravasIaAdmin) {
       throw errGemini;
@@ -4950,6 +7507,29 @@ function smartSlipProcessarComprovanteFila(fileId, respostasUsuario, protocolo) 
       data_geracao_documento: item.data_geracao_documento || "",
       codigo_autenticacao: item.codigo_autenticacao || "",
       link_comprovante: linkComprovante,
+      cupom_retirada_marketing_file_id:
+        aplicarRetiradaNestaLinha
+          ? (
+              respostasUsuario
+                .cupom_retirada_marketing_file_id || ""
+            )
+          : "",
+
+      cupom_retirada_marketing_link:
+        aplicarRetiradaNestaLinha
+          ? (
+              respostasUsuario
+                .cupom_retirada_marketing_link || ""
+            )
+          : "",
+
+      cupom_retirada_marketing_nome:
+        aplicarRetiradaNestaLinha
+          ? (
+              respostasUsuario
+                .cupom_retirada_marketing_nome || ""
+            )
+          : "",
       status_processamento: ignorarTravasIaAdmin
         ? "SALVO_ADMIN_SEM_TRAVAS_IA"
         : "PRONTO_PARA_SALVAR",
@@ -5776,7 +8356,8 @@ function smartSlipGetAdocaoLojasSmartSlip(usuario) {
 
 function smartSlipGetBootstrapApp() {
   try {
-    const usuario = smartSlipGetUsuarioAtual();
+    const usuario =
+      smartSlipGetUsuarioAtual();
 
     let lojasDisponiveis = [];
     let resumoMensal = [];
@@ -5794,59 +8375,158 @@ function smartSlipGetBootstrapApp() {
       rows: []
     };
 
+    let inatividadeLojas = {
+      atualizado_em: "",
+      atualizado_hora: "",
+      total_lojas: 0,
+      total_criticas: 0,
+      rows: []
+    };
+
     try {
-      lojasDisponiveis = smartSlipListarLojasInfoLimites(usuario);
+      lojasDisponiveis =
+        smartSlipListarLojasInfoLimites(
+          usuario
+        );
     } catch (errLojas) {
-      Logger.log("Erro ao carregar lojas disponíveis: " + String(errLojas && errLojas.message ? errLojas.message : errLojas));
+      Logger.log(
+        "Erro ao carregar lojas disponíveis: " +
+        String(
+          errLojas && errLojas.message
+            ? errLojas.message
+            : errLojas
+        )
+      );
+
       lojasDisponiveis = [];
     }
 
     try {
-      resumoMensal = smartSlipGetResumoMensal(usuario);
+      resumoMensal =
+        smartSlipGetResumoMensal(
+          usuario
+        );
     } catch (errResumo) {
-      Logger.log("Erro ao carregar resumo mensal: " + String(errResumo && errResumo.message ? errResumo.message : errResumo));
+      Logger.log(
+        "Erro ao carregar resumo mensal: " +
+        String(
+          errResumo && errResumo.message
+            ? errResumo.message
+            : errResumo
+        )
+      );
+
       resumoMensal = [];
     }
 
     try {
-      resumoDiario = smartSlipGetResumoDiario(usuario);
+      resumoDiario =
+        smartSlipGetResumoDiario(
+          usuario
+        );
     } catch (errDiario) {
-      Logger.log("Erro ao carregar resumo diário: " + String(errDiario && errDiario.message ? errDiario.message : errDiario));
+      Logger.log(
+        "Erro ao carregar resumo diário: " +
+        String(
+          errDiario && errDiario.message
+            ? errDiario.message
+            : errDiario
+        )
+      );
+
       resumoDiario = [];
     }
 
     try {
-      storeSignupMensal = smartSlipGetStoreSignupMensal(usuario);
+      storeSignupMensal =
+        smartSlipGetStoreSignupMensal(
+          usuario
+        );
     } catch (errStoreMensal) {
-      Logger.log("Erro ao carregar Store Sign-up mensal: " + String(errStoreMensal && errStoreMensal.message ? errStoreMensal.message : errStoreMensal));
+      Logger.log(
+        "Erro ao carregar Store Sign-up mensal: " +
+        String(
+          errStoreMensal &&
+          errStoreMensal.message
+            ? errStoreMensal.message
+            : errStoreMensal
+        )
+      );
+
       storeSignupMensal = [];
     }
 
     try {
-      storeSignupDiario = smartSlipGetStoreSignupDiario(usuario);
+      storeSignupDiario =
+        smartSlipGetStoreSignupDiario(
+          usuario
+        );
     } catch (errStoreDiario) {
-      Logger.log("Erro ao carregar Store Sign-up diário: " + String(errStoreDiario && errStoreDiario.message ? errStoreDiario.message : errStoreDiario));
+      Logger.log(
+        "Erro ao carregar Store Sign-up diário: " +
+        String(
+          errStoreDiario &&
+          errStoreDiario.message
+            ? errStoreDiario.message
+            : errStoreDiario
+        )
+      );
+
       storeSignupDiario = [];
     }
 
     try {
-      historico = smartSlipGetHistorico(usuario);
-    } catch (errHist) {
-      Logger.log("Erro ao carregar histórico: " + String(errHist && errHist.message ? errHist.message : errHist));
+      historico =
+        smartSlipGetHistorico(
+          usuario
+        );
+    } catch (errHistorico) {
+      Logger.log(
+        "Erro ao carregar histórico: " +
+        String(
+          errHistorico &&
+          errHistorico.message
+            ? errHistorico.message
+            : errHistorico
+        )
+      );
+
       historico = [];
     }
 
     try {
-      resumoStatus = smartSlipGetResumoStatus(usuario);
+      resumoStatus =
+        smartSlipGetResumoStatus(
+          usuario
+        );
     } catch (errStatus) {
-      Logger.log("Erro ao carregar resumo de status: " + String(errStatus && errStatus.message ? errStatus.message : errStatus));
+      Logger.log(
+        "Erro ao carregar resumo de status: " +
+        String(
+          errStatus && errStatus.message
+            ? errStatus.message
+            : errStatus
+        )
+      );
+
       resumoStatus = [];
     }
 
     try {
-      adocaoLojas = smartSlipGetAdocaoLojasSmartSlip(usuario);
+      adocaoLojas =
+        smartSlipGetAdocaoLojasSmartSlip(
+          usuario
+        );
     } catch (errAdocao) {
-      Logger.log("Erro ao carregar adoção por loja: " + String(errAdocao && errAdocao.message ? errAdocao.message : errAdocao));
+      Logger.log(
+        "Erro ao carregar adoção por loja: " +
+        String(
+          errAdocao && errAdocao.message
+            ? errAdocao.message
+            : errAdocao
+        )
+      );
+
       adocaoLojas = {
         total_lojas_escopo: 0,
         lojas_utilizando: 0,
@@ -5856,10 +8536,47 @@ function smartSlipGetBootstrapApp() {
     }
 
     try {
-      lojasAtencao = smartSlipGetLojasAtencaoOperacional(usuario);
+      lojasAtencao =
+        smartSlipGetLojasAtencaoOperacional(
+          usuario
+        );
     } catch (errLojasAtencao) {
-      Logger.log("Erro ao carregar lojas com atenção operacional: " + String(errLojasAtencao && errLojasAtencao.message ? errLojasAtencao.message : errLojasAtencao));
+      Logger.log(
+        "Erro ao carregar lojas com atenção operacional: " +
+        String(
+          errLojasAtencao &&
+          errLojasAtencao.message
+            ? errLojasAtencao.message
+            : errLojasAtencao
+        )
+      );
+
       lojasAtencao = [];
+    }
+
+    try {
+      inatividadeLojas =
+        smartSlipGetInatividadeLojas(
+          usuario
+        );
+    } catch (errInatividade) {
+      Logger.log(
+        "Erro ao carregar inatividade por loja: " +
+        String(
+          errInatividade &&
+          errInatividade.message
+            ? errInatividade.message
+            : errInatividade
+        )
+      );
+
+      inatividadeLojas = {
+        atualizado_em: "",
+        atualizado_hora: "",
+        total_lojas: 0,
+        total_criticas: 0,
+        rows: []
+      };
     }
 
     return {
@@ -5873,15 +8590,30 @@ function smartSlipGetBootstrapApp() {
       resumo_status: resumoStatus,
       adocao_lojas: adocaoLojas,
       lojas_atencao: lojasAtencao,
+      inatividade_lojas: inatividadeLojas,
       historico: historico
     };
 
   } catch (err) {
-    Logger.log("Erro smartSlipGetBootstrapApp: " + String(err && err.message ? err.message : err));
+    Logger.log(
+      "Erro smartSlipGetBootstrapApp: " +
+      String(
+        err && err.message
+          ? err.message
+          : err
+      )
+    );
 
     return {
       ok: true,
-      erro_bootstrap: String(err && err.message ? err.message : err),
+
+      erro_bootstrap:
+        String(
+          err && err.message
+            ? err.message
+            : err
+        ),
+
       usuario: {
         email: "",
         primeiro_nome: "Usuário",
@@ -5892,6 +8624,7 @@ function smartSlipGetBootstrapApp() {
         can_comp_hub: false,
         loja_padrao: ""
       },
+
       lojas: [],
       resumo_mensal: [],
       resumo_diario: [],
@@ -5900,6 +8633,15 @@ function smartSlipGetBootstrapApp() {
       store_signup_diario: [],
       lojas_atencao: [],
       historico: [],
+
+      inatividade_lojas: {
+        atualizado_em: "",
+        atualizado_hora: "",
+        total_lojas: 0,
+        total_criticas: 0,
+        rows: []
+      },
+
       adocao_lojas: {
         total_lojas_escopo: 0,
         lojas_utilizando: 0,
@@ -6163,6 +8905,30 @@ const valoresDiarios = smartSlipExtrairValoresDiariosCompHub_(jsonOriginalRaw);
         smartSlipGetValorHeaderCompHub(row, headers, ["Link Comprovante"]) || ""
       ),
 
+      cupomRetiradaMarketingId: String(
+        smartSlipGetValorHeaderCompHub(
+          row,
+          headers,
+          ["Cupom Retirada Marketing ID"]
+        ) || ""
+      ),
+
+      linkCupomRetiradaMarketing: String(
+        smartSlipGetValorHeaderCompHub(
+          row,
+          headers,
+          ["Link Cupom Retirada Marketing"]
+        ) || ""
+      ),
+
+      nomeCupomRetiradaMarketing: String(
+        smartSlipGetValorHeaderCompHub(
+          row,
+          headers,
+          ["Nome Cupom Retirada Marketing"]
+        ) || ""
+      ),
+
       // Status operacional vindo da SMARTSLIP_FILA.
       // Se não encontrar protocolo na fila, usa o status da BASE_SMARTSLIP como fallback.
       statusProcessamento: statusOperacional,
@@ -6319,6 +9085,25 @@ function smartSlipGetHistorico(usuario) {
       data_movimento: smartSlipFormatarDataMovimentoHistorico(row[5]),
       link_comprovante: row[11] || "",
       nome_arquivo: row[12] || "",
+      houve_retirada:
+      camposReenvio.houve_retirada === true,
+        valor_retirada:
+          Number(camposReenvio.valor_retirada || 0),
+
+        motivo_retirada:
+          camposReenvio.motivo_retirada || "",
+
+        cupom_retirada_marketing_file_id:
+          camposReenvio
+            .cupom_retirada_marketing_file_id || "",
+
+        cupom_retirada_marketing_link:
+          camposReenvio
+            .cupom_retirada_marketing_link || "",
+
+        cupom_retirada_marketing_nome:
+          camposReenvio
+            .cupom_retirada_marketing_nome || "",
       status_fila: statusFila,
       mensagem: row[14] || "",
 
@@ -6573,6 +9358,24 @@ function smartSlipMontarCamposReenvioHistorico_(row) {
     ? String(respostas.motivo_retirada || "").trim()
     : String(row[8] || "").trim();
 
+    const cupomRetiradaMarketingFileId = String(
+  respostas.cupom_retirada_marketing_file_id ||
+  row[29] ||
+  ""
+).trim();
+
+const cupomRetiradaMarketingLink = String(
+  respostas.cupom_retirada_marketing_link ||
+  row[30] ||
+  ""
+).trim();
+
+const cupomRetiradaMarketingNome = String(
+  respostas.cupom_retirada_marketing_nome ||
+  row[31] ||
+  ""
+).trim();
+
   return {
     loja: smartSlipNormalizarLoja4(respostas.loja || row[3] || ""),
     data_movimento_inicio_input: smartSlipConverterDataParaInputHistorico_(inicioRaw),
@@ -6583,6 +9386,15 @@ function smartSlipMontarCamposReenvioHistorico_(row) {
     motivo_retirada: houveRetirada
       ? motivoRetirada
       : "Não houve retirada",
+    
+    cupom_retirada_marketing_file_id:
+    cupomRetiradaMarketingFileId,
+
+  cupom_retirada_marketing_link:
+    cupomRetiradaMarketingLink,
+
+  cupom_retirada_marketing_nome:
+    cupomRetiradaMarketingNome,
 
     // Novo: valores informados no envio original.
     // Para envios antigos que ainda não tinham essa estrutura, ficará null.
